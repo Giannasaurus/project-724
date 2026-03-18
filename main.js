@@ -1,4 +1,6 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, Menu } = require('electron')
+
+process.env.NODE_ENV === 'production'
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -16,9 +18,39 @@ app.whenReady().then(() => {
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+
+    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
+    Menu.setApplicationMenu(mainMenu)
 })
 
 // for Windows and Linux
 app.on('window-all-closed', () => {
     if (process.platform != 'darwin') app.quit()
 })
+
+const mainMenuTemplate = [
+    {
+        label: 'Quit',
+        click() {
+            app.quit()
+        }
+    }
+]
+
+if (process.env.NODE_ENV !== 'production') {
+    mainMenuTemplate.push({
+        label: 'Developer Tools',
+        submenu: [
+            {
+                label: 'Toggle Devtools',
+                accelerator: process.platform == 'darwin' ? 'Fn+F12' : 'F12',
+                click(item, focusedWindow) {
+                    focusedWindow.toggleDevTools()
+                }
+            },
+            {
+                role: 'reload'
+            }
+        ]
+    })
+}

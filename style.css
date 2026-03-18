@@ -1,0 +1,38 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: row;
+    margin: 16px;
+}
+
+nav {
+    border: 1px solid black;
+    padding: 16px;
+}
+
+nav ul li {
+    list-style-type: none;
+}
+
+button {
+    background-color: lightgray;
+    border: none;
+    border-radius: 24px;
+    padding: 8px;
+    margin-bottom: 8px;
+}
+
+button:hover {
+    background-color: gray;
+}
+
+#main {
+    border: 1px solid black;
+    width: 100%;
+    padding: 16px;
+}
