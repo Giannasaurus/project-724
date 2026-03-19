@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+:root {
+    --font-size-regular: 1.05rem;
+    --font-size-abitbiggerthanregular: 1.1rem;
+    --label-margin: 0 0 4px 0;
+    --input-background-color: #FFF;
+    --input-border: 2px solid #C0C0C0;
+    --input-corner-radius: 12px;
+    --input-padding: 12px 12px;
+    --input-margin: 0 0 16px 0;
+    --login-button-margin: 4px 0 0 0;
+    --button-corner-radius: 12px;
+    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    padding: 16px;
+    max-height: 100vh;
+}
+
+* {
+    border: none;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+#loginBody {
+    padding: 0 200px;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+    margin: auto;
+}
+
+#loginForm h1 {
+    color: #000;
+    text-align: center;
+}
+
+#loginForm img {
+    width: 125px;
+    height: auto;
+}
+
+#inputContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    justify-content: center;
+}
+
+label {
+    font-size: var(--font-size-regular);
+    display: inline-block;
+    margin: var(--label-margin);
+}
+
+input[type="text"], input[type="password"] {
+    background-color: var(--input-background-color);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    padding: var(--input-padding);
+    margin: var(--input-margin);
+    width: 300px;
+}
+
+#loginButton {
+    background-color: lightgrey;
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 12px 24px;
+    margin: var(--login-button-margin);
+}
+
+#loginButton:hover {
+    background-color: gray;
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+nav {
+    border: 1px solid black;
+    padding: 16px;
+}
+
+nav ul li {
+    list-style-type: none;
+}
+
+button:hover {
+    background-color: gray;
+}
+
+#main {
+    border: 1px solid black;
+    width: 100%;
+    padding: 16px;
+}
