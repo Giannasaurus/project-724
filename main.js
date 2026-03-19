@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Menu } = require('electron')
 
-process.env.NODE_ENV === 'production'
+process.env.NODE_ENV == 'production'
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -31,6 +31,7 @@ app.on('window-all-closed', () => {
 const mainMenuTemplate = [
     {
         label: 'Quit',
+        accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
         click() {
             app.quit()
         }
