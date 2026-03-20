@@ -24,10 +24,26 @@ if(app.Environment.IsDevelopment()) {
 }
 
 
+
 // GET all 
 app.MapGet("/residents", async (AppDbContext db) => {
     return await db.Residents.AsNoTracking().ToListAsync();
 });
+
+
+
+// GET from index to limit
+app.MapGet("/residents/from", async (int? index, int? limit, AppDbContext db) => {
+    int pageIndex = index ?? 0;
+    int pageLimit = limit ?? 50;
+
+    return await db.Residents
+        .AsNoTracking()
+        .Skip(pageIndex)
+        .Take(pageLimit)
+        .ToListAsync();
+});
+
 
 
 // GET resident w/ {id}
