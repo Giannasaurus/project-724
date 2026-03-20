@@ -75,6 +75,7 @@ app.MapPut("/residents/{id}", async (int id, Resident changes, AppDbContext db) 
     resident.MiddleName = changes.MiddleName;
     resident.LastName = changes.LastName;
     resident.BirthDate = changes.BirthDate;
+    resident.IsPwdOrSenior = changes.IsPwdOrSenior;
     resident.Gender = changes.Gender;
     resident.CivilStatus = changes.CivilStatus;
     resident.Address = changes.Address;
