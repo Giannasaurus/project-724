@@ -25,11 +25,22 @@
 }
 
 html, body {
-    height: 100%;
 }
 
 #loginBody {
-    padding: 0 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+#loginBody h1 {
+    color: #000;
+    text-align: center;
+}
+
+#loginBody img {
+    width: 125px;
+    height: auto;
+    margin: 0 auto;
 }
 
 #loginForm {
@@ -38,16 +49,6 @@ html, body {
     gap: 24px;
     align-items: center;
     margin: auto;
-}
-
-#loginForm h1 {
-    color: #000;
-    text-align: center;
-}
-
-#loginForm img {
-    width: 125px;
-    height: auto;
 }
 
 #inputContainer {
