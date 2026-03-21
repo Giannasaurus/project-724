@@ -1,14 +1,19 @@
+require('dotenv').config()
 const { app, BrowserWindow, Menu } = require('electron')
-
-process.env.NODE_ENV == 'production'
+const path = require('node:path')
+console.log(process.env.UN, process.env.PW)
 
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
-        height: 600
+        height: 600,
+        webPreferences: {
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        }
     })
 
-    win.loadFile('public/login.html')
+    win.loadFile('renderer/index.html')
 }
 
 app.whenReady().then(() => {
