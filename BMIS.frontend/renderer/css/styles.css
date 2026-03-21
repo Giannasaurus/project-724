@@ -140,12 +140,12 @@ input[type="password"]:focus {
     padding: 8px 12px;
 }
 
-nav ul li {
-    list-style-type: none;
-}
-
-main {
+#testDataContainer {
     border: 1px solid black;
     width: 100%;
     padding: 16px;
+}
+
+#testDataTable {
+    width: 100%;
 }

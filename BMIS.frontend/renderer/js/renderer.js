@@ -51,11 +51,46 @@ async function loadHome(file) {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
         const text = await response.text()
         app.innerHTML = text
-        console.log("Fetched login.html.")
+        console.log("Fetched home.html.")
     }
     catch (error) {
         console.error("Cannot fetch home.html.", error)
         app.innerHTML = "<p>Error loading content.</p>"
+        return
+    }
+    
+    loadTestData("testData/data.json")
+}
+
+async function loadTestData(datafile) {
+    const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Gender", "Civil Status", "PWD/Senior"]
+    const testDataContainer = document.getElementById('testDataContainer')
+    let data
+    
+    try {
+        const response = await fetch(datafile)
+        console.log(response)
+        if (!response.ok) throw new Error(response.status)
+        data = await response.json()
+        console.log(data)
+        console.log("Fetched test data from data.json")
+        
+        const table = document.createElement('table')
+        table.setAttribute('id', 'testDataTable')
+        const tableHeader = document.createElement('thead')
+        
+        for (let i = 0; i < fieldNames.length; i++) {
+            const header = document.createElement('th')
+            header.textContent = fieldNames[i]
+            tableHeader.appendChild(header)
+        }
+        
+        table.appendChild(tableHeader)
+        testDataContainer.appendChild(table)
+    }
+    catch (error) {
+        console.error("Cannot fetch test data.", error)
+        testDataContainer.innerHTML = "<p>Error loading test data.</p>"
         return
     }
 }
