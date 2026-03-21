@@ -1,7 +1,6 @@
 require('dotenv').config()
 const { app, BrowserWindow, Menu } = require('electron')
 const path = require('node:path')
-console.log(process.env.UN, process.env.PW)
 
 const createWindow = () => {
     const win = new BrowserWindow({

@@ -8,38 +8,28 @@ loadLogin("login.html")
 async function loadLogin(file) {
     try {
         const response = await fetch(file)
-        if (!response.ok) {
-            throw new Error(`HTTP error! Response: ${response.status}`)
-        }
-        const data = await response.text()
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+            const data = await response.text()
         app.innerHTML = data
+        console.log("Fetched login.html.")
     }
     catch (error) {
-        console.error("Cannot fetch file.", error)
-        document.body.innerHTML = "Error loading login page."
+        console.error("Cannot fetch login.html.", error)
+        document.body.innerHTML = "<p>Error loading login page.</p>"
+        return
     }
 
     const username = document.getElementById('usernameInput')
     const password = document.getElementById('passwordInput')
     const loginForm = document.getElementById('loginForm')
-    try {
-        if (!loginForm) {
-            console.log("no login form detected")
-            throw new Error(e)
-        }
-    }
-    catch (e) {
-        console.error(e)
-    }
-    const loginErrorMessage = document.getElementById('loginErrorMessage')
-
+    
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault()
+        const loginErrorMessage = document.getElementById('loginErrorMessage')
 
         if (username.value === un && password.value === pw) {
             loadHome("home.html")
         } else {
-            console.log(un, pw)
             loginErrorMessage.textContent = "Incorrect username/password"
         }
 
@@ -55,17 +45,17 @@ async function loadLogin(file) {
 }
 
 async function loadHome(file) {
-    console.log("Called loadHome()")
     try {
         const response = await fetch(file)
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`)
-        }
+        console.log(response)
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
         const text = await response.text()
         app.innerHTML = text
+        console.log("Fetched login.html.")
     }
     catch (error) {
-        console.error("Cannot load HTML file: ", error)
+        console.error("Cannot fetch home.html.", error)
         app.innerHTML = "<p>Error loading content.</p>"
+        return
     }
 }
