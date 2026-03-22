@@ -18,18 +18,29 @@ async function loadLogin(file) {
         document.body.innerHTML = "<p>Error loading login page.</p>"
         return
     }
-    
+
     const loginForm = document.getElementById('loginForm')
-    
+
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
         const username = document.getElementById('usernameInput')
         const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
+
+        const [result] = await window.electronAPI.checkLogin(username.value, password.value)
+        console.log(result)
+        if (result) {
+            loadHome("home.html")
+        }
+        else {
+            loginErrorMessage.textContent = "Incorrect username/password"
+            return
+        }
         
-        const result = await window.electronAPI.checkLogin(username.value, password.value)
-        if (result) loadHome("home.html")
-        else loginErrorMessage.textContent = "Incorrect username/password"
+        if (localStorage.length == 0) {
+            localStorage.setItem('username', JSON.stringify(username.value))
+            localStorage.setItem('password', JSON.stringify(password.value))
+        }
     })
 }
 
@@ -75,20 +86,20 @@ async function loadTestData(datafile) {
 
         data.forEach(resident => {
             const tableRow = document.createElement('tr')
-            
+
             const inhabitantFullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
-            
+
             const entry = [resident.id, inhabitantFullName, resident.BirthDate, resident.Gender, resident.CivilStatus]
-            
+
             entry.forEach(cell => {
                 const tableData = document.createElement('td')
                 tableData.textContent = cell
                 tableRow.appendChild(tableData)
             })
-            
+
             tableBody.appendChild(tableRow)
         })
-        
+
         table.appendChild(tableHeader)
         table.appendChild(tableBody)
         testDataContainer.appendChild(table)
