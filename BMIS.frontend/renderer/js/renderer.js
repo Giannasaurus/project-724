@@ -1,6 +1,3 @@
-const un = window.env.username
-const pw = window.env.password
-
 const app = document.getElementById('app')
 
 loadLogin("login.html")
