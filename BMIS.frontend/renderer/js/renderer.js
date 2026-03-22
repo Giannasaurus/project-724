@@ -22,17 +22,15 @@ async function loadLogin(file) {
     const username = document.getElementById('usernameInput')
     const password = document.getElementById('passwordInput')
     const loginForm = document.getElementById('loginForm')
-
-    loginForm.addEventListener('submit', (e) => {
+    
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
         const loginErrorMessage = document.getElementById('loginErrorMessage')
-
-        if (username.value === un && password.value === pw) {
-            loadHome("home.html")
-        } else {
-            loginErrorMessage.textContent = "Incorrect username/password"
-        }
-
+        
+        const result = await window.electronAPI.checkLogin(username.value, password.value)
+        if (result) loadHome("home.html")
+        else loginErrorMessage.textContent = "Incorrect username/password"
+        
         console.log({
             enteredUsername: username.value,
             enteredPassword: password.value,

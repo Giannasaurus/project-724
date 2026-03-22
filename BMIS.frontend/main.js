@@ -1,6 +1,19 @@
 require('dotenv').config()
-const { app, BrowserWindow, Menu } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const path = require('node:path')
+
+/*
+function checkLogin(username, password, loginErrorMessage) {
+    console.log(username, password)
+    
+    if (username.value === un && password.value === pw) {
+        return username, password
+    } else {
+        
+        return loginErrorMessage
+    } 
+}
+*/
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -16,6 +29,9 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+    ipcMain.handle('check-login', (e, username, password) => {
+        return username === process.env.UN && password === process.env.PW
+     })
     createWindow()
 
     // for MacOS
@@ -59,3 +75,5 @@ if (process.env.NODE_ENV !== 'production') {
         ]
     })
 }
+
+// Persist login credentials (development)

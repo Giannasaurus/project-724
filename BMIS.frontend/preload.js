@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('versions', {
     node: () => process.versions.node,
@@ -9,4 +9,8 @@ contextBridge.exposeInMainWorld('versions', {
 contextBridge.exposeInMainWorld('env', {
     username: process.env.UN,
     password: process.env.PW
+})
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    checkLogin: (username, password) => ipcRenderer.invoke('check-login', username, password)
 })
