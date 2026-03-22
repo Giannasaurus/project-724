@@ -58,15 +58,15 @@ async function loadHome(file) {
         app.innerHTML = "<p>Error loading content.</p>"
         return
     }
-    
+
     loadTestData("testData/data.json")
 }
 
 async function loadTestData(datafile) {
-    const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Gender", "Civil Status", "PWD/Senior"]
+    const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "PWD/Senior"]
     const testDataContainer = document.getElementById('testDataContainer')
     let data
-    
+
     try {
         const response = await fetch(datafile)
         console.log(response)
@@ -74,18 +74,38 @@ async function loadTestData(datafile) {
         data = await response.json()
         console.log(data)
         console.log("Fetched test data from data.json")
-        
+
         const table = document.createElement('table')
         table.setAttribute('id', 'testDataTable')
         const tableHeader = document.createElement('thead')
-        
-        for (let i = 0; i < fieldNames.length; i++) {
+
+        fieldNames.forEach(field => {
             const header = document.createElement('th')
-            header.textContent = fieldNames[i]
+            header.textContent = field
             tableHeader.appendChild(header)
-        }
+        })
+
+        const tableBody = document.createElement('tbody')
+
+        data.forEach(resident => {
+            const tableRow = document.createElement('tr')
+            
+            const inhabitantFullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
+            
+            const entry = [resident.id, inhabitantFullName, resident.BirthDate, resident.Gender, resident.CivilStatus]
+            console.log(entry)
+            
+            entry.forEach(cell => {
+                const tableData = document.createElement('td')
+                tableData.textContent = cell
+                tableRow.appendChild(tableData)
+            })
+            
+            tableBody.appendChild(tableRow)
+        })
         
         table.appendChild(tableHeader)
+        table.appendChild(tableBody)
         testDataContainer.appendChild(table)
     }
     catch (error) {
