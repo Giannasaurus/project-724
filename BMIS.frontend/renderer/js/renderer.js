@@ -18,34 +18,24 @@ async function loadLogin(file) {
         document.body.innerHTML = "<p>Error loading login page.</p>"
         return
     }
-
-    const username = document.getElementById('usernameInput')
-    const password = document.getElementById('passwordInput')
+    
     const loginForm = document.getElementById('loginForm')
     
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
+        const username = document.getElementById('usernameInput')
+        const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
         
         const result = await window.electronAPI.checkLogin(username.value, password.value)
         if (result) loadHome("home.html")
         else loginErrorMessage.textContent = "Incorrect username/password"
-        
-        console.log({
-            enteredUsername: username.value,
-            enteredPassword: password.value,
-            expectedUsername: un,
-            expectedPassword: pw,
-            usernameMatch: username.value === un,
-            passwordMatch: password.value === pw
-        })
     })
 }
 
 async function loadHome(file) {
     try {
         const response = await fetch(file)
-        console.log(response)
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
         const text = await response.text()
         app.innerHTML = text
@@ -67,10 +57,8 @@ async function loadTestData(datafile) {
 
     try {
         const response = await fetch(datafile)
-        console.log(response)
         if (!response.ok) throw new Error(response.status)
         data = await response.json()
-        console.log(data)
         console.log("Fetched test data from data.json")
 
         const table = document.createElement('table')
@@ -91,7 +79,6 @@ async function loadTestData(datafile) {
             const inhabitantFullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
             
             const entry = [resident.id, inhabitantFullName, resident.BirthDate, resident.Gender, resident.CivilStatus]
-            console.log(entry)
             
             entry.forEach(cell => {
                 const tableData = document.createElement('td')
