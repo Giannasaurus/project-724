@@ -17,7 +17,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
     ipcMain.handle('check-login', (e, username, password) => {
-        return [username === process.env.UN && password === process.env.PW]
+        return username === process.env.UN && password === process.env.PW
     })
     createWindow()
 

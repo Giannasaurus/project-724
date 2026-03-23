@@ -1,6 +1,12 @@
 const app = document.getElementById('app')
 
-loadLogin("login.html")
+// skip login (dev)
+if (localStorage.getItem("username")) {
+    loadHome("home.html")
+}
+else {
+    loadLogin("login.html")
+}
 
 async function loadLogin(file) {
     try {
@@ -20,23 +26,20 @@ async function loadLogin(file) {
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
+
         const username = document.getElementById('usernameInput')
         const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
-
-        const [result] = await window.electronAPI.checkLogin(username.value, password.value)
-        console.log(result)
+        
+        const result = await window.electronAPI.checkLogin(username.value, password.value)
+        
         if (result) {
+            localStorage.setItem('username', JSON.stringify(username.value))
+            localStorage.setItem('password', JSON.stringify(password.value))
             loadHome("home.html")
         }
         else {
-            loginErrorMessage.textContent = "Incorrect username/password"
-            return
-        }
-        
-        if (localStorage.length == 0) {
-            localStorage.setItem('username', JSON.stringify(username.value))
-            localStorage.setItem('password', JSON.stringify(password.value))
+            return loginErrorMessage.textContent = "Incorrect username/password"
         }
     })
 }
