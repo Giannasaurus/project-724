@@ -1,12 +1,8 @@
 const app = document.getElementById('app')
 
 // skip login (dev)
-if (localStorage.getItem("username")) {
-    loadHome("home.html")
-}
-else {
-    loadLogin("login.html")
-}
+if (localStorage.getItem("username")) loadHome("home.html")
+else loadLogin("login.html")
 
 async function loadLogin(file) {
     try {
@@ -34,8 +30,8 @@ async function loadLogin(file) {
         const result = await window.electronAPI.checkLogin(username.value, password.value)
         
         if (result) {
-            localStorage.setItem('username', JSON.stringify(username.value))
-            localStorage.setItem('password', JSON.stringify(password.value))
+            localStorage.setItem('username', username.value)
+            localStorage.setItem('password', password.value)
             loadHome("home.html")
         }
         else {
@@ -59,6 +55,7 @@ async function loadHome(file) {
     }
 
     loadTestData("testData/data.json")
+    loadTestData("")
 }
 
 async function loadTestData(datafile) {
@@ -100,8 +97,7 @@ async function loadTestData(datafile) {
             tableBody.appendChild(tableRow)
         })
 
-        table.appendChild(tableHeader)
-        table.appendChild(tableBody)
+        table.append(tableHeader, tableBody)
         testDataContainer.appendChild(table)
     }
     catch (error) {
