@@ -2,32 +2,22 @@ const app = document.getElementById('app')
 
 // skip login (dev)
 if (localStorage.getItem("username")) loadApp("app.html")
-    else loadLogin("login.html")
+else loadLogin("login.html")
 
 async function loadLogin(file) {
-    try {
-        const response = await fetch(file)
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-            const data = await response.text()
-        app.innerHTML = data
-        console.log("Fetched login.html.")
-    }
-    catch (error) {
-        console.error("Cannot fetch login.html.", error)
-        return document.body.innerHTML = "<p>Error loading login page.</p>"
-    }
-    
+    await fetchFile("login.html", app)
+
     const loginForm = document.getElementById('loginForm')
-    
+
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
-        
+
         const username = document.getElementById('usernameInput')
         const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
-        
+
         const result = await window.electronAPI.checkLogin(username.value, password.value)
-        
+
         if (result) {
             localStorage.setItem('username', username.value)
             localStorage.setItem('password', password.value)
@@ -40,27 +30,16 @@ async function loadLogin(file) {
 }
 
 async function loadApp(file) {
-    try {
-        const response = await fetch(file)
-        if (!response.ok) throw new Error(`${response.status}`)
-            const text = await response.text()
-        app.innerHTML = text
-        console.log("Fetched app.html.")
-    }
-    catch (error) {
-        console.error("Cannot fetch app.html.")
-        return app.innerHTML = "<p>Error loading content.</p>"
-    }
-    
+    await fetchFile("app.html", app)
     loadInhabitantList("inhabitantList.html")
-    
+
     const inhabitantList = document.getElementById('inhabitantList')
     const home = document.getElementById('home')
-    
+
     inhabitantList.addEventListener('click', () => {
         loadInhabitantList("inhabitantList.html")
     })
-    
+
     home.addEventListener('click', () => {
         loadHome("home.html")
     })
@@ -68,35 +47,12 @@ async function loadApp(file) {
 
 async function loadHome(file) {
     const mainBody = document.getElementById('mainBody')
-
-    try {
-        const response = await fetch(file)
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-        const text = await response.text()
-        mainBody.innerHTML = text
-        console.log("Fetched home.html.")
-    }
-    catch (error) {
-        console.error("Cannot fetch home.html.", error)
-        return mainBody.innerHTML = "<p>Error loading content.</p>"
-    }
+    await fetchFile("home.html", mainBody)
 }
 
 async function loadInhabitantList(file) {
     const mainBody = document.getElementById('mainBody')
-    
-    try {
-        const response = await fetch(file)
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-        const text = await response.text()
-        mainBody.innerHTML = text
-        console.log("Fetched inhabitantList.html.")
-    }
-    catch (error) {
-        console.error("Cannot fetch inhabitantList.html.", error)
-        return mainBody.innerHTML = "<p>Error loading content.</p>"
-    }
-
+    await fetchFile("inhabitantList.html", mainBody)
     loadTestData("testData/data.json")
 }
 
@@ -146,5 +102,19 @@ async function loadTestData(datafile) {
         console.error("Cannot fetch test data.", error)
         testDataContainer.innerHTML = "<p>Error loading test data.</p>"
         return
+    }
+}
+
+async function fetchFile(file, container) {
+    try {
+        const response = await fetch(file)
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+        const data = await response.text()
+        container.innerHTML = data
+        console.log(`Fetched ${file}`)
+    }
+    catch (error) {
+        console.error(`Cannot fetch ${file}`, error)
+        return document.body.innerHTML = `<p>Error loading ${file} page.</p>`
     }
 }
