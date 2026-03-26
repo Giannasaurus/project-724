@@ -3,7 +3,7 @@ const app = document.getElementById('app')
 // skip login (dev)
 localStorage.getItem("username") ? loadApp() : loadLogin()
 
-async function loadLogin(file) {
+async function loadLogin() {
     await fetchFile("login.html", app)
 
     const loginForm = document.getElementById('loginForm')
@@ -30,38 +30,63 @@ async function loadLogin(file) {
 
 async function loadApp() {
     await fetchFile("app.html", app)
-    
-    const mainBody = document.getElementById('mainBody')
+
     const mainNav = document.getElementById('mainNav')
-    
-    await fetchFile("inhabitantList.html", mainBody)
+    const mainBody = document.getElementById('mainBody')
+    const settingsDialog = document.getElementById('settingsDialog')
+    const closeBtn = document.getElementById('closeBtn')
+
+    await fetchFile("home.html", mainBody)
     loadTestData('testData/data.json')
-    
-    
+
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
-        
-        if (target.matches('#home')) {
+
+        if (target.closest('#home')) {
             await fetchFile('home.html', mainBody)
         }
-        else if (target.matches('#inhabitantList')) {
+        else if (target.closest('#inhabitantList')) {
             await fetchFile('inhabitantList.html', mainBody)
             loadTestData('testData/data.json')
         }
-        else if (target.matches('#templates')) {
+        else if (target.closest('#templates')) {
             await fetchFile('templates.html', mainBody)
         }
-        else if (target.matches('#history')) {
+        else if (target.closest('#history')) {
             await fetchFile('history.html', mainBody)
         }
-        
-        if (target.id) console.log(`Switched tab to: ${target.textContent}`)
+        else if (target.closest('#settings')) {
+            settingsDialog.showModal()
+        }
+        else if (target.matches('#logout')) {
+            localStorage.clear()
+            loadLogin()
+        }
+
+    })
+    
+    settingsDialog.addEventListener('click', (e) => {
+        const rect = settingsDialog.getBoundingClientRect();
+        const clickedInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+        );
+
+        if (clickedInDialog === false)
+            settingsDialog.close();
+    })
+
+    closeBtn.addEventListener('click', () => {
+        settingsDialog.close()
     })
 }
 
 async function loadTestData(datafile) {
     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "PWD/Senior"]
     const testDataContainer = document.getElementById('testDataContainer')
+    testDataContainer.innerHTML = ''
 
     try {
         const response = await fetch(datafile)
@@ -71,7 +96,7 @@ async function loadTestData(datafile) {
 
         const table = document.createElement('table')
         table.setAttribute('id', 'testDataTable')
-        
+
         const tableHeader = document.createElement('thead')
         fieldNames.forEach(field => {
             const th = document.createElement('th')
@@ -112,6 +137,6 @@ async function fetchFile(file, container) {
     }
     catch (error) {
         console.error(`Cannot fetch ${file}`, error)
-        document.body.innerHTML = `<p>Error loading ${file} page.</p>`
+        container.innerHTML = `<p>Error loading ${file} page.</p>`
     }
 }
