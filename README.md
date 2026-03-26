@@ -40,20 +40,20 @@
 * Endpoint: `GET /residents/filter[?params]`
 * Parameters:
 
-|Parameter|Type|Required?|Default|Description|
-|:---|:---:|:---:|:---|:----------|
+|Parameter|Type|Required\?|Default|Description|
+|:---|:---:|:---:|-------|:----------|
 |`minAge`|`int`|no|null|Returns residents with ages above set value.|
 |`maxAge`|`int`|no|null|Returns residents with ages below set value.|
-|`sex`|`string &#124; int`|no|null|Filter by sex, pass multiple values as `sex=male&sex=female`.|
-|`sector`|`string &#124; int`|no|null|Filter by sector or vulnerability, pass multiple values as `sector=pwd&sector=senior`.|
-|`civilStat`|`string &#124; int`|no|null|Filter by civil status, pass multiple values as `civilStat=single&civilStat=married`.|
+|`sex`|`string \| int`|no|null|Filter by sex, pass multiple values as `sex=male&sex=female`.|
+|`sector`|`string \| int`|no|null|Filter by sector or vulnerability, pass multiple values as `sector=pwd&sector=senior`.|
+|`civilStat`|`string \| int`|no|null|Filter by civil status, pass multiple values as `civilStat=single&civilStat=married`.|
 |`from`|`int`|no|0|The starting index of entries to return base on `orderBy`.|
+|`limit`|`int`|no|50|The max number of entries to return base on `orderBy`.|
 
 ### Add Resident
 * Endpoint: `POST /residents}`
 * Request Body: (to be added)
 * Response Body: (to be added)
-
 
 ### Update Resident
 * Endpoint: `PUT /residents/{id}`
