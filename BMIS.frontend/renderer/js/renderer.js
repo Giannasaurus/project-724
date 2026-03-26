@@ -1,7 +1,7 @@
 const app = document.getElementById('app')
 
 // skip login (dev)
-localStorage.getItem("username") ? loadApp() : loadLogin()
+localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
 
 async function loadLogin() {
     await fetchFile("login.html", app)
@@ -18,8 +18,7 @@ async function loadLogin() {
         const result = await window.electronAPI.checkLogin(username.value, password.value)
 
         if (result) {
-            localStorage.setItem('username', username.value)
-            localStorage.setItem('password', password.value)
+            localStorage.setItem('isLoggedIn', result)
             loadApp()
         }
         else {
