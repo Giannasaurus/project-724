@@ -41,7 +41,7 @@
 * Parameters:
 
 |Parameter|Type|Required\?|Default|Description|
-|---------|----|----------|-------|-----------|
+|:---|:---:|:---:|-------|:----------|
 |`minAge`|int|no|null|Returns residents with ages above set value.|
 |`maxAge`|int|no|null|Returns residents with ages below set value.|
 |`sex`|string\|int|no|null|Filter by sex, pass multiple values as `sex=male&sex=female`.|
