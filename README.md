@@ -25,5 +25,6 @@
     * Married :arrow_right 1
     * Widowed :arrow_right 2
     * Divorced :arrow_right 3
-    * Annulled/Legally Separated :arrow_right 3
+    * Annulled :arrow_right 4
+    * LegallySeparated :arrow_right 5
 * Address : (string)
