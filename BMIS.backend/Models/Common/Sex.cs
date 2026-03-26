@@ -1,6 +1,6 @@
 namespace BMIS.Models;
 
-public enum Gender {
+public enum Sex{
     Male,
     Female,
 }

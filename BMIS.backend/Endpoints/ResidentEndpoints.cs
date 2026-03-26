@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BMIS.Models;
 using BMIS.Models.Entities;
+using BMIS.Models.DTOs;
 
 namespace BMIS.Endpoints;
 
@@ -9,20 +10,28 @@ public static class ResidentEndpoints {
         var group = app.MapGroup("/residents");
 
         group.MapGet("/", Get);
-        group.MapGet("/age", GetByAge);
-        group.MapGet("/sector", GetBySector);
-        group.MapGet("/name", GetByName);
-
+        group.MapGet("/filter", GetFiltered);
+        
+        /* 
+         * OLDER VERSION
+         *
+         * use /filter endpoint instead
+         *
+         *
+        */
         group.MapGet("/from", GetRange);
-        group.MapGet("/{id}", GetById); 
 
+
+
+
+        group.MapGet("/{id}", GetById); 
+        
         group.MapPost("/", Create); 
 
         group.MapPut("/{id}", Update); 
 
         group.MapDelete("/{id}", Delete); 
     }
-
 
 
     /*
@@ -36,32 +45,96 @@ public static class ResidentEndpoints {
         return TypedResults.Ok(residents); 
     }
 
-    private static async Task<IResult> GetByAge(int? minAge, int? maxAge, AppDbContext db) {
-        minAge ??= 0;
-        maxAge ??= 999;
 
-        var residents = await db.Residents
-            .AsNoTracking()
-            .Where(r => r.Age >= minAge && r.Age <= maxAge)
-            .ToListAsync();
-
-        return TypedResults.Ok(residents); 
-    }
 
 
     /*
+     * TODO:
+     *  filtering w/ names is somewhat very straightfoward
+     *  it does not account for human-errors like misspelled names
+     *  
+     *  therefore, we should implement a threshold for this where least error
+     *  or better matching entries are on top
      *
-     * Senior or PWD
      *
      *
      */
-    private static async Task<IResult> GetBySector(Sector? sector, AppDbContext db) {
-        var residents = await db.Residents
-            .AsNoTracking()
-            .Where(r => r.Sector == sector)
+    private static async Task<IResult> GetFiltered([AsParameters] ResidentFilterCriteria criteria, AppDbContext db) {
+        var residents = db.Residents.AsNoTracking();
+        /* 
+         * [WARNING] SHOULD BE MOVE, PUTTING NAME SEARCH IN URL IS NOT PRIVATE
+         *
+         * START NAME SEARCH
+         *
+         *
+
+        if(!string.IsNullOrEmpty(criteria.firstName)) {   
+            residents = residents.Where(r => r.FirstName.Contains(criteria.firstName));
+        }
+
+        if(!string.IsNullOrEmpty(criteria.middleName)) {   
+            residents = residents.Where(r => r.MiddleName.Contains(criteria.middleName));
+        }
+        
+        if(!string.IsNullOrEmpty(criteria.lastName)) {   
+            residents = residents.Where(r => r.LastName.Contains(criteria.lastName));
+        }
+
+         *
+
+Enter
+         * END NAME SEARCH
+         *
+         */
+        
+
+        if(criteria.minAge.HasValue) {
+            DateOnly minCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.minAge ?? 0);
+            residents = residents.Where(r => r.BirthDate <= minCutoff);
+        }
+
+        if(criteria.maxAge.HasValue) {
+            DateOnly maxCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.maxAge ?? 0);
+            residents = residents.Where(r => r.BirthDate >= maxCutoff);
+        }
+
+        if(criteria.sex != null && criteria.sex.Length > 0) {
+            var selected = criteria.sex
+                .Select(s => Enum.TryParse<Sex>(s, true, out Sex parsed) ? parsed : (Sex?)null)
+                .Where(s => s.HasValue)
+                .Select(s => s!.Value)
+                .ToList();
+            
+            residents = residents.Where(r => selected.Contains(r.Sex)); 
+        }
+        
+        if(criteria.sector != null && criteria.sector.Length > 0) {
+            var selected = criteria.sector
+                .Select(s => Enum.TryParse<Sector>(s, true, out Sector parsed) ? parsed : (Sector?)null)
+                .Where(s => s.HasValue)
+                .Select(s => s!.Value)
+                .ToList();
+            
+            residents = residents.Where(r => selected.Contains(r.Sector)); 
+        }
+        
+        if(criteria.civilStat != null && criteria.civilStat.Length > 0) {
+            var selected = criteria.civilStat
+                .Select(s => Enum.TryParse<CivilStatus>(s, true, out CivilStatus parsed) ? parsed : (CivilStatus?)null)
+                .Where(s => s.HasValue)
+                .Select(s => s!.Value)
+                .ToList();
+            
+            residents = residents.Where(r => selected.Contains(r.CivilStatus)); 
+        }
+
+        // pagination
+        var results = await residents
+            .Skip((criteria.page - 1) * criteria.pageSize)
+            .Take(criteria.pageSize)
             .ToListAsync();
 
-        return TypedResults.Ok(residents);
+        return TypedResults.Ok(results); 
     }
 
     private static async Task<IResult> GetByName(string? first, string? middle, string? last, AppDbContext db) {
@@ -157,7 +230,7 @@ public static class ResidentEndpoints {
 
         await db.SaveChangesAsync();
 
-        return TypedResults.Created($"/residents/{resident.Id}", resident);
+        return TypedResults.Created($"/residents/{resident.ResidentId}", resident);
     }
 
 
@@ -187,7 +260,7 @@ public static class ResidentEndpoints {
         resident.LastName = changes.LastName;
         resident.BirthDate = changes.BirthDate;
         resident.Sector = changes.Sector;
-        resident.Gender = changes.Gender;
+        resident.Sex = changes.Sex;
         resident.CivilStatus = changes.CivilStatus;
         resident.Address = changes.Address;
 
