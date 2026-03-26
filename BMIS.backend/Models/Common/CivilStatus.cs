@@ -2,5 +2,9 @@ namespace BMIS.Models;
 
 public enum CivilStatus {
     Single,
-    Married
+    Married,
+    Widowed,
+    Divorced,
+    Anulled,
+    LegallySeparated,
 }
