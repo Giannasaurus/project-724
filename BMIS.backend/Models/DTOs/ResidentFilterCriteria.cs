@@ -11,6 +11,6 @@ public record ResidentFilterCriteria(
     string[]? sector,
     string[]? civilStat,
 
-    int page = 1,
-    int pageSize = 50
+    int from = 1,
+    int limit = 50
 );

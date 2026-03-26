@@ -130,8 +130,8 @@ Enter
 
         // pagination
         var results = await residents
-            .Skip((criteria.page - 1) * criteria.pageSize)
-            .Take(criteria.pageSize)
+            .Skip(criteria.from)
+            .Take(criteria.limit)
             .ToListAsync();
 
         return TypedResults.Ok(results); 
