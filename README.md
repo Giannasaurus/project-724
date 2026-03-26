@@ -39,6 +39,7 @@
 ### Filter Residents
 * Endpoint: `GET /residents/filter[?params]`
 * Parameters:
+
 |Parameter|Type|Required\?|Default|Description|
 |---------|----|----------|-------|-----------|
 |`minAge`|int|no|null|Returns residents with ages above set value|
