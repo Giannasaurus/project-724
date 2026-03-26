@@ -52,7 +52,7 @@ if (process.env.NODE_ENV !== 'production') {
             {
                 label: 'Toggle Devtools',
                 accelerator: process.platform == 'darwin' ? 'Fn+F12' : 'F12',
-                click(item, focusedWindow) {
+                click(_, focusedWindow) {
                     focusedWindow.toggleDevTools()
                 }
             },

@@ -7,7 +7,6 @@ async function loadLogin() {
     await fetchFile("login.html", app)
 
     const loginForm = document.getElementById('loginForm')
-
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault()
 
@@ -63,7 +62,7 @@ async function loadApp() {
         }
 
     })
-    
+
     settingsDialog.addEventListener('click', (e) => {
         const rect = settingsDialog.getBoundingClientRect();
         const clickedInDialog = (
@@ -125,6 +124,14 @@ async function loadTestData(datafile) {
         console.error("Cannot fetch test data.", error)
         testDataContainer.innerHTML = "<p>Error loading test data.</p>"
     }
+
+    const searchBtn = document.getElementById('searchBtn')
+    searchBtn.addEventListener('input', (e) => {
+        const query = searchBtn.value.toLowerCase()
+        document.querySelectorAll('#testDataContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+        })
+    })
 }
 
 async function fetchFile(file, container) {

@@ -5,14 +5,12 @@
 }
 
 :root {
-    --color-error: red;
-    --font-size-regular: 1.05rem;
-    --font-size-abitbiggerthanregular: 1.1rem;
+    --font-size-regular: 1rem;
     --label-margin: 0 0 4px 0;
     --input-background-color: #FFF;
     --input-border: 2px solid #C0C0C0;
     --input-corner-radius: 12px;
-    --input-padding: 12px 12px;
+    --input-padding: 8px 12px;
     --input-margin: 0 0 16px 0;
     --login-button-margin: 4px 0 0 0;
     --button-corner-radius: 12px;
@@ -35,6 +33,10 @@ html {
     min-height: 100vh;
 }
 
+h2 {
+    margin-bottom: 16px;
+}
+
 button {
     background: none;
     border: none;
@@ -47,7 +49,9 @@ a {
 #loginView {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    justify-content: center;
+    gap: 16px;
+    min-height: 100vh;
 }
 
 #loginView h1 {
@@ -55,13 +59,14 @@ a {
     text-align: center;
 }
 
-#loginView img {
-    width: 125px;
+#brgyLogo {
+    width: 100px;
     height: auto;
     margin: 0 auto;
 }
 
 #loginErrorMessage {
+    color: red;
     text-align: center;
 }
 
@@ -74,15 +79,22 @@ a {
 
 .input-group {
     display: flex;
-    flex-direction: column;
-    gap: 0;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.inputGroup label {
+    display: flex;
 }
 
 label {
-    font-size: var(--font-size-regular);
-    display: inline-block;
-    margin: var(--label-margin);
+    height: 24px;
+}
+
+#usernameIcon, #passwordIcon {
+    width: 24px;
+    height: auto;
 }
 
 input[type="text"],
@@ -93,7 +105,7 @@ input[type="password"] {
     border: var(--input-border);
     border-radius: var(--input-corner-radius);
     padding: var(--input-padding);
-    width: 300px;
+    width: 250px;
 }
 
 input[type="text"]:focus,
@@ -118,11 +130,6 @@ input[type="password"]:focus {
 #loginButton:active {
     background-color: blue;
     cursor: pointer;
-}
-
-/* error classes */
-.incorrect {
-    background-color: coral;
 }
 
 /* app.html */
@@ -207,11 +214,11 @@ button:focus, input:focus, .sub-main-nav-a:focus {
 #iLNav {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     gap: 12px;
-    padding: 16px;
 }
 
-#searchInhabitantBtn {
+#searchBtn {
     width: 400px;
 }
 
@@ -224,8 +231,14 @@ button:focus, input:focus, .sub-main-nav-a:focus {
 
 .il-nav-btn {
     font-family: inherit;
+    font-size: 1rem;
     border-radius: 8px;
     padding: 8px 12px;
+    margin: auto;
+}
+
+.il-nav-btn:hover {
+    background-color: rgb(211, 211, 211, 0.5)
 }
 
 #scrollableContainer {
@@ -235,7 +248,6 @@ button:focus, input:focus, .sub-main-nav-a:focus {
 
 #testDataContainer {
     width: 100%;
-    padding: 16px;
 }
 
 #testDataTable {
