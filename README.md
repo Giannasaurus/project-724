@@ -2,7 +2,7 @@
 
 # Entities
 > [!NOTE]
-> ATTRIBUTE **:arrow_right** VALUE
+> ATTRIBUTE **→** VALUE
 > is read ATTRIBUTE as VALUE
 
 ### Resident:
@@ -14,19 +14,19 @@
 * BirthDate : (DateOnly)
 * Age : (int)
 * Sector : (int)
-    * General :arrow_right 0
-    * Senior :arrow_right 1
-    * PWD :arrow_right 2
+    * General → 0
+    * Senior → 1
+    * PWD → 2
 * Sex : (int)
-    * Male :arrow_right 0
-    * Female :arrow_right 1
+    * Male → 0
+    * Female → 1
 * CivilStatus : (int)
-    * Single :arrow_right 0
-    * Married :arrow_right 1
-    * Widowed :arrow_right 2
-    * Divorced :arrow_right 3
-    * Annulled :arrow_right 4
-    * LegallySeparated :arrow_right 5
+    * Single → 0
+    * Married → 1
+    * Widowed → 2
+    * Divorced → 3
+    * Annulled → 4
+    * LegallySeparated → 5
 * Address : (string)
 
 # API
