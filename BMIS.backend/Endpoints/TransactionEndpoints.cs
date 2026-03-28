@@ -12,8 +12,8 @@ public static class TransactionEndpoints {
         group.MapGet("/", Get);
         group.MapGet("/filter", GetFiltered);
         group.MapPost("/", Create);
-        group.MapPut("/", Update);
-        group.MapDelete("/", Delete);
+        group.MapPut("/{id}", Update);
+        group.MapDelete("/{id}", Delete);
     }
 
     public static async Task<IResult> Get(AppDbContext db) {
