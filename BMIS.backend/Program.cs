@@ -23,5 +23,6 @@ if(app.Environment.IsDevelopment()) {
 }
 
 app.MapResidentEndpoints();
+app.MapTransactionEndpoints();
 
 app.Run();
