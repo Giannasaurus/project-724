@@ -42,9 +42,17 @@ public static class TransactionEndpoints {
             
             transactions = transactions.Where(t => selected.Contains(t.Status));
         }
+
+        if(criteria.from != null) {
+            transactions = transactions.Where(t => t.Date <= criteria.from);
+        }
+        
+        if(criteria.to != null) {
+            transactions = transactions.Where(t => t.Date >= criteria.to);
+        }
         
         var results = await transactions
-            .Skip(criteria.from)
+            .Skip(criteria.index)
             .Take(criteria.limit)
             .ToListAsync();
 
