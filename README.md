@@ -3,13 +3,18 @@
 
 # TO RUN 
 > [!NOTE]
-> `dotnet run --environment Development`
-> running the backend automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`
+> For Development:  
+> `dotnet run --environment Development`  
+> automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`  
+>   
+> For Production:
+> `dotnet run`  
+> locates database in `BMIS.backend/LocalDatabase.db`  
 
 # Entities
 > [!NOTE]
-> ATTRIBUTE **→** VALUE
-> is read ATTRIBUTE as VALUE
+> ATTRIBUTE **→** VALUE  
+> is read ATTRIBUTE as VALUE  
 
 ### Resident:
 * Id : (int)
