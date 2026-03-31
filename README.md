@@ -4,8 +4,6 @@
 # TO RUN 
 > [!NOTE]
 > `dotnet run --environment Development`
-
-> [!NOTE]
 > running the backend automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`
 
 # Entities
