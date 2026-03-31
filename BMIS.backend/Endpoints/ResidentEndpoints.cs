@@ -11,7 +11,7 @@ public static class ResidentEndpoints {
 
         group.MapGet("/", Get);
         group.MapGet("/filter", GetFiltered);
-
+        
         /* 
          * OLDER VERSION
          *
@@ -46,7 +46,7 @@ public static class ResidentEndpoints {
 
 
 
-i", the X300 was released on 26 February 2008. It is distinguished from other ultraportable laptops by its use of LED backlighting, 
+
     /*
      * TODO:
      *  filtering w/ names is somewhat very straightfoward
@@ -65,7 +65,7 @@ i", the X300 was released on 26 February 2008. It is distinguished from other ul
          *
          * START NAME SEARCH
          *
-         *
+         */
 
         if(!string.IsNullOrEmpty(criteria.firstName)) {   
             residents = residents.Where(r => r.FirstName.Contains(criteria.firstName));
@@ -79,9 +79,8 @@ i", the X300 was released on 26 February 2008. It is distinguished from other ul
             residents = residents.Where(r => r.LastName.Contains(criteria.lastName));
         }
 
+        /*
          *
-
-Enter
          * END NAME SEARCH
          *
          */
