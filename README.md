@@ -5,11 +5,11 @@
 > [!NOTE]
 > For Development:  
 > `dotnet run --environment Development`  
-> automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`  
+>> automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`  
 >   
 > For Production:  
 > `dotnet run`  
-> locates database in `BMIS.backend/LocalDatabase.db`  
+>> locates database in `BMIS.backend/LocalDatabase.db`  
 
 # Entities
 > [!NOTE]
