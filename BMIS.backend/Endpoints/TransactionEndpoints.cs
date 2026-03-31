@@ -50,6 +50,18 @@ public static class TransactionEndpoints {
         if(criteria.to != null) {
             transactions = transactions.Where(t => t.Date >= criteria.to);
         }
+
+        switch(criteria.order) {
+            case TransactionOrder.ByRecent:
+                transactions = transactions.OrderByDescending(t => t.Date);
+                break;
+            case TransactionOrder.ByOldest:
+                transactions = transactions.OrderBy(t => t.Date);
+                break;
+            default:
+                transactions = transactions.OrderByDescending(t => t.Date);
+                break;
+        }
         
         var results = await transactions
             .Skip(criteria.index)

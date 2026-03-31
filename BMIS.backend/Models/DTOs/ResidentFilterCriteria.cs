@@ -11,6 +11,8 @@ public record ResidentFilterCriteria(
     string[]? sector,
     string[]? civilStat,
 
+    ResidentOrder order = ResidentOrder.ByLastName,
+    
     int from = 1,
     int limit = 50
 );

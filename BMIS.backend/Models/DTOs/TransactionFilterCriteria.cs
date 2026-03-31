@@ -4,7 +4,6 @@ public record TransactionFilterCriteria(
     string[]? type,
     string[]? status,
 
-
     /*
      * TODO:
      * NOT IMPLEMENTED IN ACTUAL ENDPOINT
@@ -15,6 +14,8 @@ public record TransactionFilterCriteria(
 
     DateTime? from,
     DateTime? to,
+
+    TransactionOrder order = TransactionOrder.ByRecent, 
 
     int index = 0,
     int limit = 50

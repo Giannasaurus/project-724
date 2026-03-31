@@ -126,6 +126,36 @@ public static class ResidentEndpoints {
             residents = residents.Where(r => selected.Contains(r.CivilStatus)); 
         }
 
+        switch(criteria.order) {
+            case ResidentOrder.ByFirstName:
+                residents = residents.OrderBy(r => r.FirstName);
+                break;
+            case ResidentOrder.ByFirstNameDesc:
+                residents = residents.OrderByDescending(r => r.FirstName);
+                break;
+            case ResidentOrder.ByMiddleName:
+                residents = residents.OrderBy(r => r.MiddleName);
+                break;
+            case ResidentOrder.ByMiddleNameDesc:
+                residents = residents.OrderByDescending(r => r.MiddleName);
+                break;
+            case ResidentOrder.ByLastName:
+                residents = residents.OrderBy(r => r.LastName);
+                break;
+            case ResidentOrder.ByLastNameDesc:
+                residents = residents.OrderByDescending(r => r.LastName);
+                break;
+            case ResidentOrder.ByAge:
+                residents = residents.OrderByDescending(r => r.BirthDate); // starts from youngest to oldest
+                break;
+            case ResidentOrder.ByAgeDesc:
+                residents = residents.OrderBy(r => r.BirthDate); // starts from oldest to youngest
+                break;
+            default:
+                residents = residents.OrderBy(r => r.LastName);
+                break;
+        }
+
         // pagination
         var results = await residents
             .Skip(criteria.from)
