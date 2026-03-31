@@ -13,8 +13,8 @@
 
 # Entities
 > [!NOTE]
-> ATTRIBUTE **→** VALUE  
-> is read ATTRIBUTE as VALUE  
+> `ATTRIBUTE` **→** `VALUE`  
+> is read `ATTRIBUTE` as `VALUE`  
 
 ### Resident:
 * Id : (int)
