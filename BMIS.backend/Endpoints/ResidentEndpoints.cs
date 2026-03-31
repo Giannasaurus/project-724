@@ -68,15 +68,15 @@ public static class ResidentEndpoints {
          */
 
         if(!string.IsNullOrEmpty(criteria.firstName)) {   
-            residents = residents.Where(r => r.FirstName.Contains(criteria.firstName));
+            residents = residents.Where(r => r.FirstName.ToLower().Contains(criteria.firstName.ToLower()));
         }
 
         if(!string.IsNullOrEmpty(criteria.middleName)) {   
-            residents = residents.Where(r => r.MiddleName.Contains(criteria.middleName));
+            residents = residents.Where(r => r.MiddleName.ToLower().Contains(criteria.middleName.ToLower()));
         }
         
         if(!string.IsNullOrEmpty(criteria.lastName)) {   
-            residents = residents.Where(r => r.LastName.Contains(criteria.lastName));
+            residents = residents.Where(r => r.LastName.ToLower().Contains(criteria.lastName.ToLower()));
         }
 
         /*
