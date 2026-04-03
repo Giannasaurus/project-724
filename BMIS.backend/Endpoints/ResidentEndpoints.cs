@@ -12,17 +12,6 @@ public static class ResidentEndpoints {
         group.MapGet("/", Get);
         group.MapGet("/filter", GetFiltered);
         
-        /* 
-         * OLDER VERSION
-         *
-         * use /filter endpoint instead
-         *
-         *
-         * group.MapGet("/from", GetRange);
-         *
-         *
-        */
-
         group.MapGet("/{id}", GetById); 
         
         group.MapPost("/", Create); 
@@ -190,55 +179,6 @@ public static class ResidentEndpoints {
     
     /*
      *
-     * returns: data from specific index up to limit
-     * 
-     *
-    */
-    private static async Task<IResult> GetRange(int? index, int? limit, string? orderBy, AppDbContext db) {
-        int rangeIndex = index ?? 0;
-        int rangeLimit = limit ?? 50;
-
-        var residents = db.Residents.AsNoTracking();
-        
-        switch(orderBy) {
-            case "first_name":
-                residents = residents.OrderBy(r => r.FirstName);
-                break;
-            case "first_name_desc":
-                residents = residents.OrderByDescending(r => r.FirstName);
-                break;
-            case "last_name":
-                residents = residents.OrderBy(r => r.LastName);
-                break;
-            case "last_name_desc":
-                residents = residents.OrderByDescending(r => r.LastName);
-                break;
-            case "age":
-                residents = residents.OrderBy(r => r.Age);
-                break;
-            case "age_desc":
-                residents = residents.OrderByDescending(r => r.Age);
-                break;
-            default:
-                break;
-        }
-
-        var results = await residents 
-            .AsNoTracking()
-            .Skip(rangeIndex)
-            .Take(rangeLimit)
-            .ToListAsync();
-
-        return TypedResults.Ok(results);
-    } 
-
-
-    
-
-
-
-    /*
-     *
      * returns: resident w/ id
      *
      *
@@ -277,7 +217,11 @@ public static class ResidentEndpoints {
     }
 
 
-
+    /*
+     *  TODO: implement DTO
+     *
+     *
+     */
     private static async Task<IResult> Update(int id, Resident changes, AppDbContext db) {
         var resident = await db.Residents.FindAsync(id);
 
