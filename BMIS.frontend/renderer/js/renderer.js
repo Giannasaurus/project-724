@@ -31,11 +31,11 @@ async function loadLogin() {
 
 async function loadApp() {
     await fetchFile("app.html", app)
- 
+
     // api request data sample
     const data = await window.electronAPI.getData('/residents');
     console.log(data)
-    
+
     const mainNav = document.getElementById('mainNav')
     const mainBody = document.getElementById('mainBody')
     const settingsDialog = document.getElementById('settingsDialog')
@@ -122,10 +122,42 @@ async function loadData(result) {
         const row = document.createElement('tr')
         const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
-
-        entry.forEach(cell => {
+        
+        const cells = [
+            {
+                value: fullName,
+                class: 'col-name'
+            },
+            {
+                value: resident.suffix,
+                class: 'col-suffix'
+            },
+            {
+                value: resident.birthDate,
+                class: 'col-birthdate'
+            },
+            {
+                value: resident.sex,
+                class: 'col-sex'
+            },
+            {
+                value: resident.sector,
+                class: 'col-sector'
+            },
+            {
+                value: resident.civilStatus,
+                class: 'col-civilstatus'
+            },
+            {
+                value: resident.address,
+                class: 'col-address'
+            },
+        ]
+        
+        cells.forEach(cell => {
             const td = document.createElement('td')
-            td.textContent = cell
+            td.textContent = cell.value
+            td.className = cell.class
             row.appendChild(td)
         })
 
