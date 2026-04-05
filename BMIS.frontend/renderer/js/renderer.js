@@ -44,14 +44,20 @@ async function loadApp() {
     await fetchFile("home.html", mainBody)
     await loadSummary(data)
 
+    let currentView = null
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
 
         if (target.closest('#home')) {
+            if (currentView === 'home') return
+            currentView = 'home'
             await fetchFile('home.html', mainBody)
             await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
+            if (currentView === 'inhabitantList') return
+            currentView = 'inhabitantList'
+
             await fetchFile('inhabitantList.html', mainBody)
             const data = await window.electronAPI.getData('/residents')
             console.log(data)
@@ -66,9 +72,13 @@ async function loadApp() {
             })
         }
         else if (target.closest('#templates')) {
+            if (currentView === 'templates') return
+            currentView = 'templates'
             await fetchFile('templates.html', mainBody)
         }
         else if (target.closest('#history')) {
+            if (currentView === 'history') return 
+            currentView = 'history'
             await fetchFile('history.html', mainBody)
         }
         else if (target.closest('#settings')) {
@@ -106,9 +116,9 @@ async function loadSummary(result) {
     const totalMales = document.getElementById('totalMales')
     const totalFemales = document.getElementById('totalFemales')
     const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
-    
+
     const totalInhabitants = result.data.length
-    
+
     const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
     totalSectors.textContent = pwdsSeniors
     const males = result.data.filter(r => r.sex === 0).length
@@ -143,21 +153,21 @@ async function loadData(result) {
         const row = document.createElement('tr')
         const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
-        
+
         const sexes = { 0: "Male", 1: "Female" }
         const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
         const civilStatuses = { 0: "Single", 1: "Married", 2: "Widowed", 3: "Divorced", 4: "Annulled", 5: "Legally Separated" }
-        
+
         const cells = [
             { value: fullName, class: 'col-name' },
             { value: resident.suffix, class: 'col-suffix' },
             { value: resident.birthDate, class: 'col-birthdate' },
             { value: sexes[resident.sex], class: 'col-sex' },
             { value: sectors[resident.sector], class: 'col-sector' },
-            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' }, 
+            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
             { value: resident.address, class: 'col-address' },
         ]
-        
+
         cells.forEach(cell => {
             const td = document.createElement('td')
             td.textContent = cell.value
