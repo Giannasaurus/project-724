@@ -49,6 +49,7 @@ if(app.Environment.IsDevelopment()) {
 
 app.UseCors(ELECTRON_CORS);
 
+app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
 
