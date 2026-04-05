@@ -35,7 +35,6 @@ async function loadApp() {
     const closeBtn = document.getElementById('closeBtn')
 
     await fetchFile("home.html", mainBody)
-    loadTestData('testData/data.json')
 
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
@@ -46,6 +45,14 @@ async function loadApp() {
         else if (target.closest('#inhabitantList')) {
             await fetchFile('inhabitantList.html', mainBody)
             loadTestData('testData/data.json')
+
+            const searchBar = document.getElementById('searchBar')
+            searchBar.addEventListener('input', (e) => {
+                const query = searchBar.value.toLowerCase()
+                document.querySelectorAll('#testDataContainer tbody tr').forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+                })
+            })
         }
         else if (target.closest('#templates')) {
             await fetchFile('templates.html', mainBody)
@@ -124,14 +131,6 @@ async function loadTestData(datafile) {
         console.error("Cannot fetch test data.", error)
         testDataContainer.innerHTML = "<p>Error loading test data.</p>"
     }
-
-    const searchBtn = document.getElementById('searchBtn')
-    searchBtn.addEventListener('input', (e) => {
-        const query = searchBtn.value.toLowerCase()
-        document.querySelectorAll('#testDataContainer tbody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
-        })
-    })
 }
 
 async function fetchFile(file, container) {
