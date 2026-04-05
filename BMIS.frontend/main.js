@@ -42,7 +42,6 @@ async function startBackend(port) {
         /*
          * uncomment to see backend startup information
          *
-         *
         cmd.stdout.on('data', (data) => {
             console.log("OUPUT " + data);
         });
