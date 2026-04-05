@@ -31,7 +31,8 @@ builder.Services.AddSqlite<AppDbContext>(connectionString);
 
 var app = builder.Build();
 
-if(app.Environment.IsDevelopment()) {
+if(app.Environment.IsDevelopment() || args.Contains("dev")) {
+    Console.WriteLine("[!] BACKEND: running in dev mode"); 
     app.UseSwagger();
     app.UseSwaggerUI();
 
