@@ -124,34 +124,13 @@ async function loadData(result) {
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
         
         const cells = [
-            {
-                value: fullName,
-                class: 'col-name'
-            },
-            {
-                value: resident.suffix,
-                class: 'col-suffix'
-            },
-            {
-                value: resident.birthDate,
-                class: 'col-birthdate'
-            },
-            {
-                value: resident.sex,
-                class: 'col-sex'
-            },
-            {
-                value: resident.sector,
-                class: 'col-sector'
-            },
-            {
-                value: resident.civilStatus,
-                class: 'col-civilstatus'
-            },
-            {
-                value: resident.address,
-                class: 'col-address'
-            },
+            { value: fullName, class: 'col-name' },
+            { value: resident.suffix, class: 'col-suffix' },
+            { value: resident.birthDate, class: 'col-birthdate' },
+            { value: resident.sex, class: 'col-sex' },
+            { value: resident.sector, class: 'col-sector' },
+            {value: resident.civilStatus, class: 'col-civilstatus'}, 
+            {value: resident.address, class: 'col-address' },
         ]
         
         cells.forEach(cell => {
