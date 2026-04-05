@@ -133,8 +133,8 @@ async function loadData(result) {
             { value: resident.birthDate, class: 'col-birthdate' },
             { value: sexes[resident.sex], class: 'col-sex' },
             { value: sectors[resident.sector], class: 'col-sector' },
-            {value: civilStatuses[resident.civilStatus], class: 'col-civilstatus'}, 
-            {value: resident.address, class: 'col-address' },
+            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' }, 
+            { value: resident.address, class: 'col-address' },
         ]
         
         cells.forEach(cell => {
