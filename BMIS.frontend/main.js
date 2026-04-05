@@ -27,9 +27,18 @@ async function startBackend(port) {
     
     // for DEV run backend using cli
     if(!app.isPackaged) {
-        console.log('running dotnet');
-        const cmd = await spawn(`dotnet run --project ../BMIS.backend -e Development --urls ${url}`, { shell: true });
-       
+
+        const fs = require('fs');
+        if(!fs.existsSync('../dev.backend')){
+            console.log('\n\n[!] Err: missing dev files \n please run "node dev.js"\n\n'); 
+            app.quit();
+            return;
+        } else {
+            // requires whole backend project
+            console.log('running dotnet'); 
+            await spawn(`dotnet ../dev.backend/bmis.dll dev --urls ${url}`, { shell: true, stdio: 'inherit'});
+        }
+
         /*
          * uncomment to see backend startup information
          *
@@ -65,7 +74,8 @@ async function startBackend(port) {
         }
     }
 
-    throw new Error(`[!] ERROR: BACKEND FAILED ${url}`);
+    console.log(`\n\n[!] ERROR: BACKEND FAILED ${url}\n\n`);
+    app.quit();
 }
 
 const createWindow = () => {
