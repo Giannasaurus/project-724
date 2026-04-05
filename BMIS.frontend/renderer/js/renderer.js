@@ -1,7 +1,9 @@
 const app = document.getElementById('app')
 
 // skip login (dev)
-localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
+// localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
+
+loadApp();
 
 async function loadLogin() {
     await fetchFile("login.html", app)
@@ -18,7 +20,7 @@ async function loadLogin() {
 
         if (result) {
             localStorage.setItem('isLoggedIn', result)
-            loadApp()
+            await loadApp()
         }
         else {
             loginErrorMessage.textContent = "Incorrect username/password"
@@ -28,7 +30,10 @@ async function loadLogin() {
 
 async function loadApp() {
     await fetchFile("app.html", app)
-
+    
+    const data = await window.electronAPI.getData('/residents');
+    console.log(data)
+    
     const mainNav = document.getElementById('mainNav')
     const mainBody = document.getElementById('mainBody')
     const settingsDialog = document.getElementById('settingsDialog')
@@ -89,6 +94,7 @@ async function loadApp() {
 }
 
 async function loadTestData(datafile) {
+
     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "PWD/Senior"]
     const testDataContainer = document.getElementById('testDataContainer')
     testDataContainer.innerHTML = ''
