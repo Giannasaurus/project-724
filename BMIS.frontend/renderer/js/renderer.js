@@ -3,6 +3,7 @@ const app = document.getElementById('app')
 // skip login (dev)
 // localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
 
+// skip login then load app directly
 loadApp();
 
 async function loadLogin() {
@@ -30,7 +31,8 @@ async function loadLogin() {
 
 async function loadApp() {
     await fetchFile("app.html", app)
-    
+ 
+    // api request data sample
     const data = await window.electronAPI.getData('/residents');
     console.log(data)
     
