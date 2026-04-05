@@ -51,12 +51,14 @@ async function loadApp() {
         }
         else if (target.closest('#inhabitantList')) {
             await fetchFile('inhabitantList.html', mainBody)
-            loadTestData('testData/data.json')
+            const data = await window.electronAPI.getData('/residents')
+            console.log(data)
+            await loadData(data)
 
             const searchBar = document.getElementById('searchBar')
             searchBar.addEventListener('input', (e) => {
                 const query = searchBar.value.toLowerCase()
-                document.querySelectorAll('#testDataContainer tbody tr').forEach(row => {
+                document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
                     row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
                 })
             })
@@ -74,7 +76,6 @@ async function loadApp() {
             localStorage.clear()
             loadLogin()
         }
-
     })
 
     settingsDialog.addEventListener('click', (e) => {
@@ -95,51 +96,83 @@ async function loadApp() {
     })
 }
 
-async function loadTestData(datafile) {
+async function loadData(result) {
+    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
+    const dataContainer = document.getElementById('dataContainer')
+    dataContainer.innerHTML = ''
 
-    const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "PWD/Senior"]
-    const testDataContainer = document.getElementById('testDataContainer')
-    testDataContainer.innerHTML = ''
+    if (!result.success) {
+        console.error(result.message)
+        dataContainer.innerHTML = "<p>Error loading residents.</p>"
+        return
+    }
 
-    try {
-        const response = await fetch(datafile)
-        if (!response.ok) throw new Error(response.status)
-        const data = await response.json()
-        console.log("Fetched test data from data.json")
+    const table = document.createElement('table')
+    table.setAttribute('id', 'testDataTable')
 
-        const table = document.createElement('table')
-        table.setAttribute('id', 'testDataTable')
+    const tableHeader = document.createElement('thead')
+    fieldNames.forEach(field => {
+        const th = document.createElement('th')
+        th.textContent = field
+        tableHeader.appendChild(th)
+    })
 
-        const tableHeader = document.createElement('thead')
-        fieldNames.forEach(field => {
-            const th = document.createElement('th')
-            th.textContent = field
-            tableHeader.appendChild(th)
+    const tableBody = document.createElement('tbody')
+    result.data.forEach(resident => {
+        const row = document.createElement('tr')
+        const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
+        const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
+
+        entry.forEach(cell => {
+            const td = document.createElement('td')
+            td.textContent = cell
+            row.appendChild(td)
         })
 
-        const tableBody = document.createElement('tbody')
-        data.forEach(resident => {
-            const row = document.createElement('tr')
-            const fullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
-            const entry = [resident.id, fullName, resident.BirthDate, resident.Gender, resident.CivilStatus]
+        tableBody.appendChild(row)
+    })
 
-            entry.forEach(cell => {
-                const td = document.createElement('td')
-                td.textContent = cell
-                row.appendChild(td)
-            })
-
-            tableBody.appendChild(row)
-        })
-
-        table.append(tableHeader, tableBody)
-        testDataContainer.appendChild(table)
-    }
-    catch (error) {
-        console.error("Cannot fetch test data.", error)
-        testDataContainer.innerHTML = "<p>Error loading test data.</p>"
-    }
+    table.append(tableHeader, tableBody)
+    dataContainer.appendChild(table)
 }
+
+// async function loadTestData(datafile) {
+//     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
+//     const dataContainer = document.getElementById('dataContainer')
+//     dataContainer.innerHTML = ''
+//     try {
+//         const response = await fetch(datafile)
+//         if (!response.ok) throw new Error(response.status)
+//         const data = await response.json()
+//         console.log("Fetched test data from data.json")
+//         const table = document.createElement('table')
+//         table.setAttribute('id', 'testDataTable')
+//         const tableHeader = document.createElement('thead')
+//         fieldNames.forEach(field => {
+//             const th = document.createElement('th')
+//             th.textContent = field
+//             tableHeader.appendChild(th)
+//         })
+//         const tableBody = document.createElement('tbody')
+//         data.forEach(resident => {
+//             const row = document.createElement('tr')
+//             const fullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
+//             const entry = [resident.id, fullName, resident.BirthDate, resident.Gender, resident.CivilStatus, resident.Sector]
+//             entry.forEach(cell => {
+//                 const td = document.createElement('td')
+//                 td.textContent = cell
+//                 row.appendChild(td)
+//             })
+//             tableBody.appendChild(row)
+//         })
+//         table.append(tableHeader, tableBody)
+//         dataContainer.appendChild(table)
+//     }
+//     catch (error) {
+//         console.error("Cannot fetch test data.", error)
+//         dataContainer.innerHTML = "<p>Error loading test data.</p>"
+//     }
+// }
 
 async function fetchFile(file, container) {
     try {
