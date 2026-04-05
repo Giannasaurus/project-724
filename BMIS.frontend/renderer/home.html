@@ -1,13 +1,43 @@
 <h2>Home</h2>
 <div id="homeView">
     <div id="summaryWrapper">
-        <div id="chartContainer"></div>
-        <div id="tallyContainer">
-            <div id="tally-1" class="tally-box">PWD/Senior</div>
-            <div id="tally-2" class="tally-box">Male</div>
-            <div id="tally-3" class="tally-box">Female</div>
-            <div id="tally-4" class="tally-box">Registered Voter</div>
+        <div id="chartContainer">
+            <p>SOME CHART HERE</p>
         </div>
-        <div id="dailyReportContainer"></div>
+        <div id="tallyContainer">
+            <div id="tally-1" class="tally-box">
+                <p id="totalSectors">0</p>
+                <p>PWDs and Seniors</p>
+            </div>
+            <div id="tally-2" class="tally-box">
+                <p id="totalMales">0</p>
+                <p>Males</p>
+            </div>
+            <div id="tally-3" class="tally-box">
+                <p id="totalFemales">0</p>
+                <p>Females</p>
+            </div>
+            <div id="tally-4" class="tally-box">
+                <p id="totalRegisteredVoters">0</p>
+                <p>Registered Voters</p>
+            </div>
+        </div>
+        <div id="dailyReportContainer">
+            <div class="daily-report" id="newInhabitantsContainer">
+                <img class="daily-report-icon" src="img/icons/home/population.svg" alt="Total population icon">
+                <p>New inhabitants today</p>
+                <p class="daily-report-p" id="newInhabitants">0</p>
+            </div>
+            <div class="daily-report" id="newRequestedContainer">
+                <img class="daily-report-icon" src="img/icons/home/legal-document.svg" alt="Legal document icon">
+                <p>New requested today</p>
+                <p class="daily-report-p" id="newRequested">0</p>
+            </div>
+            <div class="daily-report" id="totalHouseholdsContainer">
+                <img class="daily-report-icon" src="img/icons/home/household.svg" alt="Household icon">
+                <p>New idk</p>
+                <p class="daily-report-p" id="totalIdk">0</p>
+            </div>
+        </div>
     </div>
 </div>

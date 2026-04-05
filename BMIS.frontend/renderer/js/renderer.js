@@ -42,12 +42,14 @@ async function loadApp() {
     const closeBtn = document.getElementById('closeBtn')
 
     await fetchFile("home.html", mainBody)
+    await loadSummary(data)
 
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
 
         if (target.closest('#home')) {
             await fetchFile('home.html', mainBody)
+            await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
             await fetchFile('inhabitantList.html', mainBody)
@@ -94,6 +96,25 @@ async function loadApp() {
     closeBtn.addEventListener('click', () => {
         settingsDialog.close()
     })
+}
+
+async function loadSummary(result) {
+    const newInhabitants = document.getElementById('newInhabitants')
+    const newRequested = document.getElementById('newRequested')
+    const totalHouseholds = document.getElementById('totalHouseholds')
+    const totalSectors = document.getElementById('totalSectors')
+    const totalMales = document.getElementById('totalMales')
+    const totalFemales = document.getElementById('totalFemales')
+    const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
+    
+    const totalInhabitants = result.data.length
+    
+    const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
+    totalSectors.textContent = pwdsSeniors
+    const males = result.data.filter(r => r.sex === 0).length
+    totalMales.textContent = males
+    const females = result.data.filter(r => r.sex === 1).length
+    totalFemales.textContent = females
 }
 
 async function loadData(result) {
