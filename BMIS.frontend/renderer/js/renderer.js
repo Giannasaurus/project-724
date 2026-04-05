@@ -123,13 +123,17 @@ async function loadData(result) {
         const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
         
+        const sexes = { 0: "Male", 1: "Female" }
+        const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
+        const civilStatuses = { 0: "Single", 1: "Married", 2: "Widowed", 3: "Divorced", 4: "Annulled", 5: "Legally Separated" }
+        
         const cells = [
             { value: fullName, class: 'col-name' },
             { value: resident.suffix, class: 'col-suffix' },
             { value: resident.birthDate, class: 'col-birthdate' },
-            { value: resident.sex, class: 'col-sex' },
-            { value: resident.sector, class: 'col-sector' },
-            {value: resident.civilStatus, class: 'col-civilstatus'}, 
+            { value: sexes[resident.sex], class: 'col-sex' },
+            { value: sectors[resident.sector], class: 'col-sector' },
+            {value: civilStatuses[resident.civilStatus], class: 'col-civilstatus'}, 
             {value: resident.address, class: 'col-address' },
         ]
         
