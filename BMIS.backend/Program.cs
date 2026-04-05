@@ -39,12 +39,17 @@ if(app.Environment.IsDevelopment()) {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
 
+    if(!Directory.Exists("Sample")) {
+        Directory.CreateDirectory("Sample");
+    }
+
     context.Database.EnsureCreated();
     DbInitializer.Initialize(context);
 }
 
 app.UseCors(ELECTRON_CORS);
 
+app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
 
