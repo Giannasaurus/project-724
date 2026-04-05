@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/Giannasaurus/project-724#readme",
   "devDependencies": {
-    "electron": "^41.0.2"
+    "electron": "^41.1.1"
   },
   "dependencies": {
     "dotenv": "^17.3.1"
