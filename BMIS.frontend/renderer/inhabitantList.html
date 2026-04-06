@@ -3,14 +3,19 @@
     <nav id="iLNav">
         <input id="searchBar" type="text" placeholder="Search an inhabitant...">
         <ul id="il-nav-btn-list">
-            <li><button class="il-nav-btn" type="button">Add resident</button></li>
+            <li><button id="addResidentBtn" class="il-nav-btn" type="button">Add resident</button></li>
             <li><button class="il-nav-btn" type="button">Import from Excel</button></li>
         </ul>
-        
     </nav>
     <div id="scrollableContainer">
         <div id="dataContainer">
-            
+            <!-- display data here, inside testDataTable -->
         </div>
     </div>
+    <dialog id="addResidentDialog">
+        <div id="addResidentHeader">
+            <h3>Add New Resident</h3>
+            <button class="closeBtn" type="button">✖</button>
+        </div>
+    </dialog>
 </div>
