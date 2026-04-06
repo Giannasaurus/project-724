@@ -92,7 +92,8 @@ label {
     height: 24px;
 }
 
-#usernameIcon, #passwordIcon {
+#usernameIcon,
+#passwordIcon {
     width: 24px;
     height: auto;
 }
@@ -165,13 +166,16 @@ input[type="password"]:focus {
     padding: 8px;
 }
 
-li, .sub-main-nav-a {
+li,
+.sub-main-nav-a {
     font-family: inherit;
     font-size: 1rem;
     border-radius: 10px;
 }
 
-button:focus, input:focus, .sub-main-nav-a:focus {
+button:focus,
+input:focus,
+.sub-main-nav-a:focus {
     outline: none;
 }
 
@@ -298,6 +302,20 @@ button:focus, input:focus, .sub-main-nav-a:focus {
 
 #dataContainer {
     width: 100%;
+}
+
+#addResidentDialog {
+    background-color: #fff;
+    border-radius: 24px;
+    width: 800px;
+    height: 500px;
+    padding: 16px;
+    margin: auto;
+}
+
+#addResidentHeader {
+    display: flex;
+    justify-content: space-between;
 }
 
 #testDataTable {

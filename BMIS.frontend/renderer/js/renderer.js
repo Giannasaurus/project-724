@@ -39,10 +39,13 @@ async function loadApp() {
     const mainNav = document.getElementById('mainNav')
     const mainBody = document.getElementById('mainBody')
     const settingsDialog = document.getElementById('settingsDialog')
-    const closeBtn = document.getElementById('closeBtn')
+    const closeBtns = document.querySelectorAll('.closeBtn')
 
-    await fetchFile("home.html", mainBody)
-    await loadSummary(data)
+    // FOR LOADING DEFAULT PAGE
+    await fetchFile("inhabitantList.html", mainBody)
+    await loadData(data)
+    // await fetchFile("home.html", mainBody)
+    // await loadSummary(data)
 
     let currentView = null
     mainNav.addEventListener('click', async (e) => {
@@ -70,6 +73,12 @@ async function loadApp() {
                     row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
                 })
             })
+
+            const addResidentBtn = document.getElementById('addResidentBtn')
+            const addResidentDialog = document.getElementById('addResidentDialog')
+            addResidentBtn.addEventListener('click', (e) => {
+                addResidentDialog.showModal()
+            })
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
@@ -77,7 +86,7 @@ async function loadApp() {
             await fetchFile('templates.html', mainBody)
         }
         else if (target.closest('#history')) {
-            if (currentView === 'history') return 
+            if (currentView === 'history') return
             currentView = 'history'
             await fetchFile('history.html', mainBody)
         }
@@ -90,6 +99,18 @@ async function loadApp() {
         }
     })
 
+    addResidentDialog.addEventListener('click', () => {
+        const rect = addResidentDialog.getBoundingClientRect();
+        const clickedInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+        );
+
+        if (clickedInDialog === false) addResidentDialog.close();
+    })
+
     settingsDialog.addEventListener('click', (e) => {
         const rect = settingsDialog.getBoundingClientRect();
         const clickedInDialog = (
@@ -99,12 +120,14 @@ async function loadApp() {
             e.clientX <= rect.left + rect.width
         );
 
-        if (clickedInDialog === false)
-            settingsDialog.close();
+        if (clickedInDialog === false) settingsDialog.close();
     })
 
-    closeBtn.addEventListener('click', () => {
-        settingsDialog.close()
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+        })
     })
 }
 
