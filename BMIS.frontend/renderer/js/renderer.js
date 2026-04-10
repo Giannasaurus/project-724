@@ -44,6 +44,7 @@ async function loadApp() {
     // FOR LOADING DEFAULT PAGE
     await fetchFile("inhabitantList.html", mainBody)
     await loadData(data)
+    attachInhabitantListeners()
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
 
@@ -65,20 +66,7 @@ async function loadApp() {
             const data = await window.electronAPI.getData('/residents')
             console.log(data)
             await loadData(data)
-
-            const searchBar = document.getElementById('searchBar')
-            searchBar.addEventListener('input', (e) => {
-                const query = searchBar.value.toLowerCase()
-                document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
-                    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
-                })
-            })
-
-            const addResidentBtn = document.getElementById('addResidentBtn')
-            const addResidentDialog = document.getElementById('addResidentDialog')
-            addResidentBtn.addEventListener('click', (e) => {
-                addResidentDialog.showModal()
-            })
+            attachInhabitantListeners()
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
@@ -99,36 +87,59 @@ async function loadApp() {
         }
     })
 
-    addResidentDialog.addEventListener('click', () => {
-        const rect = addResidentDialog.getBoundingClientRect();
-        const clickedInDialog = (
-            rect.top <= e.clientY &&
-            e.clientY <= rect.top + rect.height &&
-            rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width
-        );
-
-        if (clickedInDialog === false) addResidentDialog.close();
-    })
-
     settingsDialog.addEventListener('click', (e) => {
-        const rect = settingsDialog.getBoundingClientRect();
-        const clickedInDialog = (
-            rect.top <= e.clientY &&
-            e.clientY <= rect.top + rect.height &&
-            rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width
-        );
-
-        if (clickedInDialog === false) settingsDialog.close();
+        handleCloseOnBackdrop(e)
     })
 
     closeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const dialog = btn.closest('dialog')
             if (dialog) dialog.close()
+            console.log("clicked close button")
         })
     })
+}
+
+function attachInhabitantListeners() {
+    const searchBar = document.getElementById('searchBar')
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase()
+        document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none'
+        })
+    })
+
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const addResidentDialog = document.getElementById('addResidentDialog')
+    addResidentBtn.addEventListener('click', () => {
+        console.log("clicked addresidentbtn")
+        addResidentDialog.showModal()
+        addResidentDialog.addEventListener('click', (e) => {
+            handleCloseOnBackdrop(e)
+        })
+    })
+
+    const closeBtns = document.querySelectorAll('#addResidentDialog .closeBtn')
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+        })
+    })
+}
+
+function handleCloseOnBackdrop(e) {
+    const dialog = e.currentTarget
+    const rect = dialog.getBoundingClientRect();
+    const clickedInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+    );
+
+    if (clickedInDialog === false) dialog.close();
+    console.log("Dialog close on backdrop click")
 }
 
 async function loadSummary(result) {
