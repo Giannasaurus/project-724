@@ -330,3 +330,146 @@ td {
     text-align: center;
     padding: 4px 0;
 }
+
+/* addResidentDialog form */
+#addResidentDialog {
+    width: 860px;
+    height: auto;
+    max-height: 90vh;
+}
+
+#addResidentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.form-group--sm {
+    flex: 0 0 120px;
+}
+
+.form-group--full {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group--full em {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.form-group--full input {
+    width: 100%;
+}
+
+.form-group--birthdate {
+    flex: 0 0 auto;
+}
+
+.birthdate-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+.birthdate-inputs input[type="number"] {
+    width: 60px;
+    padding: var(--input-padding);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    background-color: var(--input-background-color);
+}
+
+.birthdate-inputs input[type="number"]::-webkit-inner-spin-button,
+.birthdate-inputs input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.birthdate-inputs input#ar-byear {
+    width: 80px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    padding: var(--input-padding);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    background-color: var(--input-background-color);
+    width: 100%;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.birthdate-inputs input:focus {
+    outline: none;
+}
+
+.required {
+    color: red;
+}
+
+.ar-error {
+    color: red;
+    font-size: 0.875rem;
+    min-height: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.ar-cancel-btn {
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 8px 20px;
+    background-color: #e0e0e0;
+    cursor: pointer;
+}
+
+.ar-cancel-btn:hover {
+    background-color: #c8c8c8;
+}
+
+#ar-saveBtn {
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 8px 20px;
+    background-color: #222;
+    color: #fff;
+    cursor: pointer;
+}
+
+#ar-saveBtn:hover {
+    background-color: #444;
+}
+
+#ar-saveBtn:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+}

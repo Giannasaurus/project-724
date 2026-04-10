@@ -112,11 +112,61 @@ function attachInhabitantListeners() {
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
     addResidentBtn.addEventListener('click', () => {
-        console.log("clicked addresidentbtn")
+        document.getElementById('addResidentForm').reset()
+        document.getElementById('ar-error').textContent = ''
         addResidentDialog.showModal()
         addResidentDialog.addEventListener('click', (e) => {
             handleCloseOnBackdrop(e)
         })
+    })
+
+    document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const errorEl = document.getElementById('ar-error')
+        errorEl.textContent = ''
+
+        const firstName = document.getElementById('ar-firstName').value.trim()
+        const middleName = document.getElementById('ar-middleName').value.trim()
+        const lastName = document.getElementById('ar-lastName').value.trim()
+        const address = document.getElementById('ar-address').value.trim()
+        const day = document.getElementById('ar-bday').value.padStart(2, '0')
+        const month = String(document.getElementById('ar-bmonth').value).padStart(2, '0')
+        const year = document.getElementById('ar-byear').value
+
+        if (!firstName || !middleName || !lastName || !address || !day || !year) {
+            errorEl.textContent = 'Please fill in all required fields.'
+            return
+        }
+
+        const payload = {
+            firstName,
+            middleName,
+            lastName,
+            suffix: document.getElementById('ar-suffix').value.trim(),
+            birthDate: `${year}-${month}-${day}`,
+            sex: parseInt(document.getElementById('ar-sex').value),
+            sector: parseInt(document.getElementById('ar-sector').value),
+            civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+            address
+        }
+
+        const saveBtn = document.getElementById('ar-saveBtn')
+        saveBtn.disabled = true
+        saveBtn.textContent = 'Saving...'
+
+        const result = await window.electronAPI.postData('/residents', payload)
+
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Save'
+
+        if (result.success) {
+            addResidentDialog.close()
+            const freshData = await window.electronAPI.getData('/residents')
+            await loadData(freshData)
+        } else {
+            errorEl.textContent = 'Failed to save resident. Please try again.'
+            console.error(result.message)
+        }
     })
 
     const closeBtns = document.querySelectorAll('#addResidentDialog .closeBtn')
@@ -185,7 +235,8 @@ async function loadData(result) {
     const tableBody = document.createElement('tbody')
     result.data.forEach(resident => {
         const row = document.createElement('tr')
-        const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
+        const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+        const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
 
         const sexes = { 0: "Male", 1: "Female" }
