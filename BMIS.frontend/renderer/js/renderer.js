@@ -1,0 +1,319 @@
+const app = document.getElementById('app')
+
+// skip login (dev)
+// localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
+
+// skip login then load app directly
+loadApp();
+
+async function loadLogin() {
+    await fetchFile("login.html", app)
+
+    const loginForm = document.getElementById('loginForm')
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        const username = document.getElementById('usernameInput')
+        const password = document.getElementById('passwordInput')
+        const loginErrorMessage = document.getElementById('loginErrorMessage')
+
+        const result = await window.electronAPI.checkLogin(username.value, password.value)
+
+        if (result) {
+            localStorage.setItem('isLoggedIn', result)
+            await loadApp()
+        }
+        else {
+            loginErrorMessage.textContent = "Incorrect username/password"
+        }
+    })
+}
+
+async function loadApp() {
+    await fetchFile("app.html", app)
+
+    // api request data sample
+    const data = await window.electronAPI.getData('/residents');
+    console.log(data)
+
+    const mainNav = document.getElementById('mainNav')
+    const mainBody = document.getElementById('mainBody')
+    const settingsDialog = document.getElementById('settingsDialog')
+    const closeBtns = document.querySelectorAll('.closeBtn')
+
+    // FOR LOADING DEFAULT PAGE
+    await fetchFile("inhabitantList.html", mainBody)
+    await loadData(data)
+    attachInhabitantListeners()
+    // await fetchFile("home.html", mainBody)
+    // await loadSummary(data)
+
+    let currentView = null
+    mainNav.addEventListener('click', async (e) => {
+        const target = e.target
+
+        if (target.closest('#home')) {
+            if (currentView === 'home') return
+            currentView = 'home'
+            await fetchFile('home.html', mainBody)
+            await loadSummary(data)
+        }
+        else if (target.closest('#inhabitantList')) {
+            if (currentView === 'inhabitantList') return
+            currentView = 'inhabitantList'
+
+            await fetchFile('inhabitantList.html', mainBody)
+            const data = await window.electronAPI.getData('/residents')
+            console.log(data)
+            await loadData(data)
+            attachInhabitantListeners()
+        }
+        else if (target.closest('#templates')) {
+            if (currentView === 'templates') return
+            currentView = 'templates'
+            await fetchFile('templates.html', mainBody)
+        }
+        else if (target.closest('#history')) {
+            if (currentView === 'history') return
+            currentView = 'history'
+            await fetchFile('history.html', mainBody)
+        }
+        else if (target.closest('#settings')) {
+            settingsDialog.showModal()
+        }
+        else if (target.matches('#logout')) {
+            localStorage.clear()
+            loadLogin()
+        }
+    })
+
+    settingsDialog.addEventListener('click', (e) => {
+        handleCloseOnBackdrop(e)
+    })
+
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+            console.log("clicked close button")
+        })
+    })
+}
+
+function attachInhabitantListeners() {
+    const searchBar = document.getElementById('searchBar')
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase()
+        document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none'
+        })
+    })
+
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const addResidentDialog = document.getElementById('addResidentDialog')
+    addResidentBtn.addEventListener('click', () => {
+        document.getElementById('addResidentForm').reset()
+        document.getElementById('ar-error').textContent = ''
+        addResidentDialog.showModal()
+        addResidentDialog.addEventListener('click', (e) => {
+            handleCloseOnBackdrop(e)
+        })
+    })
+
+    document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const errorEl = document.getElementById('ar-error')
+        errorEl.textContent = ''
+
+        const firstName = document.getElementById('ar-firstName').value.trim()
+        const middleName = document.getElementById('ar-middleName').value.trim()
+        const lastName = document.getElementById('ar-lastName').value.trim()
+        const address = document.getElementById('ar-address').value.trim()
+        const day = document.getElementById('ar-bday').value.padStart(2, '0')
+        const month = String(document.getElementById('ar-bmonth').value).padStart(2, '0')
+        const year = document.getElementById('ar-byear').value
+
+        if (!firstName || !middleName || !lastName || !address || !day || !year) {
+            errorEl.textContent = 'Please fill in all required fields.'
+            return
+        }
+
+        const payload = {
+            firstName,
+            middleName,
+            lastName,
+            suffix: document.getElementById('ar-suffix').value.trim(),
+            birthDate: `${year}-${month}-${day}`,
+            sex: parseInt(document.getElementById('ar-sex').value),
+            sector: parseInt(document.getElementById('ar-sector').value),
+            civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+            address
+        }
+
+        const saveBtn = document.getElementById('ar-saveBtn')
+        saveBtn.disabled = true
+        saveBtn.textContent = 'Saving...'
+
+        const result = await window.electronAPI.postData('/residents', payload)
+
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Save'
+
+        if (result.success) {
+            addResidentDialog.close()
+            const freshData = await window.electronAPI.getData('/residents')
+            await loadData(freshData)
+        } else {
+            errorEl.textContent = 'Failed to save resident. Please try again.'
+            console.error(result.message)
+        }
+    })
+
+    const closeBtns = document.querySelectorAll('#addResidentDialog .closeBtn')
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+        })
+    })
+}
+
+function handleCloseOnBackdrop(e) {
+    const dialog = e.currentTarget
+    const rect = dialog.getBoundingClientRect();
+    const clickedInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+    );
+
+    if (clickedInDialog === false) dialog.close();
+    console.log("Dialog close on backdrop click")
+}
+
+async function loadSummary(result) {
+    const newInhabitants = document.getElementById('newInhabitants')
+    const newRequested = document.getElementById('newRequested')
+    const totalHouseholds = document.getElementById('totalHouseholds')
+    const totalSectors = document.getElementById('totalSectors')
+    const totalMales = document.getElementById('totalMales')
+    const totalFemales = document.getElementById('totalFemales')
+    const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
+
+    const totalInhabitants = result.data.length
+
+    const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
+    totalSectors.textContent = pwdsSeniors
+    const males = result.data.filter(r => r.sex === 0).length
+    totalMales.textContent = males
+    const females = result.data.filter(r => r.sex === 1).length
+    totalFemales.textContent = females
+}
+
+async function loadData(result) {
+    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
+    const dataContainer = document.getElementById('dataContainer')
+    dataContainer.innerHTML = ''
+
+    if (!result.success) {
+        console.error(result.message)
+        dataContainer.innerHTML = "<p>Error loading residents.</p>"
+        return
+    }
+
+    const table = document.createElement('table')
+    table.setAttribute('id', 'testDataTable')
+
+    const tableHeader = document.createElement('thead')
+    fieldNames.forEach(field => {
+        const th = document.createElement('th')
+        th.textContent = field
+        tableHeader.appendChild(th)
+    })
+
+    const tableBody = document.createElement('tbody')
+    result.data.forEach(resident => {
+        const row = document.createElement('tr')
+        const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+        const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
+        const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
+
+        const sexes = { 0: "Male", 1: "Female" }
+        const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
+        const civilStatuses = { 0: "Single", 1: "Married", 2: "Widowed", 3: "Divorced", 4: "Annulled", 5: "Legally Separated" }
+
+        const cells = [
+            { value: fullName, class: 'col-name' },
+            { value: resident.suffix, class: 'col-suffix' },
+            { value: resident.birthDate, class: 'col-birthdate' },
+            { value: sexes[resident.sex], class: 'col-sex' },
+            { value: sectors[resident.sector], class: 'col-sector' },
+            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
+            { value: resident.address, class: 'col-address' },
+        ]
+
+        cells.forEach(cell => {
+            const td = document.createElement('td')
+            td.textContent = cell.value
+            td.className = cell.class
+            row.appendChild(td)
+        })
+
+        tableBody.appendChild(row)
+    })
+
+    table.append(tableHeader, tableBody)
+    dataContainer.appendChild(table)
+}
+
+// async function loadTestData(datafile) {
+//     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
+//     const dataContainer = document.getElementById('dataContainer')
+//     dataContainer.innerHTML = ''
+//     try {
+//         const response = await fetch(datafile)
+//         if (!response.ok) throw new Error(response.status)
+//         const data = await response.json()
+//         console.log("Fetched test data from data.json")
+//         const table = document.createElement('table')
+//         table.setAttribute('id', 'testDataTable')
+//         const tableHeader = document.createElement('thead')
+//         fieldNames.forEach(field => {
+//             const th = document.createElement('th')
+//             th.textContent = field
+//             tableHeader.appendChild(th)
+//         })
+//         const tableBody = document.createElement('tbody')
+//         data.forEach(resident => {
+//             const row = document.createElement('tr')
+//             const fullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
+//             const entry = [resident.id, fullName, resident.BirthDate, resident.Gender, resident.CivilStatus, resident.Sector]
+//             entry.forEach(cell => {
+//                 const td = document.createElement('td')
+//                 td.textContent = cell
+//                 row.appendChild(td)
+//             })
+//             tableBody.appendChild(row)
+//         })
+//         table.append(tableHeader, tableBody)
+//         dataContainer.appendChild(table)
+//     }
+//     catch (error) {
+//         console.error("Cannot fetch test data.", error)
+//         dataContainer.innerHTML = "<p>Error loading test data.</p>"
+//     }
+// }
+
+async function fetchFile(file, container) {
+    try {
+        const response = await fetch(file)
+        if (!response.ok) throw new Error(response.status)
+        container.innerHTML = await response.text()
+        console.log(`Fetched ${file}`)
+    }
+    catch (error) {
+        console.error(`Cannot fetch ${file}`, error)
+        container.innerHTML = `<p>Error loading ${file} page.</p>`
+    }
+}

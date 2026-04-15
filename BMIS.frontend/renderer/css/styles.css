@@ -1,0 +1,475 @@
+@font-face {
+    font-family: Inter;
+    src: url('../fonts/Inter/Inter-VariableFont_opsz\,wght.ttf') format('truetype');
+    font-weight: 100 900;
+}
+
+:root {
+    --font-size-regular: 1rem;
+    --label-margin: 0 0 4px 0;
+    --input-background-color: #FFF;
+    --input-border: 2px solid #C0C0C0;
+    --input-corner-radius: 12px;
+    --input-padding: 8px 12px;
+    --input-margin: 0 0 16px 0;
+    --login-button-margin: 4px 0 0 0;
+    --button-corner-radius: 12px;
+}
+
+* {
+    border: none;
+    text-decoration: none;
+    list-style-type: none;
+    box-sizing: border-box;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    padding: 0 16px;
+    min-height: 100vh;
+}
+
+h2 {
+    margin-bottom: 16px;
+}
+
+button {
+    background: none;
+    border: none;
+}
+
+a {
+    color: #000;
+}
+
+#loginView {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    min-height: 100vh;
+}
+
+#loginView h1 {
+    color: #000;
+    text-align: center;
+}
+
+#brgyLogo {
+    width: 100px;
+    height: auto;
+    margin: 0 auto;
+}
+
+#loginErrorMessage {
+    color: red;
+    text-align: center;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.inputGroup label {
+    display: flex;
+}
+
+label {
+    height: 24px;
+}
+
+#usernameIcon,
+#passwordIcon {
+    width: 24px;
+    height: auto;
+}
+
+input[type="text"],
+input[type="password"] {
+    background-color: var(--input-background-color);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    padding: var(--input-padding);
+    width: 250px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+}
+
+#loginButton {
+    background-color: lightgrey;
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 12px 24px;
+    margin: var(--login-button-margin);
+}
+
+#loginButton:hover {
+    background-color: gray;
+    cursor: pointer;
+}
+
+#loginButton:active {
+    background-color: blue;
+    cursor: pointer;
+}
+
+/* app.html */
+#mainView {
+    display: grid;
+    grid-template-columns: 1fr 6fr;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+    min-height: 100vh;
+}
+
+#mainHeader {
+    grid-column: span 2;
+}
+
+#mainHeader h1 {
+    font-size: 1rem;
+    padding: 8px 0 0 0;
+}
+
+#mainNav {
+    display: flex;
+    flex-direction: column;
+    grid-row: span 2;
+    grid-row-start: 2;
+    justify-content: space-between;
+    margin: 0 0 12px 0;
+}
+
+.sub-main-nav-a {
+    display: inline-block;
+    width: 100%;
+    padding: 8px;
+}
+
+li,
+.sub-main-nav-a {
+    font-family: inherit;
+    font-size: 1rem;
+    border-radius: 10px;
+}
+
+button:focus,
+input:focus,
+.sub-main-nav-a:focus {
+    outline: none;
+}
+
+.sub-main-nav-li:hover {
+    background-color: rgba(211, 211, 211, 0.5);
+}
+
+.sub-main-nav-li:active {
+    background-color: rgba(255, 175, 175, 0.5);
+}
+
+#mainBody {
+    grid-column: span 2;
+    grid-row-start: 2;
+}
+
+#settingsDialog {
+    background-color: #fff;
+    border-radius: 24px;
+    width: 800px;
+    height: 500px;
+    padding: 16px;
+    margin: auto;
+}
+
+#settingsHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* home.html */
+#homeView {
+    min-width: 100%;
+}
+
+#summaryWrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    width: fit-content;
+    margin: auto;
+}
+
+#chartContainer {
+    border: 1px solid #000;
+    grid-area: 1 / 1 / 3 / 3;
+}
+
+#tallyContainer {
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    grid-area: 1 / 3 / 5 / 4;
+    text-align: center;
+}
+
+.tally-box {
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 12px;
+}
+
+#dailyReportContainer {
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: space-around;
+    grid-area: 3 / 1 /5 / 3;
+}
+
+.daily-report {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.daily-report-icon {
+    width: 75px;
+}
+
+/* inhabitantList.html */
+#iLNav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#searchBar {
+    width: 400px;
+}
+
+#il-nav-btn-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.il-nav-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: auto;
+}
+
+.il-nav-btn:hover {
+    background-color: rgb(211, 211, 211, 0.5)
+}
+
+#scrollableContainer {
+    height: 600px;
+    overflow-y: scroll;
+}
+
+#dataContainer {
+    width: 100%;
+}
+
+#addResidentDialog {
+    background-color: #fff;
+    border-radius: 24px;
+    width: 800px;
+    height: 500px;
+    padding: 16px;
+    margin: auto;
+}
+
+#addResidentHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+#testDataTable {
+    width: 100%;
+}
+
+th {
+    padding: 12px 0;
+}
+
+td {
+    text-align: center;
+    padding: 4px 0;
+}
+
+/* addResidentDialog form */
+#addResidentDialog {
+    width: 860px;
+    height: auto;
+    max-height: 90vh;
+}
+
+#addResidentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.form-group--sm {
+    flex: 0 0 120px;
+}
+
+.form-group--full {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group--full em {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.form-group--full input {
+    width: 100%;
+}
+
+.form-group--birthdate {
+    flex: 0 0 auto;
+}
+
+.birthdate-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+.birthdate-inputs input[type="number"] {
+    width: 60px;
+    padding: var(--input-padding);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    background-color: var(--input-background-color);
+}
+
+.birthdate-inputs input[type="number"]::-webkit-inner-spin-button,
+.birthdate-inputs input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.birthdate-inputs input#ar-byear {
+    width: 80px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    padding: var(--input-padding);
+    border: var(--input-border);
+    border-radius: var(--input-corner-radius);
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    background-color: var(--input-background-color);
+    width: 100%;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.birthdate-inputs input:focus {
+    outline: none;
+}
+
+.required {
+    color: red;
+}
+
+.ar-error {
+    color: red;
+    font-size: 0.875rem;
+    min-height: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.ar-cancel-btn {
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 8px 20px;
+    background-color: #e0e0e0;
+    cursor: pointer;
+}
+
+.ar-cancel-btn:hover {
+    background-color: #c8c8c8;
+}
+
+#ar-saveBtn {
+    font-family: inherit;
+    font-size: var(--font-size-regular);
+    border-radius: var(--button-corner-radius);
+    padding: 8px 20px;
+    background-color: #222;
+    color: #fff;
+    cursor: pointer;
+}
+
+#ar-saveBtn:hover {
+    background-color: #444;
+}
+
+#ar-saveBtn:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+}
