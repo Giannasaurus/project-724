@@ -111,13 +111,12 @@ function attachInhabitantListeners() {
 
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
+    
     addResidentBtn.addEventListener('click', () => {
         document.getElementById('addResidentForm').reset()
         document.getElementById('ar-error').textContent = ''
         addResidentDialog.showModal()
-        addResidentDialog.addEventListener('click', (e) => {
-            handleCloseOnBackdrop(e)
-        })
+        addResidentDialog.addEventListener('click', handleCloseOnBackdrop, { once: true })
     })
 
     document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
