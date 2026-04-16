@@ -22,6 +22,8 @@
     --color-required: red;
     --color-error: red;
     --color-white: #fff;
+    --color-accent: #2563EB;
+    --color-accent-hover: #1E40AF;
     --color-border: #C0C0C0;
     --color-bg-input: #fff;
     --color-bg-hover: rgba(211, 211, 211, 0.5);
@@ -468,6 +470,22 @@ tr:hover .ellipsis-btn,
    ADD RESIDENT DIALOG
    ============================================================ */
 
+#addResidentBtn {
+    color: var(--color-white);
+    background-color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+}
+
+#addResidentBtn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+#addResidentBtn img {
+    width: auto;
+}
+
 #addResidentDialog {
     width: 860px;
     max-height: 90vh;
@@ -547,7 +565,6 @@ tr:hover .ellipsis-btn,
     font-size: var(--font-size-base);
     border-radius: var(--radius-md);
     padding: var(--gap-md) 20px;
-    background-color: var(--color-bg-btn-cancel);
 }
 
 .ar-cancel-btn:hover { background-color: var(--color-bg-btn-cancel-hover); }
