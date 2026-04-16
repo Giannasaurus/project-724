@@ -44,9 +44,19 @@ public static class DocumentEndpoints {
             Console.WriteLine($"ERROR: {fnfe.Message}");
             return TypedResults.NotFound("Document type not found");
         }
-        
-        string fullName = $"{data.LastName}, {data.FirstName}, {data.MiddleName} {data.Suffix}";
-        template = template.Replace("{{fullName}}", fullName.Trim());
+       
+        DateOnly current = DateOnly.FromDateTime(DateTime.Now);
+
+        template = template.Replace("{{fullName}}", $"{data.LastName}, {data.FirstName}, {data.MiddleName} {data.Suffix}".Trim())
+                           .Replace("{{birthDate}}", data.BirthDate.ToString("MMM dd, yyyy"))
+                           .Replace("{{civilStatus}}", data.CivilStatus.ToString())
+                           .Replace("{{address}}", data.Address)
+                           .Replace("{{pronoun}}", data.Sex == Sex.Male ? "he" : "she")
+                           .Replace("{{pronoun2}}", data.Sex == Sex.Male ? "his" : "she")
+                           .Replace("{{signDay}}", Utils.RankNum(current.Day))
+                           .Replace("{{signMonth}}", current.ToString("MMM"))
+                           .Replace("{{signYear}}", current.ToString("yyyy"))
+                           .Replace("{{chairName}}", "Rolando V. Navarro".ToUpper());
 
         return TypedResults.Content(template, "text/html", System.Text.Encoding.UTF8);
     }
