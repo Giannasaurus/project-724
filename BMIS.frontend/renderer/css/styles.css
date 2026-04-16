@@ -371,11 +371,25 @@ th {
     padding: 12px 0;
 }
 
-td {
-    text-align: center;
-    padding: 4px 0;
+tr {
+    padding: 100px 0;
 }
 
+td {
+    text-align: center;
+    padding: 10px 0;
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+
+#paginationContainer {
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    display: flex;
+    justify-content: space-between;
+}
 
 /* ============================================================
    ADD RESIDENT DIALOG
@@ -476,3 +490,58 @@ td {
 
 #ar-saveBtn:hover    { background-color: var(--color-bg-btn-primary-hover); }
 #ar-saveBtn:disabled { background-color: var(--color-bg-btn-disabled); cursor: not-allowed; }
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+
+#paginationContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.page-numbers {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.page-numbers button,
+.page-numbers span {
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-width: 32px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.page-numbers button:hover {
+    text-decoration: underline;
+}
+
+.page-numbers button.active {
+    font-weight: bold;
+    text-decoration: underline;
+    color: red;
+}
+
+#paginationContainer > button {
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+#paginationContainer > button:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+#paginationContainer > button:disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
