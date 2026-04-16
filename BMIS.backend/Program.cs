@@ -46,6 +46,7 @@ if(app.Environment.IsDevelopment() || args.Contains("dev")) {
 
 app.UseCors(ELECTRON_CORS);
 
+app.MapGet("/health", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
