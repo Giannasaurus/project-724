@@ -182,8 +182,13 @@ label {
     background-color: lightgrey;
 }
 
-#loginButton:hover { background-color: gray; }
-#loginButton:active { background-color: blue; }
+#loginButton:hover {
+    background-color: gray;
+}
+
+#loginButton:active {
+    background-color: blue;
+}
 
 
 /* ============================================================
@@ -217,9 +222,18 @@ label {
 }
 
 .sub-main-nav-a {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: var(--gap-md);
     width: 100%;
     padding: var(--gap-md);
+}
+
+
+.main-nav-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
 }
 
 li,
@@ -229,8 +243,13 @@ li,
     border-radius: 10px;
 }
 
-.sub-main-nav-li:hover  { background-color: var(--color-bg-hover); }
-.sub-main-nav-li:active { background-color: rgba(255, 175, 175, 0.5); }
+.sub-main-nav-li:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.sub-main-nav-li:active {
+    background-color: rgba(255, 175, 175, 0.5);
+}
 
 #mainBody {
     grid-column: span 2;
@@ -386,7 +405,7 @@ th {
     padding: 12px 0;
 }
 
-tr:hover {
+tbody tr:hover {
     background-color: var(--color-bg-hover);
     border-radius: var(--radius-lg);
 }
@@ -403,7 +422,7 @@ td {
 /* ============================================================
    ACTION BUTTON & CONTEXT MENU
    ============================================================ */
-   
+
 .col-action {
     position: relative;
     padding-right: 12px;
@@ -414,7 +433,7 @@ td {
     visibility: hidden;
 }
 
-tr:hover .ellipsis-btn,
+tbody tr:hover .ellipsis-btn,
 .row-action.open .ellipsis-btn {
     visibility: visible;
 }
@@ -518,8 +537,13 @@ tr:hover .ellipsis-btn,
     flex: 1;
 }
 
-.form-group--sm       { flex: 0 0 120px; }
-.form-group--birthdate { flex: 0 0 auto; }
+.form-group--sm {
+    flex: 0 0 120px;
+}
+
+.form-group--birthdate {
+    flex: 0 0 auto;
+}
 
 .form-group--full {
     display: flex;
@@ -544,8 +568,13 @@ tr:hover .ellipsis-btn,
     gap: var(--gap-sm);
 }
 
-.birthdate-inputs input#ar-bday   { width: 60px; }
-.birthdate-inputs input#ar-byear  { width: 80px; }
+.birthdate-inputs input#ar-bday {
+    width: 60px;
+}
+
+.birthdate-inputs input#ar-byear {
+    width: 80px;
+}
 
 .ar-error {
     color: var(--color-error);
@@ -567,7 +596,9 @@ tr:hover .ellipsis-btn,
     padding: var(--gap-md) 20px;
 }
 
-.ar-cancel-btn:hover { background-color: var(--color-bg-btn-cancel-hover); }
+.ar-cancel-btn:hover {
+    background-color: var(--color-bg-btn-cancel-hover);
+}
 
 #ar-saveBtn {
     font-family: inherit;
@@ -578,8 +609,14 @@ tr:hover .ellipsis-btn,
     color: var(--color-white);
 }
 
-#ar-saveBtn:hover    { background-color: var(--color-bg-btn-primary-hover); }
-#ar-saveBtn:disabled { background-color: var(--color-bg-btn-disabled); cursor: not-allowed; }
+#ar-saveBtn:hover {
+    background-color: var(--color-bg-btn-primary-hover);
+}
+
+#ar-saveBtn:disabled {
+    background-color: var(--color-bg-btn-disabled);
+    cursor: not-allowed;
+}
 
 /* ============================================================
    PAGINATION
@@ -620,18 +657,18 @@ tr:hover .ellipsis-btn,
     color: red;
 }
 
-#paginationContainer > button {
+#paginationContainer>button {
     font-family: inherit;
     font-size: var(--font-size-base);
     padding: 4px 8px;
     border-radius: var(--radius-sm);
 }
 
-#paginationContainer > button:hover:not(:disabled) {
+#paginationContainer>button:hover:not(:disabled) {
     text-decoration: underline;
 }
 
-#paginationContainer > button:disabled {
+#paginationContainer>button:disabled {
     color: var(--color-text-muted);
     cursor: not-allowed;
 }
