@@ -19,6 +19,23 @@ public static class DocumentEndpoints {
         }
         
         string template;
+        
+        /*
+         * NOTE: the following placeholders need to be replaced on the template before returning to api requester
+         *
+         * fullName     <= name format that would appear on certificate
+         * birthDate    <= birthdate of resident
+         * civilStatus  <= civil status of resident
+         * address      <= where does the resident reside within the barangay
+         * pronoun      <= based on sex (he/she)
+         * pronoun2     <= based on sex but possesive (his/her)
+         * signDay      <= should be current day
+         * signMonth    <= should be current month
+         * signYear     <= should be current year
+         * chairName    <= who is the current chairman
+         *
+         *
+        */
 
         try {
             string? docName = Enum.GetName(typeof(DocumentType), type);
