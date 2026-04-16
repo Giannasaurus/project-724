@@ -1,6 +1,7 @@
 # Project 724
 
-## To Run 
+
+# TO RUN 
 > [!NOTE]
 > For Development:  
 > `dotnet run --environment Development`  
@@ -10,7 +11,7 @@
 > `dotnet run`  
 >> locates database in `BMIS.backend/LocalDatabase.db`  
 
-## Entities
+# Entities
 > [!NOTE]
 > `ATTRIBUTE` **→** `VALUE`  
 > is read `ATTRIBUTE` as `VALUE`  
@@ -39,20 +40,16 @@
     * LegallySeparated → 5
 * Address : (string)
 
-## API
+# API
 
-### Residents
+## Endpoints
 
-#### All Residents
-Returns a list of all residents.
-* Method: `GET`
-* Endpoint: `/residents`
-* Electron Bridge: `getData(endpoint)`
+### All Residents
+* Endpoint: `GET /residents`
 
-#### Filter Residents
-* Method: `GET`
-* Endpoint: `/residents/filter[?params]`
-* Parameters
+### Filter Residents
+* Endpoint: `GET /residents/filter[?params]`
+* Parameters:
 
 |Parameter|Type|Required\?|Default|Description|
 |:---|:---:|:---:|:---:|:---|
@@ -64,26 +61,17 @@ Returns a list of all residents.
 |`from`|`int`|no|0|The starting index of entries to return base on `orderBy`.|
 |`limit`|`int`|no|50|The max number of entries to return base on `orderBy`.|
 
-#### Add Resident
-* Method: `POST`
-* Endpoint: `/residents`
-* Electron Bridge: `postData(endpoint, body)`
-
-##### Request Body
-```
-```
-##### Response Body
-```
-```
-
-#### Update Resident
-* Method: `PUT`
-* Endpoint: `/residents/{id}`
+### Add Resident
+* Endpoint: `POST /residents}`
 * Request Body: (to be added)
 * Response Body: (to be added)
 
-#### Remove Resident
-* Method: `DELETE`
-* Endpoint: `/residents/{id}`
+### Update Resident
+* Endpoint: `PUT /residents/{id}`
+* Request Body: (to be added)
+* Response Body: (to be added)
+
+### Remove Resident
+* Endpoint: `DELETE /residents/{id}`
 * Request Body: (to be added)
 * Response Body: (to be added)

@@ -126,38 +126,6 @@ app.whenReady().then(async () => {
         }
     });
 
-    ipcMain.handle('post-data', async (event, endpoint, body) => {
-        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`;
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (response.ok) {
-                return {
-                    success: true,
-                    message: `[~] request ${response.status}: POST ${url}`,
-                    data: await response.json()
-                };
-            } else {
-                return {
-                    success: false,
-                    message: `[!] request ${response.status}: POST ${url}`,
-                    data: null
-                };
-            }
-        } catch (err) {
-            return {
-                success: false,
-                message: `[!] request failed: POST ${url} -> ${err.message}`,
-                data: null
-            };
-        }
-    });
-
     ipcMain.handle('check-login', (e, username, password) => {
         // commented out for faster development
         // return username === process.env.UN && password === process.env.PW
