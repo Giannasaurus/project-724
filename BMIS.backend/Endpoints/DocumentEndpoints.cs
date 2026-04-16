@@ -17,12 +17,18 @@ public static class DocumentEndpoints {
         if(data == null) {
             return TypedResults.NotFound("Resident not found");
         }
+        
+        string template;
 
-        string template = File.ReadAllText(Path.Join("Resources", "Templates", $"{type}.html"));
-        Console.WriteLine(Path.Join("Resources", "Templates", $"{type}.html"));
+        try {
+            string? docName = Enum.GetName(typeof(DocumentType), type);
+            template = File.ReadAllText(Path.Join(AppContext.BaseDirectory, "Resources", "Templates", $"{docName}.html"));
+        } catch(FileNotFoundException fnfe) {
+            Console.WriteLine($"ERROR: {fnfe.Message}");
+            return TypedResults.NotFound("Document type not found");
+        }
         
         string fullName = $"{data.LastName}, {data.FirstName}, {data.MiddleName} {data.Suffix}";
-
         template = template.Replace("{{fullName}}", fullName.Trim());
 
         return TypedResults.Content(template, "text/html", System.Text.Encoding.UTF8);
