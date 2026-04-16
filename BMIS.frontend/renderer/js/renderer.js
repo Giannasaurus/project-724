@@ -307,7 +307,7 @@ async function loadData(result) {
         th.textContent = field
         tableHeader.appendChild(th)
     })
-
+    
     const tableBody = document.createElement('tbody')
     result.data.forEach(resident => {
         const row = document.createElement('tr')
@@ -336,6 +336,27 @@ async function loadData(result) {
             row.appendChild(td)
         })
 
+        const actionTd = document.createElement('td')
+        actionTd.className = 'col-action'
+        actionTd.innerHTML = `
+            <div class="row-action">
+                <button class="ellipsis-btn">•••</button>
+                <div class="context-menu">
+                    <button>Edit</button>
+                    <hr class="context-menu-divider">
+                    <button>Delete</button>
+                </div>
+            </div>
+        `
+        actionTd.querySelector('.ellipsis-btn').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const rowAction = actionTd.querySelector('.row-action')
+            const isOpen = rowAction.classList.contains('open')
+            document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
+            if (!isOpen) rowAction.classList.add('open')
+        })
+
+        row.appendChild(actionTd)
         tableBody.appendChild(row)
     })
 
@@ -393,3 +414,7 @@ async function fetchFile(file, container) {
         container.innerHTML = `<p>Error loading ${file} page.</p>`
     }
 }
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
+})

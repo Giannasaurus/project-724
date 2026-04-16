@@ -365,19 +365,92 @@ dialog {
 
 #testDataTable {
     width: 100%;
+    border-collapse: collapse;
+}
+
+#testDataTable td:first-child {
+    text-align: left;
+}
+
+#testDataTable tbody tr:hover td:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+#testDataTable tbody tr:hover td:last-child {
+    border-radius: 0 8px 8px 0;
 }
 
 th {
     padding: 12px 0;
 }
 
-tr {
-    padding: 100px 0;
+tr:hover {
+    background-color: var(--color-bg-hover);
+    border-radius: var(--radius-lg);
 }
 
 td {
     text-align: center;
     padding: 10px 0;
+}
+
+.col-name {
+    padding-left: 12px;
+}
+
+/* ============================================================
+   ACTION BUTTON & CONTEXT MENU
+   ============================================================ */
+   
+.col-action {
+    position: relative;
+    padding-right: 12px;
+    text-align: right;
+}
+
+.ellipsis-btn {
+    visibility: hidden;
+}
+
+tr:hover .ellipsis-btn,
+.row-action.open .ellipsis-btn {
+    visibility: visible;
+}
+
+.context-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    z-index: 100;
+    padding: 12px;
+}
+
+.context-menu button {
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    min-width: 84px;
+    text-align: left;
+    padding: 8px;
+}
+
+.context-menu button:hover {
+    background-color: var(--color-bg-hover);
+    border-radius: var(--radius-sm);
+}
+
+.context-menu-divider {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 6px 0;
+}
+
+.row-action.open .context-menu {
+    display: flex;
+    flex-direction: column;
 }
 
 /* ============================================================
