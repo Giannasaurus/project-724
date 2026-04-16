@@ -3,14 +3,93 @@
     <nav id="iLNav">
         <input id="searchBar" type="text" placeholder="Search an inhabitant...">
         <ul id="il-nav-btn-list">
-            <li><button class="il-nav-btn" type="button">Add resident</button></li>
+            <li><button id="addResidentBtn" class="il-nav-btn" type="button">Add resident</button></li>
             <li><button class="il-nav-btn" type="button">Import from Excel</button></li>
         </ul>
-        
     </nav>
     <div id="scrollableContainer">
         <div id="dataContainer">
-            
+            <!-- display data here, inside testDataTable -->
         </div>
     </div>
+    <div id="paginationContainer">
+    </div>
+    <dialog id="addResidentDialog">
+        <div id="addResidentHeader">
+            <h3>Add New Resident</h3>
+            <button class="closeBtn" type="button">✖</button>
+        </div>
+        <form id="addResidentForm" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name <span class="required">*</span></label>
+                    <input type="text" id="ar-firstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Middle Name <span class="required">*</span></label>
+                    <input type="text" id="ar-middleName" required>
+                </div>
+                <div class="form-group">
+                    <label>Surname Name <span class="required">*</span></label>
+                    <input type="text" id="ar-lastName" required>
+                </div>
+                <div class="form-group form-group--sm">
+                    <label>Suffix</label>
+                    <input type="text" id="ar-suffix">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group form-group--sm">
+                    <label>Gender <span class="required">*</span></label>
+                    <select id="ar-sex">
+                        <option value="0">Male</option>
+                        <option value="1">Female</option>
+                    </select>
+                </div>
+                <div class="form-group form-group--sm">
+                    <label>PWD/Senior <span class="required">*</span></label>
+                    <select id="ar-sector">
+                        <option value="0">No</option>
+                        <option value="1">PWD</option>
+                        <option value="2">Senior</option>
+                    </select>
+                </div>
+                <div class="form-group form-group--birthdate">
+                    <label>Birthdate <span class="required">*</span></label>
+                    <div class="birthdate-inputs">
+                        <input type="number" id="ar-bday" placeholder="DD" min="1" max="31">
+                        <select id="ar-bmonth">
+                            <option value="1">Jan</option><option value="2">Feb</option>
+                            <option value="3">Mar</option><option value="4">Apr</option>
+                            <option value="5">May</option><option value="6">Jun</option>
+                            <option value="7">Jul</option><option value="8">Aug</option>
+                            <option value="9">Sep</option><option value="10">Oct</option>
+                            <option value="11">Nov</option><option value="12">Dec</option>
+                        </select>
+                        <input type="number" id="ar-byear" placeholder="YYYY" min="1900" max="2100">
+                    </div>
+                </div>
+                <div class="form-group form-group--sm">
+                    <label>Civil Status <span class="required">*</span></label>
+                    <select id="ar-civilStatus">
+                        <option value="0">Single</option>
+                        <option value="1">Married</option>
+                        <option value="2">Widowed</option>
+                        <option value="3">Divorced</option>
+                        <option value="4">Annulled</option>
+                        <option value="5">Legally Separated</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group form-group--full">
+                <label>Full Address <em>(house number/lot &amp; block, street, barangay, city/municipality, province)</em> <span class="required">*</span></label>
+                <input type="text" id="ar-address" required>
+            </div>
+            <p id="ar-error" class="ar-error"></p>
+            <div class="form-actions">
+                <button class="closeBtn ar-cancel-btn" type="button">Cancel</button>
+                <button id="ar-saveBtn" type="submit">Save</button>
+            </div>
+        </form>
+    </dialog>
 </div>

@@ -31,42 +31,64 @@ async function loadLogin() {
 
 async function loadApp() {
     await fetchFile("app.html", app)
- 
+
     // api request data sample
-    const data = await window.electronAPI.getData('/residents');
-    console.log(data)
-    
+    let currentPage = 1
+    const limit = 50
+    let totalPages = 1
+
+    async function goToPage(page) {
+        currentPage = page
+        const from = (page - 1) * limit
+        const data = await window.electronAPI.getData(`/residents/filter?from=${from}&limit=${limit}`)
+        const countData = await window.electronAPI.getData('/residents')
+        if (countData.success) {
+            totalPages = Math.ceil(countData.data.length / limit)
+        }
+        await loadData(data)
+        renderPagination(currentPage, totalPages, goToPage)
+
+        return data
+    }
+
     const mainNav = document.getElementById('mainNav')
     const mainBody = document.getElementById('mainBody')
     const settingsDialog = document.getElementById('settingsDialog')
-    const closeBtn = document.getElementById('closeBtn')
+    const closeBtns = document.querySelectorAll('.closeBtn')
 
-    await fetchFile("home.html", mainBody)
+    // FOR LOADING DEFAULT PAGE
+    await fetchFile("inhabitantList.html", mainBody)
+    await goToPage(1)
+    attachInhabitantListeners()
+    // await fetchFile("home.html", mainBody)
+    // await loadSummary(data)
 
+    let currentView = null
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
 
         if (target.closest('#home')) {
+            if (currentView === 'home') return
+            currentView = 'home'
             await fetchFile('home.html', mainBody)
+            await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
-            await fetchFile('inhabitantList.html', mainBody)
-            const data = await window.electronAPI.getData('/residents')
-            console.log(data)
-            await loadData(data)
+            if (currentView === 'inhabitantList') return
+            currentView = 'inhabitantList'
 
-            const searchBar = document.getElementById('searchBar')
-            searchBar.addEventListener('input', (e) => {
-                const query = searchBar.value.toLowerCase()
-                document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
-                    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
-                })
-            })
+            await fetchFile('inhabitantList.html', mainBody)
+            await goToPage(1)
+            attachInhabitantListeners()
         }
         else if (target.closest('#templates')) {
+            if (currentView === 'templates') return
+            currentView = 'templates'
             await fetchFile('templates.html', mainBody)
         }
         else if (target.closest('#history')) {
+            if (currentView === 'history') return
+            currentView = 'history'
             await fetchFile('history.html', mainBody)
         }
         else if (target.closest('#settings')) {
@@ -79,21 +101,190 @@ async function loadApp() {
     })
 
     settingsDialog.addEventListener('click', (e) => {
-        const rect = settingsDialog.getBoundingClientRect();
-        const clickedInDialog = (
-            rect.top <= e.clientY &&
-            e.clientY <= rect.top + rect.height &&
-            rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width
-        );
-
-        if (clickedInDialog === false)
-            settingsDialog.close();
+        handleCloseOnBackdrop(e)
     })
 
-    closeBtn.addEventListener('click', () => {
-        settingsDialog.close()
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+            console.log("clicked close button")
+        })
     })
+}
+
+function getPageNumbers(current, total) {
+    const delta = 1
+    const pages = []
+    
+    const left = current - 1
+    const right = current + 1
+    
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= left && i <= right)) {
+            pages.push(i)
+        }
+    }
+    
+    const result = []
+    let prev = null
+    for (const page of pages) {
+        if (prev !== null && page - prev > 1) {
+            result.push('...')
+        }
+        result.push(page)
+        prev = page
+    }
+    
+    return result
+}
+
+function renderPagination(current, total, onPageChange) {
+    const pages = getPageNumbers(current, total)
+    const nav = document.getElementById("paginationContainer")
+    nav.innerHTML = ''
+
+    const prev = document.createElement("button")
+    prev.textContent = '< Previous'
+    prev.disabled = current === 1
+    prev.addEventListener('click', () => onPageChange(current - 1))
+    nav.appendChild(prev)
+
+    const pageNumbers = document.createElement("div")
+    pageNumbers.className = 'page-numbers'
+
+    for (const page of pages) {
+        if (page === '...') {
+            const span = document.createElement("span")
+            span.textContent = '...'
+            pageNumbers.appendChild(span)
+        }
+        else {
+            const btn = document.createElement("button")
+            btn.textContent = page
+            btn.classList.toggle('active', page === current)
+            btn.addEventListener('click', () => onPageChange(page))
+            pageNumbers.appendChild(btn)
+        }
+    }
+
+    nav.appendChild(pageNumbers)
+
+    const next = document.createElement("button")
+    next.textContent = 'Next >'
+    next.disabled = current === total
+    next.addEventListener('click', () => onPageChange(current + 1))
+    nav.appendChild(next)
+}
+
+function attachInhabitantListeners() {
+    const searchBar = document.getElementById('searchBar')
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase()
+        document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none'
+        })
+    })
+
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const addResidentDialog = document.getElementById('addResidentDialog')
+    
+    addResidentBtn.addEventListener('click', () => {
+        document.getElementById('addResidentForm').reset()
+        document.getElementById('ar-error').textContent = ''
+        addResidentDialog.showModal()
+        addResidentDialog.addEventListener('click', handleCloseOnBackdrop, { once: true })
+    })
+
+    document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const errorEl = document.getElementById('ar-error')
+        errorEl.textContent = ''
+
+        const firstName = document.getElementById('ar-firstName').value.trim()
+        const middleName = document.getElementById('ar-middleName').value.trim()
+        const lastName = document.getElementById('ar-lastName').value.trim()
+        const address = document.getElementById('ar-address').value.trim()
+        const day = document.getElementById('ar-bday').value.padStart(2, '0')
+        const month = String(document.getElementById('ar-bmonth').value).padStart(2, '0')
+        const year = document.getElementById('ar-byear').value
+
+        if (!firstName || !middleName || !lastName || !address || !day || !year) {
+            errorEl.textContent = 'Please fill in all required fields.'
+            return
+        }
+
+        const payload = {
+            firstName,
+            middleName,
+            lastName,
+            suffix: document.getElementById('ar-suffix').value.trim(),
+            birthDate: `${year}-${month}-${day}`,
+            sex: parseInt(document.getElementById('ar-sex').value),
+            sector: parseInt(document.getElementById('ar-sector').value),
+            civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+            address
+        }
+
+        const saveBtn = document.getElementById('ar-saveBtn')
+        saveBtn.disabled = true
+        saveBtn.textContent = 'Saving...'
+
+        const result = await window.electronAPI.postData('/residents', payload)
+
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Save'
+
+        if (result.success) {
+            addResidentDialog.close()
+            const freshData = await window.electronAPI.getData('/residents')
+            await loadData(freshData)
+        } else {
+            errorEl.textContent = 'Failed to save resident. Please try again.'
+            console.error(result.message)
+        }
+    })
+
+    const closeBtns = document.querySelectorAll('#addResidentDialog .closeBtn')
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+        })
+    })
+}
+
+function handleCloseOnBackdrop(e) {
+    const dialog = e.currentTarget
+    const rect = dialog.getBoundingClientRect();
+    const clickedInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+    );
+
+    if (clickedInDialog === false) dialog.close();
+    console.log("Dialog close on backdrop click")
+}
+
+async function loadSummary(result) {
+    const newInhabitants = document.getElementById('newInhabitants')
+    const newRequested = document.getElementById('newRequested')
+    const totalHouseholds = document.getElementById('totalHouseholds')
+    const totalSectors = document.getElementById('totalSectors')
+    const totalMales = document.getElementById('totalMales')
+    const totalFemales = document.getElementById('totalFemales')
+    const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
+
+    const totalInhabitants = result.data.length
+
+    const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
+    totalSectors.textContent = pwdsSeniors
+    const males = result.data.filter(r => r.sex === 0).length
+    totalMales.textContent = males
+    const females = result.data.filter(r => r.sex === 1).length
+    totalFemales.textContent = females
 }
 
 async function loadData(result) {
@@ -120,12 +311,28 @@ async function loadData(result) {
     const tableBody = document.createElement('tbody')
     result.data.forEach(resident => {
         const row = document.createElement('tr')
-        const fullName = `${resident.lastName}, ${resident.firstName} ${resident.middleName}`
+        const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+        const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
         const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
 
-        entry.forEach(cell => {
+        const sexes = { 0: "Male", 1: "Female" }
+        const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
+        const civilStatuses = { 0: "Single", 1: "Married", 2: "Widowed", 3: "Divorced", 4: "Annulled", 5: "Legally Separated" }
+
+        const cells = [
+            { value: fullName, class: 'col-name' },
+            { value: resident.suffix, class: 'col-suffix' },
+            { value: resident.birthDate, class: 'col-birthdate' },
+            { value: sexes[resident.sex], class: 'col-sex' },
+            { value: sectors[resident.sector], class: 'col-sector' },
+            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
+            { value: resident.address, class: 'col-address' },
+        ]
+
+        cells.forEach(cell => {
             const td = document.createElement('td')
-            td.textContent = cell
+            td.textContent = cell.value
+            td.className = cell.class
             row.appendChild(td)
         })
 
