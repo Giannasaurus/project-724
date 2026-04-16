@@ -50,5 +50,6 @@ app.MapGet("/health", (AppDbContext db) => { return TypedResults.Ok("active"); }
 app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
+app.MapDocumentEndpoints();
 
 app.Run();
