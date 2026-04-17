@@ -332,6 +332,7 @@ async function loadData(result) {
         const row = document.createElement('tr')
         const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
         const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
+        const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
 
         const sexes = { 0: "Male", 1: "Female" }
         const sectors = { 0: "General", 1: "Senior", 2: "PWD" }

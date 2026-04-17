@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    html {
+        font-family: "Times New Roman";
+        font-size: 16px;
+    }
+    @media screen {
+        body {
+            width: 8.5in;
+            height: 11in;
+            padding: 1in;
+            margin: 0;
+            border: 2px solid;
+        }
+    }
+    @media print {
+        body {
+            width: auto;
+            height: auto;
+            padding: 0;
+            border: 0;
+        }
+    }
+    @page {
+        margin: 1in;
+    }
+    .section-request-type {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        width: 100%;
+    }
+    label {
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+    <div>
+
+    <h1>CERTIFICATE OF RESIDENCY</h1>
+    <p style="font-size: 1.25rem">TO WHOM IT MAY CONCERN</p>
+    <p style="text-align: justify;">This is to certify that <strong><u>{{fullName}}</u></strong> of legal age born {{birthDate}}, {{civilStatus}} Filipino is a bonafide resident of {{address}} Barangay 724 Zone 79, District V. Manila and that {{pronoun}} belongs to an indigent family in our barangay.</p>
+    <br>
+    <p>This certification issued upon {{pronoun}} request for:</p>
+    <div class="section-request-type">
+        <div>
+            <input type="checkbox" id="option-medical-asst"\>
+            <label for="option-medical-asst">Medical Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-finance-asst">
+            <label for="option-finance-asst">Finacial Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-scholarship"\>
+            <label for="option-scholarship">Scholarship</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-educ-asst"\>
+            <label for="option-educ-asst">Education Assistance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-funeral-asst"\>
+            <label for="option-funeral-asst">Funeral/Burial Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-orange-car"\>
+            <label for="option-orange-car">Orange Card</label>
+        </div>
+        <div style="grid-column: 1/-1; display: flex">
+            <input type="checkbox" id="option-others"\>
+            <label for="option-others">Others pls. specify:</label>
+            <input type="text" id="option-others-reason" style="border: none; margin-left: 0.5rem; border-bottom: 2px solid; flex-grow: 1;"\>
+        </div>
+    </div>
+    <br>
+    <p style="font-size: 1.25rem;"> Issued and signed this {{signDay}} day of {{signMonth}}, {{signYear}}.</p>
+    <br><br><br><br>
+    <div style="display: inline-block; min-width: 30%; border-bottom: 2px solid; margin-bottom: 0.5rem; padding-right: 2rem;">
+        <span id="signee-underline" style="font-family: Times New Roman; font-weight: bold; font-size: 1.25rem;">{{chairName}}</span>
+    </div>
+    <br>
+    <label for="signee-underline">Punong Barangay</label>
+
+
+    </div>
+</body>
+</html>
