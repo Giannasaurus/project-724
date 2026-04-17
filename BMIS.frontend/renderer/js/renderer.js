@@ -265,6 +265,154 @@ async function loadSummary(result) {
     totalFemales.textContent = females
 }
 
+async function loadData(response) {
+    const dataContainer = document.getElementById('dataContainer')
+    dataContainer.innerHTML = ''
+
+    if (!response.success) {
+        console.error(response.message)
+        dataContainer.innerHTML = "<p>Error loading residents.</p>"
+        return
+    }
+
+    const table = document.createElement('table')
+    table.setAttribute('id', 'dataTable')
+    
+    const columnClasses = [
+        'col-name',
+        'col-birthdate',
+        'col-sex',
+        'col-sector',
+        'col-civilstatus',
+        'col-address',
+    ]
+
+    const colGroup = document.createElement('colgroup')
+    columnClasses.forEach(className => {
+        const col = document.createElement('col')
+        col.className = className
+        colGroup.appendChild(col)
+    })
+
+
+    const fieldNames = [
+        "Full Name",
+        "Birthdate",
+        "Sex",
+        "Sector",
+        "Civil Status",
+        "Address"
+    ]
+
+    const tableHeader = document.createElement('thead')
+    const headerRow = document.createElement('tr')
+    fieldNames.forEach(field => {
+        const th = document.createElement('th')
+        th.textContent = field
+        headerRow.appendChild(th)
+    })
+
+    tableHeader.appendChild(headerRow)
+
+
+    const sexes = { 
+        0: "Male",
+        1: "Female"
+    }
+    
+    const sectors = { 
+        0: "General",
+        1: "Senior",
+        2: "PWD"
+    }
+    
+    const civilStatuses = { 
+        0: "Single",
+        1: "Married",
+        2: "Widowed",
+        3: "Divorced",
+        4: "Annulled",
+        5: "Legally Separated"
+    }
+
+    const tableBody = document.createElement('tbody')
+    response.data.forEach(resident => {
+        const row = document.createElement('tr')
+
+        const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+        const suffix = resident.suffix ? `, ${resident.suffix}` : ''
+        const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}${suffix}`
+
+        const entry = [
+            fullName,
+            resident.birthDate,
+            resident.sex,
+            resident.sector,
+            resident.civilStatus,
+            resident.address
+        ]
+
+        const cells = [
+            [ fullName, 'col-name'],
+            [ resident.birthDate, 'col-birthdate' ],
+            [ sexes[resident.sex], 'col-sex' ],
+            [ sectors[resident.sector], 'col-sector' ],
+            [ civilStatuses[resident.civilStatus], 'col-civilstatus' ],
+            [ resident.address, 'col-address' ]
+        ]
+
+        cells.forEach(cell => {
+            const td = document.createElement('td')
+            td.textContent = cell[0]
+            td.className = cell[1]
+            row.appendChild(td)
+        })
+
+        tableBody.appendChild(row)
+    })
+
+    table.append(colGroup, tableHeader, tableBody)
+
+    dataContainer.appendChild(table)
+}
+// async function loadTestData(datafile) {
+//     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
+//     const dataContainer = document.getElementById('dataContainer')
+//     dataContainer.innerHTML = ''
+//     try {
+//         const response = await fetch(datafile)
+//         if (!response.ok) throw new Error(response.status)
+//         const data = await response.json()
+//         console.log("Fetched test data from data.json")
+//         const table = document.createElement('table')
+//         table.setAttribute('id', 'testDataTable')
+//         const tableHeader = document.createElement('thead')
+//         fieldNames.forEach(field => {
+//             const th = document.createElement('th')
+//             th.textContent = field
+//             tableHeader.appendChild(th)
+//         })
+//         const tableBody = document.createElement('tbody')
+//         data.forEach(resident => {
+//             const row = document.createElement('tr')
+//             const fullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
+//             const entry = [resident.id, fullName, resident.BirthDate, resident.Gender, resident.CivilStatus, resident.Sector]
+//             entry.forEach(cell => {
+//                 const td = document.createElement('td')
+//                 td.textContent = cell
+//                 row.appendChild(td)
+//             })
+//             tableBody.appendChild(row)
+//         })
+//         table.append(tableHeader, tableBody)
+//         dataContainer.appendChild(table)
+//     }
+//     catch (error) {
+//         console.error("Cannot fetch test data.", error)
+//         dataContainer.innerHTML = "<p>Error loading test data.</p>"
+//     }
+// }
+
 async function fetchFile(file, container) {
     try {
         const response = await fetch(file)

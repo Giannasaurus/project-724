@@ -375,8 +375,13 @@ dialog {
     background-color: var(--color-bg-hover);
 }
 
+/*
+ * DISPLAY
+ *
+ */
+
 #scrollableContainer {
-    height: 600px;
+    height: auto;
     overflow-y: scroll;
 }
 
@@ -384,63 +389,60 @@ dialog {
     width: 100%;
 }
 
-#testDataTable {
+#dataTable {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
-#testDataTable td:first-child {
-    text-align: left;
+#dataTable .col-name {
+    width: 25%;
 }
 
-#testDataTable tbody tr:hover td:first-child {
-    border-radius: 8px 0 0 8px;
+#dataTable .col-birthdate {
+    color: #696969; 
+    width: 13.75%;
 }
 
-#testDataTable tbody tr:hover td:last-child {
-    border-radius: 0 8px 8px 0;
+#dataTable .col-sex {
+    color: #696969; 
+    width: 13.75%;
 }
 
-#testDataTable .col-name {
-    width: 24%;
-    padding-left: 12px;
+#dataTable .col-sector {
+    color: #696969; 
+    width: 13.75%;
 }
 
-#testDataTable .col-suffix {
-    width: 7%;
+#dataTable .col-civilstatus {
+    color: #696969; 
+    width: 13.75%;
 }
 
-#testDataTable .col-birthdate {
-    width: 12%;
+#dataTable .col-address {
+    color: #696969; 
+    width: 20%;
 }
 
-#testDataTable .col-sex {
-    width: 9%;
+table {
+    border-collapse: collapse;
+    border-style: hidden; 
 }
 
-#testDataTable .col-sector {
-    width: 10%;
-}
-
-#testDataTable .col-civilstatus {
-    width: 14%;
-}
-
-#testDataTable .col-address {
-    width: 19%;
-}
-
-#testDataTable .col-action {
-    width: 5%;
+table td {
+    border-top: 1px solid #d3d3d3;
+    border-bottom: 1px solid #d3d3d3;
 }
 
 th {
-    padding: 12px 0;
+    border-bottom: 2px solid;
+    text-align: left;
+    padding: 1.5rem;
 }
 
 tbody tr:hover {
     background-color: var(--color-bg-hover);
+<<<<<<< HEAD
 }
 
 tbody tr:hover td:first-child {
@@ -449,11 +451,14 @@ tbody tr:hover td:first-child {
 
 tbody tr:hover td:last-child {
     border-radius: 0 8px 8px 0;
+=======
+    border-radius: 0; /* var(--radius-lg); */
+>>>>>>> 691f91a (loadData refactor and styling fixes)
 }
 
 td {
-    text-align: center;
-    padding: 10px 0;
+    text-align: left;
+    padding: 1.25rem;
 }
 
 /* ============================================================
