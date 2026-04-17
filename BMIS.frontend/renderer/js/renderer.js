@@ -71,7 +71,7 @@ async function loadApp() {
             if (currentView === 'home') return
             currentView = 'home'
             await fetchFile('home.html', mainBody)
-            await loadSummary(data)
+            // await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
             if (currentView === 'inhabitantList') return
@@ -288,7 +288,17 @@ async function loadSummary(result) {
 }
 
 async function loadData(result) {
-    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
+    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
+    const columnClasses = [
+        'col-name',
+        'col-suffix',
+        'col-birthdate',
+        'col-sex',
+        'col-sector',
+        'col-civilstatus',
+        'col-address',
+        'col-action'
+    ]
     const dataContainer = document.getElementById('dataContainer')
     dataContainer.innerHTML = ''
 
@@ -301,12 +311,21 @@ async function loadData(result) {
     const table = document.createElement('table')
     table.setAttribute('id', 'testDataTable')
 
+    const colGroup = document.createElement('colgroup')
+    columnClasses.forEach(className => {
+        const col = document.createElement('col')
+        col.className = className
+        colGroup.appendChild(col)
+    })
+
     const tableHeader = document.createElement('thead')
+    const headerRow = document.createElement('tr')
     fieldNames.forEach(field => {
         const th = document.createElement('th')
         th.textContent = field
-        tableHeader.appendChild(th)
+        headerRow.appendChild(th)
     })
+    tableHeader.appendChild(headerRow)
 
     const tableBody = document.createElement('tbody')
     result.data.forEach(resident => {
@@ -336,13 +355,33 @@ async function loadData(result) {
             row.appendChild(td)
         })
 
+        const actionTd = document.createElement('td')
+        actionTd.className = 'col-action'
+        actionTd.innerHTML = `
+            <div class="row-action">
+                <button class="ellipsis-btn">•••</button>
+                <div class="context-menu">
+                    <button>Edit</button>
+                    <hr class="context-menu-divider">
+                    <button>Delete</button>
+                </div>
+            </div>
+        `
+        actionTd.querySelector('.ellipsis-btn').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const rowAction = actionTd.querySelector('.row-action')
+            const isOpen = rowAction.classList.contains('open')
+            document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
+            if (!isOpen) rowAction.classList.add('open')
+        })
+
+        row.appendChild(actionTd)
         tableBody.appendChild(row)
     })
 
-    table.append(tableHeader, tableBody)
+    table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
 }
-
 // async function loadTestData(datafile) {
 //     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
 //     const dataContainer = document.getElementById('dataContainer')
@@ -393,3 +432,9 @@ async function fetchFile(file, container) {
         container.innerHTML = `<p>Error loading ${file} page.</p>`
     }
 }
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
+})
+
+
