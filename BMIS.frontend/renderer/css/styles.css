@@ -386,6 +386,7 @@ dialog {
 
 #testDataTable {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
 }
 
@@ -401,6 +402,39 @@ dialog {
     border-radius: 0 8px 8px 0;
 }
 
+#testDataTable .col-name {
+    width: 24%;
+    padding-left: 12px;
+}
+
+#testDataTable .col-suffix {
+    width: 7%;
+}
+
+#testDataTable .col-birthdate {
+    width: 12%;
+}
+
+#testDataTable .col-sex {
+    width: 9%;
+}
+
+#testDataTable .col-sector {
+    width: 10%;
+}
+
+#testDataTable .col-civilstatus {
+    width: 14%;
+}
+
+#testDataTable .col-address {
+    width: 19%;
+}
+
+#testDataTable .col-action {
+    width: 5%;
+}
+
 th {
     padding: 12px 0;
 }
@@ -413,10 +447,6 @@ tbody tr:hover {
 td {
     text-align: center;
     padding: 10px 0;
-}
-
-.col-name {
-    padding-left: 12px;
 }
 
 /* ============================================================

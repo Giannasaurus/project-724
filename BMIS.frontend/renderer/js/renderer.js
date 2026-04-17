@@ -71,7 +71,7 @@ async function loadApp() {
             if (currentView === 'home') return
             currentView = 'home'
             await fetchFile('home.html', mainBody)
-            await loadSummary(data)
+            // await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
             if (currentView === 'inhabitantList') return
@@ -288,7 +288,17 @@ async function loadSummary(result) {
 }
 
 async function loadData(result) {
-    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
+    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
+    const columnClasses = [
+        'col-name',
+        'col-suffix',
+        'col-birthdate',
+        'col-sex',
+        'col-sector',
+        'col-civilstatus',
+        'col-address',
+        'col-action'
+    ]
     const dataContainer = document.getElementById('dataContainer')
     dataContainer.innerHTML = ''
 
@@ -301,19 +311,27 @@ async function loadData(result) {
     const table = document.createElement('table')
     table.setAttribute('id', 'testDataTable')
 
+    const colGroup = document.createElement('colgroup')
+    columnClasses.forEach(className => {
+        const col = document.createElement('col')
+        col.className = className
+        colGroup.appendChild(col)
+    })
+
     const tableHeader = document.createElement('thead')
+    const headerRow = document.createElement('tr')
     fieldNames.forEach(field => {
         const th = document.createElement('th')
         th.textContent = field
-        tableHeader.appendChild(th)
+        headerRow.appendChild(th)
     })
-    
+    tableHeader.appendChild(headerRow)
+
     const tableBody = document.createElement('tbody')
     result.data.forEach(resident => {
         const row = document.createElement('tr')
         const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
         const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
-        const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
 
         const sexes = { 0: "Male", 1: "Female" }
         const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
@@ -360,10 +378,9 @@ async function loadData(result) {
         tableBody.appendChild(row)
     })
 
-    table.append(tableHeader, tableBody)
+    table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
 }
-
 // async function loadTestData(datafile) {
 //     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
 //     const dataContainer = document.getElementById('dataContainer')
@@ -418,3 +435,5 @@ async function fetchFile(file, container) {
 document.addEventListener('click', () => {
     document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
 })
+
+
