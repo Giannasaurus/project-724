@@ -470,43 +470,6 @@ async function loadData(result) {
     table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
 }
-// async function loadTestData(datafile) {
-//     const fieldNames = ["Index", "Inhabitant Name", "Birthdate", "Sex", "Civil Status", "Sector"]
-//     const dataContainer = document.getElementById('dataContainer')
-//     dataContainer.innerHTML = ''
-//     try {
-//         const response = await fetch(datafile)
-//         if (!response.ok) throw new Error(response.status)
-//         const data = await response.json()
-//         console.log("Fetched test data from data.json")
-//         const table = document.createElement('table')
-//         table.setAttribute('id', 'testDataTable')
-//         const tableHeader = document.createElement('thead')
-//         fieldNames.forEach(field => {
-//             const th = document.createElement('th')
-//             th.textContent = field
-//             tableHeader.appendChild(th)
-//         })
-//         const tableBody = document.createElement('tbody')
-//         data.forEach(resident => {
-//             const row = document.createElement('tr')
-//             const fullName = `${resident.LastName}, ${resident.FirstName} ${resident.MiddleName}`
-//             const entry = [resident.id, fullName, resident.BirthDate, resident.Gender, resident.CivilStatus, resident.Sector]
-//             entry.forEach(cell => {
-//                 const td = document.createElement('td')
-//                 td.textContent = cell
-//                 row.appendChild(td)
-//             })
-//             tableBody.appendChild(row)
-//         })
-//         table.append(tableHeader, tableBody)
-//         dataContainer.appendChild(table)
-//     }
-//     catch (error) {
-//         console.error("Cannot fetch test data.", error)
-//         dataContainer.innerHTML = "<p>Error loading test data.</p>"
-//     }
-// }
 
 async function fetchFile(file, container) {
     try {
@@ -524,5 +487,3 @@ async function fetchFile(file, container) {
 document.addEventListener('click', () => {
     document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
 })
-
-
