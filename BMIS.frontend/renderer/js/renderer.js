@@ -1,4 +1,5 @@
 const app = document.getElementById('app')
+const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 
 // skip login (dev)
 // localStorage.getItem("isLoggedIn") ? loadApp() : loadLogin()
@@ -90,12 +91,13 @@ async function loadApp() {
             if (currentView === 'history') return
             currentView = 'history'
             await fetchFile('history.html', mainBody)
+            loadHistory()
         }
         else if (target.closest('#settings')) {
             settingsDialog.showModal()
         }
         else if (target.matches('#logout')) {
-            localStorage.clear()
+            localStorage.removeItem('isLoggedIn')
             loadLogin()
         }
     })
@@ -116,16 +118,16 @@ async function loadApp() {
 function getPageNumbers(current, total) {
     const delta = 1
     const pages = []
-    
+
     const left = current - 1
     const right = current + 1
-    
+
     for (let i = 1; i <= total; i++) {
         if (i === 1 || i === total || (i >= left && i <= right)) {
             pages.push(i)
         }
     }
-    
+
     const result = []
     let prev = null
     for (const page of pages) {
@@ -135,7 +137,7 @@ function getPageNumbers(current, total) {
         result.push(page)
         prev = page
     }
-    
+
     return result
 }
 
@@ -188,7 +190,7 @@ function attachInhabitantListeners() {
 
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
-    
+
     addResidentBtn.addEventListener('click', () => {
         document.getElementById('addResidentForm').reset()
         document.getElementById('ar-error').textContent = ''
@@ -236,6 +238,7 @@ function attachInhabitantListeners() {
         saveBtn.textContent = 'Save'
 
         if (result.success) {
+            addResidentHistoryLog(result.data)
             addResidentDialog.close()
             const freshData = await window.electronAPI.getData('/residents')
             await loadData(freshData)
@@ -254,6 +257,91 @@ function attachInhabitantListeners() {
     })
 }
 
+function getResidentFullName(resident) {
+    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+    return `${resident.lastName}, ${resident.firstName} ${middleInitial}`.trim()
+}
+
+function readResidentHistory() {
+    try {
+        const rawHistory = localStorage.getItem(RESIDENT_HISTORY_KEY)
+        return rawHistory ? JSON.parse(rawHistory) : []
+    }
+    catch (error) {
+        console.error('Failed to read resident history.', error)
+        return []
+    }
+}
+
+function writeResidentHistory(history) {
+    localStorage.setItem(RESIDENT_HISTORY_KEY, JSON.stringify(history))
+}
+
+function addResidentHistoryLog(resident) {
+    const history = readResidentHistory()
+    const log = {
+        id: `${Date.now()}-${resident.residentId}`,
+        type: 'resident-added',
+        residentId: resident.residentId,
+        residentName: getResidentFullName(resident),
+        address: resident.address,
+        createdAt: new Date().toISOString()
+    }
+
+    history.unshift(log)
+    writeResidentHistory(history.slice(0, 100))
+}
+
+function loadHistory() {
+    const historyContainer = document.getElementById('historyContainer')
+    if (!historyContainer) return
+
+    const history = readResidentHistory()
+    historyContainer.innerHTML = ''
+
+    if (history.length === 0) {
+        historyContainer.innerHTML = '<p class="history-empty">No resident history yet.</p>'
+        return
+    }
+
+    const table = document.createElement('table')
+    table.id = 'historyTable'
+
+    const tableHeader = document.createElement('thead')
+    const headerRow = document.createElement('tr')
+    const fieldNames = ['Date', 'Activity', 'Resident', 'Address']
+
+    fieldNames.forEach(field => {
+        const th = document.createElement('th')
+        th.textContent = field
+        headerRow.appendChild(th)
+    })
+
+    tableHeader.appendChild(headerRow)
+
+    const tableBody = document.createElement('tbody')
+    history.forEach(log => {
+        const row = document.createElement('tr')
+        const createdAt = new Date(log.createdAt)
+        const cells = [
+            createdAt.toLocaleString(),
+            'Added resident',
+            log.residentName,
+            log.address
+        ]
+
+        cells.forEach(value => {
+            const td = document.createElement('td')
+            td.textContent = value
+            row.appendChild(td)
+        })
+
+        tableBody.appendChild(row)
+    })
+
+    table.append(tableHeader, tableBody)
+    historyContainer.appendChild(table)
+}
 function handleCloseOnBackdrop(e) {
     const dialog = e.currentTarget
     const rect = dialog.getBoundingClientRect();

@@ -441,12 +441,46 @@ th {
 
 tbody tr:hover {
     background-color: var(--color-bg-hover);
-    border-radius: var(--radius-lg);
+}
+
+tbody tr:hover td:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+tbody tr:hover td:last-child {
+    border-radius: 0 8px 8px 0;
 }
 
 td {
     text-align: center;
     padding: 10px 0;
+}
+
+/* ============================================================
+   HISTORY (history.html)
+   ============================================================ */
+
+#historyContainer {
+    width: 100%;
+}
+
+#historyTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#historyTable th,
+#historyTable td {
+    padding: 12px;
+    text-align: left;
+}
+
+#historyTable tbody tr {
+    border-top: 1px solid #e0e0e0;
+}
+
+.history-empty {
+    color: var(--color-text-muted);
 }
 
 /* ============================================================
@@ -702,3 +736,5 @@ tbody tr:hover .ellipsis-btn,
     color: var(--color-text-muted);
     cursor: not-allowed;
 }
+
+
