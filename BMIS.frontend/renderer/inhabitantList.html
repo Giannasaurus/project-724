@@ -1,7 +1,48 @@
+<head>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .btn_main {
+            color: var(--color-white);
+            background-color: var(--color-accent);
+            font-family: inherit;
+            font-size: var(--font-size-base);
+            border-radius: var(--radius-sm);
+            padding: var(--gap-md) var(--gap-lg);
+            margin: auto;
+        }
+        .btn_main:hover {
+            background-color: var(--color-accent-hover);
+        }
+
+        .btn_sub {
+            color: var(--color-white);
+            background-color: #3472fa;
+            font-family: inherit;
+            font-size: var(--font-size-base);
+            border-radius: var(--radius-sm);
+            padding: var(--gap-md) var(--gap-lg);
+            margin: auto;
+        }
+        .btn_sub:hover { 
+            background-color: #2d4fbe
+        }
+    
+    </style>
+</head>
 <h2>Inhabitant List</h2>
 <div id="iLView">
     <nav id="iLNav">
-        <input id="searchBar" type="text" placeholder="Search an inhabitant...">
+
+        <div>
+            <input id="searchBar" type="text" placeholder="Search an inhabitant...">
+            <button id="btn_search" class="btn_main" type="button">Search</button>
+            <button id="btn_filter" class="btn_sub" type="button">Filter</button>
+            <!-- 
+                TODO:
+                    implement filter menu
+            -->
+        </div>
+
         <ul id="il-nav-btn-list">
             <li>
                 <button id="addResidentBtn" class="il-nav-btn" type="button">

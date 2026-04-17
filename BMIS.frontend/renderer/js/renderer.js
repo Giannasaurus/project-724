@@ -119,6 +119,119 @@ async function loadApp() {
     })
 }
 
+async function searchInhabitants() {
+    const searchBar = document.getElementById('searchBar');
+
+    /*
+     * TODO:
+     *  
+     *  implement filter menu in inhabitantList.html
+     *  get all data that the user will input
+     *  use the api/residents/filter[?params]
+     *
+     *
+     * const filter = document.getElementById('');
+     *
+     *
+     *
+    */
+    
+    // sample filter
+    console.log(`/residents/filter?firstName=${searchBar.value}`);
+    var data = await window.electronAPI.getData(`/residents/filter?firstName=${searchBar.value}`);
+    return data;
+
+    /*
+
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase()
+        document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none'
+        })
+    })
+
+    */
+} 
+
+async function displayInhabitants() {
+    var data = await searchInhabitants();
+    console.log(data);
+    await loadData(data);
+}
+
+function attachInhabitantListeners() {
+    const searchBtn = document.getElementById('btn_search');
+    
+    searchBtn.addEventListener('click', displayInhabitants);
+
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const addResidentDialog = document.getElementById('addResidentDialog')
+    
+    addResidentBtn.addEventListener('click', () => {
+        document.getElementById('addResidentForm').reset()
+        document.getElementById('ar-error').textContent = ''
+        addResidentDialog.showModal()
+        addResidentDialog.addEventListener('click', handleCloseOnBackdrop, { once: true })
+    })
+
+    document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const errorEl = document.getElementById('ar-error')
+        errorEl.textContent = ''
+
+        const firstName = document.getElementById('ar-firstName').value.trim()
+        const middleName = document.getElementById('ar-middleName').value.trim()
+        const lastName = document.getElementById('ar-lastName').value.trim()
+        const address = document.getElementById('ar-address').value.trim()
+        const day = document.getElementById('ar-bday').value.padStart(2, '0')
+        const month = String(document.getElementById('ar-bmonth').value).padStart(2, '0')
+        const year = document.getElementById('ar-byear').value
+
+        if (!firstName || !middleName || !lastName || !address || !day || !year) {
+            errorEl.textContent = 'Please fill in all required fields.'
+            return
+        }
+
+        const payload = {
+            firstName,
+            middleName,
+            lastName,
+            suffix: document.getElementById('ar-suffix').value.trim(),
+            birthDate: `${year}-${month}-${day}`,
+            sex: parseInt(document.getElementById('ar-sex').value),
+            sector: parseInt(document.getElementById('ar-sector').value),
+            civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+            address
+        }
+
+        const saveBtn = document.getElementById('ar-saveBtn')
+        saveBtn.disabled = true
+        saveBtn.textContent = 'Saving...'
+
+        const result = await window.electronAPI.postData('/residents', payload)
+
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Save'
+
+        if (result.success) {
+            addResidentDialog.close()
+            const freshData = await window.electronAPI.getData('/residents')
+            await loadData(freshData)
+        } else {
+            errorEl.textContent = 'Failed to save resident. Please try again.'
+            console.error(result.message)
+        }
+    })
+
+    const closeBtns = document.querySelectorAll('#addResidentDialog .closeBtn')
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const dialog = btn.closest('dialog')
+            if (dialog) dialog.close()
+        })
+    })
+}
+
 function handleCloseOnBackdrop(e) {
     const dialog = e.currentTarget
     const rect = dialog.getBoundingClientRect();
@@ -150,102 +263,6 @@ async function loadSummary(result) {
     totalMales.textContent = males
     const females = result.data.filter(r => r.sex === 1).length
     totalFemales.textContent = females
-}
-
-async function loadData(result) {
-    const fieldNames = ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
-    const columnClasses = [
-        'col-name',
-        'col-suffix',
-        'col-birthdate',
-        'col-sex',
-        'col-sector',
-        'col-civilstatus',
-        'col-address',
-        'col-action'
-    ]
-    const dataContainer = document.getElementById('dataContainer')
-    dataContainer.innerHTML = ''
-
-    if (!result.success) {
-        console.error(result.message)
-        dataContainer.innerHTML = "<p>Error loading residents.</p>"
-        return
-    }
-
-    const table = document.createElement('table')
-    table.setAttribute('id', 'testDataTable')
-
-    const colGroup = document.createElement('colgroup')
-    columnClasses.forEach(className => {
-        const col = document.createElement('col')
-        col.className = className
-        colGroup.appendChild(col)
-    })
-
-    const tableHeader = document.createElement('thead')
-    const headerRow = document.createElement('tr')
-    fieldNames.forEach(field => {
-        const th = document.createElement('th')
-        th.textContent = field
-        headerRow.appendChild(th)
-    })
-    tableHeader.appendChild(headerRow)
-
-    const tableBody = document.createElement('tbody')
-    result.data.forEach(resident => {
-        const row = document.createElement('tr')
-        const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-        const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
-        const entry = [fullName, resident.suffix, resident.birthDate, resident.sex, resident.sector, resident.civilStatus, resident.address]
-
-        const sexes = { 0: "Male", 1: "Female" }
-        const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
-        const civilStatuses = { 0: "Single", 1: "Married", 2: "Widowed", 3: "Divorced", 4: "Annulled", 5: "Legally Separated" }
-
-        const cells = [
-            { value: fullName, class: 'col-name' },
-            { value: resident.suffix, class: 'col-suffix' },
-            { value: resident.birthDate, class: 'col-birthdate' },
-            { value: sexes[resident.sex], class: 'col-sex' },
-            { value: sectors[resident.sector], class: 'col-sector' },
-            { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
-            { value: resident.address, class: 'col-address' },
-        ]
-
-        cells.forEach(cell => {
-            const td = document.createElement('td')
-            td.textContent = cell.value
-            td.className = cell.class
-            row.appendChild(td)
-        })
-
-        const actionTd = document.createElement('td')
-        actionTd.className = 'col-action'
-        actionTd.innerHTML = `
-            <div class="row-action">
-                <button class="ellipsis-btn">•••</button>
-                <div class="context-menu">
-                    <button>Edit</button>
-                    <hr class="context-menu-divider">
-                    <button>Delete</button>
-                </div>
-            </div>
-        `
-        actionTd.querySelector('.ellipsis-btn').addEventListener('click', (e) => {
-            e.stopPropagation()
-            const rowAction = actionTd.querySelector('.row-action')
-            const isOpen = rowAction.classList.contains('open')
-            document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
-            if (!isOpen) rowAction.classList.add('open')
-        })
-
-        row.appendChild(actionTd)
-        tableBody.appendChild(row)
-    })
-
-    table.append(colGroup, tableHeader, tableBody)
-    dataContainer.appendChild(table)
 }
 
 async function fetchFile(file, container) {
