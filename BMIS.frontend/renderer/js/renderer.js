@@ -33,8 +33,23 @@ async function loadApp() {
     await fetchFile("app.html", app)
 
     // api request data sample
-    const data = await window.electronAPI.getData('/residents');
-    console.log(data)
+    let currentPage = 1
+    const limit = 50
+    let totalPages = 1
+
+    async function goToPage(page) {
+        currentPage = page
+        const from = (page - 1) * limit
+        const data = await window.electronAPI.getData(`/residents/filter?from=${from}&limit=${limit}`)
+        const countData = await window.electronAPI.getData('/residents')
+        if (countData.success) {
+            totalPages = Math.ceil(countData.data.length / limit)
+        }
+        await loadData(data)
+        renderPagination(currentPage, totalPages, goToPage)
+
+        return data
+    }
 
     const mainNav = document.getElementById('mainNav')
     const mainBody = document.getElementById('mainBody')
@@ -43,7 +58,7 @@ async function loadApp() {
 
     // FOR LOADING DEFAULT PAGE
     await fetchFile("inhabitantList.html", mainBody)
-    await loadData(data)
+    await goToPage(1)
     attachInhabitantListeners()
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
@@ -63,9 +78,7 @@ async function loadApp() {
             currentView = 'inhabitantList'
 
             await fetchFile('inhabitantList.html', mainBody)
-            const data = await window.electronAPI.getData('/residents')
-            console.log(data)
-            await loadData(data)
+            await goToPage(1)
             attachInhabitantListeners()
         }
         else if (target.closest('#templates')) {
@@ -100,6 +113,70 @@ async function loadApp() {
     })
 }
 
+function getPageNumbers(current, total) {
+    const delta = 1
+    const pages = []
+    
+    const left = current - 1
+    const right = current + 1
+    
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= left && i <= right)) {
+            pages.push(i)
+        }
+    }
+    
+    const result = []
+    let prev = null
+    for (const page of pages) {
+        if (prev !== null && page - prev > 1) {
+            result.push('...')
+        }
+        result.push(page)
+        prev = page
+    }
+    
+    return result
+}
+
+function renderPagination(current, total, onPageChange) {
+    const pages = getPageNumbers(current, total)
+    const nav = document.getElementById("paginationContainer")
+    nav.innerHTML = ''
+
+    const prev = document.createElement("button")
+    prev.textContent = '< Previous'
+    prev.disabled = current === 1
+    prev.addEventListener('click', () => onPageChange(current - 1))
+    nav.appendChild(prev)
+
+    const pageNumbers = document.createElement("div")
+    pageNumbers.className = 'page-numbers'
+
+    for (const page of pages) {
+        if (page === '...') {
+            const span = document.createElement("span")
+            span.textContent = '...'
+            pageNumbers.appendChild(span)
+        }
+        else {
+            const btn = document.createElement("button")
+            btn.textContent = page
+            btn.classList.toggle('active', page === current)
+            btn.addEventListener('click', () => onPageChange(page))
+            pageNumbers.appendChild(btn)
+        }
+    }
+
+    nav.appendChild(pageNumbers)
+
+    const next = document.createElement("button")
+    next.textContent = 'Next >'
+    next.disabled = current === total
+    next.addEventListener('click', () => onPageChange(current + 1))
+    nav.appendChild(next)
+}
+
 function attachInhabitantListeners() {
     const searchBar = document.getElementById('searchBar')
     searchBar.addEventListener('input', () => {
@@ -111,13 +188,12 @@ function attachInhabitantListeners() {
 
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
+    
     addResidentBtn.addEventListener('click', () => {
         document.getElementById('addResidentForm').reset()
         document.getElementById('ar-error').textContent = ''
         addResidentDialog.showModal()
-        addResidentDialog.addEventListener('click', (e) => {
-            handleCloseOnBackdrop(e)
-        })
+        addResidentDialog.addEventListener('click', handleCloseOnBackdrop, { once: true })
     })
 
     document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
