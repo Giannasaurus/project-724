@@ -1,3 +1,4 @@
+import { RESIDENT_HISTORY_KEY } from '../renderer.js'
 import { getData, postData } from './api.js'
 
 export function getPageNumbers(current, total) {
@@ -123,7 +124,7 @@ export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHi
         saveBtn.textContent = 'Save'
 
         if (result.success) {
-            addResidentHistoryLog(result.data)
+            addResidentHistoryLog(RESIDENT_HISTORY_KEY, result.data)
             addResidentDialog.close()
             const freshData = await getData('/residents')
             await loadData(freshData)
