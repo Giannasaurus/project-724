@@ -1,3 +1,4 @@
+import { checkLogin, getData } from './utils/api.js'
 import { renderPagination, attachInhabitantListeners } from './utils/residents.js'
 
 const app = document.getElementById('app')
@@ -20,7 +21,7 @@ async function loadLogin() {
         const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
 
-        const result = await window.electronAPI.checkLogin(username.value, password.value)
+        const result = await checkLogin(username.value, password.value)
 
         if (result) {
             localStorage.setItem('isLoggedIn', result)
@@ -43,8 +44,8 @@ async function loadApp() {
     async function goToPage(page) {
         currentPage = page
         const from = (page - 1) * limit
-        const data = await window.electronAPI.getData(`/residents/filter?from=${from}&limit=${limit}`)
-        const countData = await window.electronAPI.getData('/residents')
+        const data = await getData(`/residents/filter?from=${from}&limit=${limit}`)
+        const countData = await getData('/residents')
         if (countData.success) {
             totalPages = Math.ceil(countData.data.length / limit)
         }

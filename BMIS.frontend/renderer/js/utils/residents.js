@@ -1,3 +1,5 @@
+import { getData, postData } from './api.js'
+
 export function getPageNumbers(current, total) {
     const delta = 1
     const pages = []
@@ -115,7 +117,7 @@ export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHi
         saveBtn.disabled = true
         saveBtn.textContent = 'Saving...'
 
-        const result = await window.electronAPI.postData('/residents', payload)
+        const result = await postData('/residents', payload)
 
         saveBtn.disabled = false
         saveBtn.textContent = 'Save'
@@ -123,7 +125,7 @@ export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHi
         if (result.success) {
             addResidentHistoryLog(result.data)
             addResidentDialog.close()
-            const freshData = await window.electronAPI.getData('/residents')
+            const freshData = await getData('/residents')
             await loadData(freshData)
         } else {
             errorEl.textContent = 'Failed to save resident. Please try again.'
