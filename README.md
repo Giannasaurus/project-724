@@ -1,5 +1,7 @@
 # Project 724
 
+View the Wiki! YIPEE
+
 ## TO RUN
 
 > [!NOTE]
