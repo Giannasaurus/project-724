@@ -1,5 +1,3 @@
-import { RESIDENT_HISTORY_KEY } from '../renderer.js'
-
 function getResidentFullName(resident) {
     const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
     return `${resident.lastName}, ${resident.firstName} ${middleInitial}`.trim()
@@ -32,7 +30,7 @@ export function addResidentHistoryLog(key, resident) {
     }
 
     history.unshift(log)
-    writeResidentHistory(RESIDENT_HISTORY_KEY, history.slice(0, 100))
+    writeResidentHistory(key, history.slice(0, 100))
 }
 
 export function loadHistory(key) {

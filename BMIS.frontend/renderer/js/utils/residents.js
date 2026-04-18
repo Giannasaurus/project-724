@@ -65,18 +65,14 @@ export function renderPagination(current, total, onPageChange) {
     nav.appendChild(next)
 }
 
-export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog, loadData }) {
+export function initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog, loadData }) {
     const searchBar = document.getElementById('searchBar')
     searchBar.addEventListener('input', () => {
-        const query = searchBar.value.toLowerCase()
-        document.querySelectorAll('#dataContainer tbody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none'
-        })
+        const query = getData(`/residents/filter?`)
     })
 
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
-
     addResidentBtn.addEventListener('click', () => {
         document.getElementById('addResidentForm').reset()
         document.getElementById('ar-error').textContent = ''
@@ -89,42 +85,26 @@ export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHi
         const errorEl = document.getElementById('ar-error')
         errorEl.textContent = ''
 
-        const firstName = document.getElementById('ar-firstName').value.trim()
-        const middleName = document.getElementById('ar-middleName').value.trim()
-        const lastName = document.getElementById('ar-lastName').value.trim()
-        const address = document.getElementById('ar-address').value.trim()
-        const day = document.getElementById('ar-bday').value.padStart(2, '0')
-        const month = String(document.getElementById('ar-bmonth').value).padStart(2, '0')
-        const year = document.getElementById('ar-byear').value
+        const values = getAddResidentFormValues()
 
-        if (!firstName || !middleName || !lastName || !address || !day || !year) {
+        if (!values.firstName || !values.middleName || !values.lastName || !values.address || !values.day || !values.year) {
             errorEl.textContent = 'Please fill in all required fields.'
             return
         }
 
-        const payload = {
-            firstName,
-            middleName,
-            lastName,
-            suffix: document.getElementById('ar-suffix').value.trim(),
-            birthDate: `${year}-${month}-${day}`,
-            sex: parseInt(document.getElementById('ar-sex').value),
-            sector: parseInt(document.getElementById('ar-sector').value),
-            civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
-            address
-        }
+        const payload = getAddResidentPayload(values)
 
         const saveBtn = document.getElementById('ar-saveBtn')
         saveBtn.disabled = true
         saveBtn.textContent = 'Saving...'
 
         const result = await postData('/residents', payload)
-
+        
         saveBtn.disabled = false
         saveBtn.textContent = 'Save'
 
         if (result.success) {
-            addResidentHistoryLog(RESIDENT_HISTORY_KEY, result.data)
+            addResidentHistoryLog(result.data)
             addResidentDialog.close()
             const freshData = await getData('/residents')
             await loadData(freshData)
@@ -141,4 +121,34 @@ export function attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHi
             if (dialog) dialog.close()
         })
     })
+}
+
+function getAddResidentFormValues() {
+    return {
+        firstName: document.getElementById('ar-firstName').value.trim(),
+        middleName: document.getElementById('ar-middleName').value.trim(),
+        lastName: document.getElementById('ar-lastName').value.trim(),
+        suffix: document.getElementById('ar-suffix').value.trim(),
+        address: document.getElementById('ar-address').value.trim(),
+        day: document.getElementById('ar-bday').value.padStart(2, '0'),
+        month: String(document.getElementById('ar-bmonth').value).padStart(2, '0'),
+        year: document.getElementById('ar-byear').value,
+        sex: parseInt(document.getElementById('ar-sex').value),
+        sector: parseInt(document.getElementById('ar-sector').value),
+        civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+    }
+}
+
+function getAddResidentPayload(values) {
+    return {
+        firstName: values.firstName,
+        middleName: values.middleName,
+        lastName: values.lastName,
+        suffix: values.suffix,
+        birthDate: `${values.year}-${values.month}-${values.day}`,
+        sex: values.sex,
+        sector: values.sector,
+        civilStatus: values.civilStatus,
+        address: values.address
+    }
 }

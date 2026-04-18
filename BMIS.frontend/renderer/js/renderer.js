@@ -1,5 +1,5 @@
-﻿import { checkLogin, getData } from './utils/api.js'
-import { renderPagination, attachInhabitantListeners } from './utils/residents.js'
+import { checkLogin, getData } from './utils/api.js'
+import { renderPagination, initInhabitantListeners } from './utils/residents.js'
 import { addResidentHistoryLog, loadHistory } from './utils/history.js'
 
 const app = document.getElementById('app')
@@ -64,7 +64,7 @@ async function loadApp() {
     // FOR LOADING DEFAULT PAGE
     await fetchFile("inhabitantList.html", mainBody)
     await goToPage(1)
-    attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog, loadData })
+    initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData })
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
 
@@ -84,7 +84,7 @@ async function loadApp() {
 
             await fetchFile('inhabitantList.html', mainBody)
             await goToPage(1)
-            attachInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog, loadData })
+            initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData })
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
