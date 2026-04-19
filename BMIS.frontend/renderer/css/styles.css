@@ -567,7 +567,6 @@ th {
 
 tbody tr:hover {
     background-color: var(--color-bg-hover);
-<<<<<<< HEAD
 }
 
 tbody tr:hover td:first-child {
@@ -575,10 +574,8 @@ tbody tr:hover td:first-child {
 }
 
 tbody tr:hover td:last-child {
-    border-radius: 0 8px 8px 0;
-=======
+    /* border-radius: 0 8px 8px 0; */
     border-radius: 0; /* var(--radius-lg); */
->>>>>>> 691f91a (loadData refactor and styling fixes)
 }
 
 td {
