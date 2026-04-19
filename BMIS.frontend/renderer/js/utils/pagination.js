@@ -66,10 +66,26 @@ export function renderPagination(current, total, onPageChange) {
 
 export function initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog, loadData }) {
     const searchBar = document.getElementById('searchBar')
-    searchBar.addEventListener('input', () => {
-        const query = getData(`/residents/filter?`)
-    })
+    const searchBtn = document.getElementById('btn_search')
 
+    async function displayInhabitants() {
+        const query = searchBar.value.trim()
+        const endpoint = query
+            ? `/residents/filter?firstName=${encodeURIComponent(query)}`
+            : '/residents/filter?from=0&limit=50'
+        const data = await getData(endpoint)
+        await loadData(data)
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', displayInhabitants)
+    }
+
+    if (searchBar) {
+        searchBar.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') displayInhabitants()
+        })
+    }
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
     addResidentBtn.addEventListener('click', () => {

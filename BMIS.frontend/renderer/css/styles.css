@@ -521,32 +521,41 @@ dialog {
 }
 
 #dataTable .col-name {
-    width: 25%;
+    width: 22%;
+}
+
+#dataTable .col-suffix {
+    color: #696969;
+    width: 7%;
 }
 
 #dataTable .col-birthdate {
-    color: #696969; 
-    width: 13.75%;
+    color: #696969;
+    width: 13%;
 }
 
 #dataTable .col-sex {
-    color: #696969; 
-    width: 13.75%;
+    color: #696969;
+    width: 9%;
 }
 
 #dataTable .col-sector {
-    color: #696969; 
-    width: 13.75%;
+    color: #696969;
+    width: 10%;
 }
 
 #dataTable .col-civilstatus {
-    color: #696969; 
-    width: 13.75%;
+    color: #696969;
+    width: 14%;
 }
 
 #dataTable .col-address {
-    color: #696969; 
+    color: #696969;
     width: 20%;
+}
+
+#dataTable .col-action {
+    width: 5%;
 }
 
 table {

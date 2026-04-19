@@ -30,7 +30,16 @@ function getCells(resident) {
 export async function loadData(result) {
     console.log(result)
     const fieldNames = getFieldNames()
-    const classes = []
+    const classes = [
+        'col-name',
+        'col-suffix',
+        'col-birthdate',
+        'col-sex',
+        'col-sector',
+        'col-civilstatus',
+        'col-address',
+        'col-action'
+    ]
 
     const dataContainer = document.getElementById('dataContainer')
     dataContainer.innerHTML = ''
@@ -43,7 +52,7 @@ export async function loadData(result) {
 
     // make table
     const table = document.createElement('table')
-    table.setAttribute('id', 'testDataTable')
+    table.setAttribute('id', 'dataTable')
 
     // make colgroup from column classes
     const colGroup = document.createElement('colgroup')
