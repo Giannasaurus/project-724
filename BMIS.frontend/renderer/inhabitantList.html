@@ -6,9 +6,87 @@
                 <input id="searchBar" type="text" placeholder="Search an inhabitant...">
                 <button id="btn_search" class="btn_main" type="button">Search</button>
                 <button id="btn_filter" class="btn_sub" type="button">Filter</button>
-                <!-- 
-                    TODO:
-                        implement filter menu
+                <!-- COMMENTED OUT FOR CLEANLINESS
+                <dialog id="filterMenu">
+                    <h1>Filter Options</h1>
+                    <div class="filterMenuOptions">
+                        <div>
+                            <h3>Age</h3>
+                            <div class="filterSectionNonGrid">
+                                <input type="checkbox">
+                                    Age <input type="number" id="filterMinAge" class="filterAgeConst" value="0"/>
+                                    to <input type="number" id="filterMaxAge" class="filterAgeConst" value="999"/>
+                                </input>
+                            </div>
+                        </div>
+                        <div>
+                            <h3>Sex</h3>
+                            <div class="filterSection">
+                                <div>
+                                    <input type="checkbox" id="filterSexAll"/>
+                                    <label for="filterSexAll">All</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterSexMale"/>
+                                    <label for="filterSexMale">Male</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterSexFemale"/>
+                                    <label for="filterSexFemale">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3>Sector</h3>
+                            <div class="filterSection">
+                                <div>
+                                    <input type="checkbox" id="filterSectorAll"/>
+                                    <label for="filterSectorAll">All</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterSectorPwd"/>
+                                    <label for="filterSectorPwd">PWD</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterSectorSenior"/>
+                                    <label for="filterSectorSenior">Senior</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilSingle"/>
+                                    <label for="filterCivilSingle">Single</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilMarried"/>
+                                    <label for="filterCivilMarried">Married</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilWidowed"/>
+                                    <label for="filterCivilWidowed">Widowed</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilDivorced"/>
+                                    <label for="filterCivilDivorced">Divorced</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilAnulled"/>
+                                    <label for="filterCivilAnulled">Anulled</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="filterCivilLS"/>
+                                    <label for="filterCivilLS">Legally Separated</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filterSectionNonGrid">
+                        <button id="saveFilter" class="btn_main" type="button">
+                            Search
+                        </button>
+                        <button id="cancelFilter" class="btn_sub" type="button">
+                            Cancel
+                        </button>
+                    </div>
+                </dialog>
                 -->
             </div>
             <div id="filterIndicators">

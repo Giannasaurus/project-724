@@ -382,6 +382,28 @@ dialog {
     gap: var(--gap-lg);
 }
 
+#iLView #filterMenu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem;
+    gap: 1rem;
+    border: 2px solid #d3d3d3;
+    width: 50%;
+}
+
+#iLView .filterMenuOptions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+#iLView #filterMenu .filterAgeConst {
+    padding: 0.25rem 0.5rem;
+    width: 5rem;
+}
+
 #iLView .filterOption {
     display: flex;
     justify-content: center;
@@ -400,6 +422,21 @@ dialog {
     align-items: center;
     border-radius: 50%;
     padding: 0.25rem;
+}
+
+#iLView .filterSection {
+    display: grid;
+    grid-template-columns: 20% 50%;
+    font-size: 1rem;
+    padding-left: 1rem;
+}
+
+#iLView #filterSectionAge {
+    padding-left: 1rem;
+}
+
+#iLView .filterSectionNonGrid {
+    padding-left: 1rem;
 }
 
 #iLView .filterOption button:hover {
