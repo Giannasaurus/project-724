@@ -1,118 +1,17 @@
 <h2>Inhabitant List</h2>
 <div id="iLView">
-    <div id="iLNav">
-        <div id="searchSection">
-            <div id="searchOptions">
-                <input id="searchBar" type="text" placeholder="Search an inhabitant...">
-                <button id="btn_search" class="btn_main" type="button">Search</button>
-                <button id="btn_filter" class="btn_sub" type="button">Filter</button>
-                <!-- COMMENTED OUT FOR CLEANLINESS
-                <dialog id="filterMenu">
-                    <h1>Filter Options</h1>
-                    <div class="filterMenuOptions">
-                        <div>
-                            <h3>Age</h3>
-                            <div class="filterSectionNonGrid">
-                                <input type="checkbox">
-                                    Age <input type="number" id="filterMinAge" class="filterAgeConst" value="0"/>
-                                    to <input type="number" id="filterMaxAge" class="filterAgeConst" value="999"/>
-                                </input>
-                            </div>
-                        </div>
-                        <div>
-                            <h3>Sex</h3>
-                            <div class="filterSection">
-                                <div>
-                                    <input type="checkbox" id="filterSexAll"/>
-                                    <label for="filterSexAll">All</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSexMale"/>
-                                    <label for="filterSexMale">Male</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSexFemale"/>
-                                    <label for="filterSexFemale">Female</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h3>Sector</h3>
-                            <div class="filterSection">
-                                <div>
-                                    <input type="checkbox" id="filterSectorAll"/>
-                                    <label for="filterSectorAll">All</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSectorPwd"/>
-                                    <label for="filterSectorPwd">PWD</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSectorSenior"/>
-                                    <label for="filterSectorSenior">Senior</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilSingle"/>
-                                    <label for="filterCivilSingle">Single</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilMarried"/>
-                                    <label for="filterCivilMarried">Married</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilWidowed"/>
-                                    <label for="filterCivilWidowed">Widowed</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilDivorced"/>
-                                    <label for="filterCivilDivorced">Divorced</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilAnulled"/>
-                                    <label for="filterCivilAnulled">Anulled</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilLS"/>
-                                    <label for="filterCivilLS">Legally Separated</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="filterSectionNonGrid">
-                        <button id="saveFilter" class="btn_main" type="button">
-                            Search
-                        </button>
-                        <button id="cancelFilter" class="btn_sub" type="button">
-                            Cancel
-                        </button>
-                    </div>
-                </dialog>
-                -->
-            </div>
-            <div id="filterIndicators">
-                <div class="filterOption">
-                    <span>Filter 1</span>
-                    <button type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg">
-                            <line x1="5" y1="15" x2="15" y2="5"/> 
-                            <line x1="5" y1="5" x2="15" y2="15"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="addSection">
-            <div>
+    <nav id="iLNav">
+        <input id="searchBar" type="text" placeholder="Search an inhabitant...">
+        <ul id="il-nav-btn-list">
+            <li>
                 <button id="addResidentBtn" class="il-nav-btn" type="button">
                     <img src="img/icons/inhabitantList/add-thick-16.png" alt="Add icon">
                     Add resident
                 </button>
-            </div>
-            <div>
-                <button class="il-nav-btn" type="button">Import from Excel</button>
-            </div>
-        </div>
-    </div>
+            </li>
+            <li><button class="il-nav-btn" type="button">Import from Excel</button></li>
+        </ul>
+    </nav>
     <div id="scrollableContainer">
         <div id="dataContainer">
             <!-- display data here, inside testDataTable -->
