@@ -88,14 +88,22 @@ export function initInhabitantListeners({ handleCloseOnBackdrop, addResidentHist
     }
     const addResidentBtn = document.getElementById('addResidentBtn')
     const addResidentDialog = document.getElementById('addResidentDialog')
+    const addResidentForm = document.getElementById('addResidentForm')
     addResidentBtn.addEventListener('click', () => {
-        document.getElementById('addResidentForm').reset()
+        addResidentForm.reset()
         document.getElementById('ar-error').textContent = ''
         addResidentDialog.showModal()
         addResidentDialog.addEventListener('click', handleCloseOnBackdrop, { once: true })
     })
 
-    document.getElementById('addResidentForm').addEventListener('submit', async (e) => {
+    addResidentForm.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.matches('input')) {
+            e.preventDefault()
+            addResidentForm.requestSubmit()
+        }
+    })
+
+    addResidentForm.addEventListener('submit', async (e) => {
         e.preventDefault()
         const errorEl = document.getElementById('ar-error')
         errorEl.textContent = ''
@@ -121,7 +129,7 @@ export function initInhabitantListeners({ handleCloseOnBackdrop, addResidentHist
         if (result.success) {
             addResidentHistoryLog(result.data)
             addResidentDialog.close()
-            const freshData = await getData('/residents')
+            const freshData = await getData('/residents/filter?from=0&limit=50')
             await loadData(freshData)
         } else {
             errorEl.textContent = 'Failed to save resident. Please try again.'

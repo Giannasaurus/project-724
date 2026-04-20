@@ -66,26 +66,37 @@ async function loadApp() {
     const settingsDialog = document.getElementById('settingsDialog')
     const closeBtns = document.querySelectorAll('.closeBtn')
 
+    function setActiveNav(id) {
+        mainNav.querySelectorAll('.sub-main-nav-a.active').forEach(link => link.classList.remove('active'))
+        const activeLink = mainNav.querySelector(`#${id}`)
+        if (activeLink) activeLink.classList.add('active')
+    }
+
     // FOR LOADING DEFAULT PAGE
     await fetchFile("inhabitantList.html", mainBody)
     await goToPage(1)
     initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData: loadInhabitantData })
+    let currentView = 'inhabitantList'
+    setActiveNav(currentView)
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
 
-    let currentView = null
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
+        const navLink = target.closest('.sub-main-nav-a')
+        if (navLink) e.preventDefault()
 
         if (target.closest('#home')) {
             if (currentView === 'home') return
             currentView = 'home'
+            setActiveNav(currentView)
             await fetchFile('home.html', mainBody)
             // await loadSummary(data)
         }
         else if (target.closest('#inhabitantList')) {
             if (currentView === 'inhabitantList') return
             currentView = 'inhabitantList'
+            setActiveNav(currentView)
 
             await fetchFile('inhabitantList.html', mainBody)
             await goToPage(1)
@@ -94,18 +105,20 @@ async function loadApp() {
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
             currentView = 'templates'
+            setActiveNav(currentView)
             await fetchFile('templates.html', mainBody)
         }
         else if (target.closest('#history')) {
             if (currentView === 'history') return
             currentView = 'history'
+            setActiveNav(currentView)
             await fetchFile('history.html', mainBody)
             loadHistory(RESIDENT_HISTORY_KEY)
         }
         else if (target.closest('#settings')) {
             settingsDialog.showModal()
         }
-        else if (target.matches('#logout')) {
+        else if (target.closest('#logout')) {
             localStorage.removeItem('isLoggedIn')
             loadLogin()
         }

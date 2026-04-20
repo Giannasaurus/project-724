@@ -22,6 +22,9 @@
     --color-required: red;
     --color-error: red;
     --color-white: #fff;
+    --color-bg-nav: #f8f8f7;
+    --color-nav-outline: #e5e5e2;
+    --color-focus: #2563EB;
     --color-accent: #2563EB;
     --color-accent-hover: #1E40AF;
     --color-border: #C0C0C0;
@@ -65,7 +68,7 @@
 html {
     font-family: Inter, Helvetica, Arial, sans-serif;
     font-size: 16px;
-    padding: 0 16px;
+    padding: 0;
     height: 100%;
     overflow: hidden;
 }
@@ -94,6 +97,14 @@ input:focus,
 select:focus,
 .sub-main-nav-a:focus {
     outline: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.sub-main-nav-a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
 }
 
 
@@ -204,32 +215,27 @@ label {
 
 #mainView {
     display: grid;
-    grid-template-columns: 1fr 6fr;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: var(--gap-lg);
+    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 0;
     height: 100%;
     min-height: 0;
     overflow: hidden;
 }
 
-#mainHeader {
-    grid-column: span 2;
-}
-
-#mainHeader h1 {
-    font-size: var(--font-size-base);
-    padding: 8px 0 0 0;
-}
-
 #mainNav {
+    background-color: var(--color-bg-nav);
+    border-right: 1px solid var(--color-nav-outline);
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     grid-column: 1;
-    grid-row-start: 2;
+    grid-row: 1;
     justify-content: space-between;
     align-self: stretch;
     min-height: 0;
-    margin: 0 0 var(--gap-lg) 0;
+    margin: 0;
+    padding: 24px var(--gap-lg) var(--gap-lg);
     position: sticky;
     top: 0;
 }
@@ -253,7 +259,7 @@ li,
 .sub-main-nav-a {
     font-family: inherit;
     font-size: var(--font-size-base);
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
 }
 
 .sub-main-nav-li:hover {
@@ -261,16 +267,21 @@ li,
 }
 
 .sub-main-nav-li:active {
-    background-color: rgba(255, 175, 175, 0.5);
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.sub-main-nav-a.active {
+    background-color: var(--color-bg-hover);
+    font-weight: 600;
 }
 
 #mainBody {
     grid-column: 2;
-    grid-row-start: 2;
+    grid-row: 1;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: var(--gap-md);
+    padding: 24px 24px 24px;
 }
 
 
@@ -287,6 +298,22 @@ dialog {
 
 dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.08);
+}
+
+.closeBtn:not(.ar-cancel-btn) {
+    align-items: center;
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    justify-content: center;
+    line-height: 1;
+}
+
+.closeBtn:not(.ar-cancel-btn):hover,
+.delete-dialog-x:hover {
+    background-color: var(--color-bg-hover);
+    border-radius: var(--radius-sm);
 }
 
 #settingsDialog {
@@ -369,6 +396,7 @@ dialog::backdrop {
 #iLNav {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     gap: var(--gap-lg);
 }
 
@@ -377,12 +405,14 @@ dialog::backdrop {
     display: flex;
     flex-direction: column;
     gap: var(--gap-lg);
+    min-width: 0;
 }
 
 #searchOptions {
     flex: 1;
     display: flex;
     flex-direction: row;
+    align-items: stretch;
     gap: var(--gap-lg);
 }
 
@@ -393,6 +423,12 @@ dialog::backdrop {
 #btn_search,
 #btn_filter {
     flex: 1;
+}
+
+#searchOptions input,
+#searchOptions button,
+.il-nav-btn {
+    min-height: 42px;
 }
 
 #filterIndicators {
@@ -465,6 +501,10 @@ dialog::backdrop {
     background-color: #d3d3d3;
 }
 
+#iLView .filterOption button:active {
+    background-color: #bfbfbf;
+}
+
 #iLView .filterOption button svg {
     width: 1.25rem;
     height: 1.25rem;
@@ -477,30 +517,44 @@ dialog::backdrop {
 }
 
 #iLView #addSection {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: row-reverse;
+    align-items: flex-start;
+    gap: var(--gap-lg);
     justify-content: end;
 }
 
 .il-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: inherit;
     font-size: var(--font-size-base);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
+    min-width: 148px;
     padding: var(--gap-md) var(--gap-lg);
     margin: auto;
+    white-space: nowrap;
 }
 
 .il-nav-btn:hover {
     background-color: var(--color-bg-hover);
 }
 
+.il-nav-btn:active {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
 #iLView .btn_main {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-white);
     background-color: var(--color-accent);
     font-family: inherit;
     font-size: var(--font-size-base);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     padding: var(--gap-md) var(--gap-lg);
     margin: auto;
 }
@@ -509,18 +563,29 @@ dialog::backdrop {
     background-color: var(--color-accent-hover);
 }
 
+#iLView .btn_main:active {
+    background-color: #1d3f8f;
+}
+
 #iLView .btn_sub {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: #3472fa;
     font-family: inherit;
     font-size: var(--font-size-base);
-    border: 0.15rem solid #3472fa;
-    border-radius: var(--radius-sm);
+    border: 2px solid #3472fa;
+    border-radius: var(--radius-md);
     padding: var(--gap-md) var(--gap-lg);
     margin: auto;
 }
 
 #iLView .btn_sub:hover {
-    background-color: #2d4fbe
+    background-color: #2d4fbe;
+}
+
+#iLView .btn_sub:active {
+    background-color: rgba(52, 114, 250, 0.18);
 }
 
 
@@ -544,13 +609,22 @@ dialog::backdrop {
     border-collapse: collapse;
 }
 
+#dataTable th,
+#dataTable td {
+    height: 64px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 #dataTable .col-name {
-    width: 22%;
+    width: 19%;
 }
 
 #dataTable .col-suffix {
     color: #696969;
-    width: 7%;
+    width: 9%;
 }
 
 #dataTable .col-birthdate {
@@ -560,7 +634,7 @@ dialog::backdrop {
 
 #dataTable .col-sex {
     color: #696969;
-    width: 9%;
+    width: 8%;
 }
 
 #dataTable .col-sector {
@@ -575,11 +649,18 @@ dialog::backdrop {
 
 #dataTable .col-address {
     color: #696969;
-    width: 20%;
+    width: 19%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #dataTable .col-action {
-    width: 5%;
+    width: 8%;
+}
+
+#dataTable td.col-action {
+    overflow: visible;
 }
 
 table {
@@ -602,16 +683,6 @@ tbody tr:hover {
     background-color: var(--color-bg-hover);
 }
 
-tbody tr:hover td:first-child {
-    border-radius: 8px 0 0 8px;
-}
-
-tbody tr:hover td:last-child {
-    /* border-radius: 0 8px 8px 0; */
-    border-radius: 0;
-    /* var(--radius-lg); */
-}
-
 td {
     text-align: left;
     padding: 1.25rem;
@@ -628,12 +699,36 @@ td {
 #historyTable {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#historyTable th:nth-child(1),
+#historyTable td:nth-child(1) {
+    width: 24%;
+}
+
+#historyTable th:nth-child(2),
+#historyTable td:nth-child(2) {
+    width: 18%;
+}
+
+#historyTable th:nth-child(3),
+#historyTable td:nth-child(3) {
+    width: 24%;
+}
+
+#historyTable th:nth-child(4),
+#historyTable td:nth-child(4) {
+    width: 34%;
 }
 
 #historyTable th,
 #historyTable td {
+    overflow: hidden;
     padding: 12px;
     text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #historyTable tbody tr {
@@ -720,6 +815,7 @@ tbody tr:hover .ellipsis-btn,
     display: flex;
     align-items: center;
     gap: var(--gap-sm);
+    min-width: 172px;
 }
 
 #addResidentBtn:hover {
@@ -817,12 +913,14 @@ tbody tr:hover .ellipsis-btn,
 .ar-cancel-btn {
     font-family: inherit;
     font-size: var(--font-size-base);
+    background-color: var(--color-white);
+    border: 2px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: var(--gap-md) 20px;
 }
 
 .ar-cancel-btn:hover {
-    background-color: var(--color-bg-btn-cancel-hover);
+    background-color: var(--color-bg-hover);
 }
 
 #ar-saveBtn {
@@ -849,9 +947,9 @@ tbody tr:hover .ellipsis-btn,
 
 #deleteConfirmDialog {
     width: min(680px, calc(100vw - 40px));
-    min-height: 312px;
-    padding: 16px 20px 28px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    min-height: 0;
+    padding: var(--gap-xl);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
 }
 
 .delete-dialog-header {
@@ -865,72 +963,70 @@ tbody tr:hover .ellipsis-btn,
 }
 
 .delete-dialog-x {
+    align-items: center;
     color: var(--color-text-muted);
+    display: inline-flex;
     font-family: inherit;
     font-size: var(--font-size-base);
+    justify-content: center;
     line-height: 1;
     width: 28px;
     height: 28px;
     border-radius: var(--radius-sm);
 }
 
-.delete-dialog-x:hover {
-    background-color: var(--color-bg-hover);
-    color: var(--color-text);
-}
-
 .delete-dialog-body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: var(--gap-xl);
     text-align: center;
 }
 
 .delete-dialog-body h2 {
     font-size: 1.5rem;
-    margin: 24px 0;
+    margin: var(--gap-xl) 0 0;
 }
 
 .delete-dialog-copy {
     color: #202020;
     font-size: var(--font-size-base);
-    font-style: italic;
-    line-height: 1.35;
+    font-style: normal;
+    line-height: 1.5;
     letter-spacing: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: var(--gap-xl);
+    gap: var(--gap-md);
+    max-width: 540px;
 }
 
 .delete-dialog-error {
     color: var(--color-error);
     font-size: var(--font-size-sm);
     min-height: 1rem;
-    margin-top: var(--gap-md);
 }
 
 .delete-dialog-actions {
     display: flex;
     justify-content: center;
     gap: var(--gap-md);
-    margin-top: var(--gap-md);
 }
 
 .delete-dialog-cancel,
 .delete-dialog-confirm {
     font-family: inherit;
-    font-size: 0.75rem;
-    min-width: 70px;
-    min-height: 26px;
-    border-radius: 4px;
-    padding: 5px 16px;
+    font-size: var(--font-size-base);
+    min-width: 88px;
+    min-height: 42px;
+    border-radius: var(--radius-md);
+    padding: var(--gap-md) 20px;
 }
 
 .delete-dialog-cancel {
-    background-color: var(--color-bg-btn-cancel);
-    border: 1px solid #a8a8a8;
+    background-color: var(--color-white);
+    border: 2px solid var(--color-border);
 }
 
 .delete-dialog-cancel:hover {
