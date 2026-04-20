@@ -98,7 +98,7 @@ app.whenReady().then(async () => {
         return port;
     });
 
-    ipcMain.handle('get-data', async (event, endpoint) => { 
+    ipcMain.handle('get-data', async (e, endpoint) => { 
         const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`;
 
         try {
@@ -126,7 +126,7 @@ app.whenReady().then(async () => {
         }
     });
 
-    ipcMain.handle('post-data', async (event, endpoint, body) => {
+    ipcMain.handle('post-data', async (e, endpoint, body) => {
         const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`;
 
         try {
@@ -157,6 +157,34 @@ app.whenReady().then(async () => {
             };
         }
     });
+    
+    ipcMain.handle('delete-data', async (e, endpoint, id) => {
+        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}/${id}`
+        
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE'
+            })
+            
+            if (response.ok) {
+                return {
+                    success: true,
+                    message: `[~] request ${response.status}: DELETE ${url}`
+                }
+            }
+            else if (response.status === 404) {
+                return {
+                    
+                }
+            }
+        }
+        catch (err) {
+            return {
+                success: false,
+                message: `[!] request failed: DELETE ${url} -> ${err.message}`
+            };
+        }
+    })
 
     ipcMain.handle('check-login', (e, username, password) => {
         // commented out for faster development

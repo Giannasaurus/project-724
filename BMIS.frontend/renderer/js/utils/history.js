@@ -3,6 +3,19 @@ function getResidentFullName(resident) {
     return `${resident.lastName}, ${resident.firstName} ${middleInitial}`.trim()
 }
 
+function getResidentId(resident) {
+    return resident.residentId ?? resident.ResidentId ?? resident.id
+}
+
+function getHistoryActivity(type) {
+    const activities = {
+        'resident-added': 'Added resident',
+        'resident-deleted': 'Deleted resident'
+    }
+
+    return activities[type] ?? 'Updated resident'
+}
+
 function readResidentHistory(key) {
     try {
         const rawHistory = localStorage.getItem(key)
@@ -20,10 +33,27 @@ function writeResidentHistory(key, history) {
 
 export function addResidentHistoryLog(key, resident) {
     const history = readResidentHistory(key)
+    const residentId = getResidentId(resident)
     const log = {
-        id: `${Date.now()}-${resident.residentId}`,
+        id: `${Date.now()}-${residentId}`,
         type: 'resident-added',
-        residentId: resident.residentId,
+        residentId,
+        residentName: getResidentFullName(resident),
+        address: resident.address,
+        createdAt: new Date().toISOString()
+    }
+
+    history.unshift(log)
+    writeResidentHistory(key, history.slice(0, 100))
+}
+
+export function addResidentDeletedHistoryLog(key, resident) {
+    const history = readResidentHistory(key)
+    const residentId = getResidentId(resident)
+    const log = {
+        id: `${Date.now()}-${residentId}`,
+        type: 'resident-deleted',
+        residentId,
         residentName: getResidentFullName(resident),
         address: resident.address,
         createdAt: new Date().toISOString()
@@ -66,7 +96,7 @@ export function loadHistory(key) {
         const createdAt = new Date(log.createdAt)
         const cells = [
             createdAt.toLocaleString(),
-            'Added resident',
+            getHistoryActivity(log.type),
             log.residentName,
             log.address
         ]

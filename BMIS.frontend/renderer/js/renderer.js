@@ -1,7 +1,7 @@
 import { checkLogin, getData } from './utils/api.js'
 import { loadData } from './utils/inhabitantsList.js'
 import { renderPagination, initInhabitantListeners } from './utils/pagination.js'
-import { addResidentHistoryLog, loadHistory } from './utils/history.js'
+import { addResidentDeletedHistoryLog, addResidentHistoryLog, loadHistory } from './utils/history.js'
 
 const app = document.getElementById('app')
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
@@ -42,6 +42,9 @@ async function loadApp() {
     let currentPage = 1
     const limit = 50
     let totalPages = 1
+    const loadInhabitantData = data => loadData(data, {
+        addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident)
+    })
 
     async function goToPage(page) {
         currentPage = page
@@ -51,7 +54,7 @@ async function loadApp() {
         if (countData.success) {
             totalPages = Math.ceil(countData.data.length / limit)
         }
-        await loadData(data)
+        await loadInhabitantData(data)
         console.log(data)
         renderPagination(currentPage, totalPages, goToPage)
 
@@ -66,7 +69,7 @@ async function loadApp() {
     // FOR LOADING DEFAULT PAGE
     await fetchFile("inhabitantList.html", mainBody)
     await goToPage(1)
-    initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData })
+    initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData: loadInhabitantData })
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
 
@@ -86,7 +89,7 @@ async function loadApp() {
 
             await fetchFile('inhabitantList.html', mainBody)
             await goToPage(1)
-            initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData })
+            initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData: loadInhabitantData })
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
@@ -131,8 +134,7 @@ function handleCloseOnBackdrop(e) {
         e.clientX <= rect.left + rect.width
     );
 
-    if (clickedInDialog === false) dialog.close();
-    console.log("Dialog close on backdrop click")
+    if (!clickedInDialog) dialog.close();
 }
 
 async function loadSummary(result) {

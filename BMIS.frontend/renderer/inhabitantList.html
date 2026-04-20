@@ -94,8 +94,8 @@
                     <span>Filter 1</span>
                     <button type="button">
                         <svg xmlns="http://www.w3.org/2000/svg">
-                            <line x1="5" y1="15" x2="15" y2="5"/> 
-                            <line x1="5" y1="5" x2="15" y2="15"/>
+                            <line x1="5" y1="15" x2="15" y2="5" />
+                            <line x1="5" y1="5" x2="15" y2="15" />
                         </svg>
                     </button>
                 </div>
@@ -165,12 +165,18 @@
                     <div class="birthdate-inputs">
                         <input type="number" id="ar-bday" placeholder="DD" min="1" max="31">
                         <select id="ar-bmonth">
-                            <option value="1">Jan</option><option value="2">Feb</option>
-                            <option value="3">Mar</option><option value="4">Apr</option>
-                            <option value="5">May</option><option value="6">Jun</option>
-                            <option value="7">Jul</option><option value="8">Aug</option>
-                            <option value="9">Sep</option><option value="10">Oct</option>
-                            <option value="11">Nov</option><option value="12">Dec</option>
+                            <option value="1">Jan</option>
+                            <option value="2">Feb</option>
+                            <option value="3">Mar</option>
+                            <option value="4">Apr</option>
+                            <option value="5">May</option>
+                            <option value="6">Jun</option>
+                            <option value="7">Jul</option>
+                            <option value="8">Aug</option>
+                            <option value="9">Sep</option>
+                            <option value="10">Oct</option>
+                            <option value="11">Nov</option>
+                            <option value="12">Dec</option>
                         </select>
                         <input type="number" id="ar-byear" placeholder="YYYY" min="1900" max="2100">
                     </div>
@@ -188,7 +194,8 @@
                 </div>
             </div>
             <div class="form-group form-group--full">
-                <label>Full Address <em>(house number/lot &amp; block, street, barangay, city/municipality, province)</em> <span class="required">*</span></label>
+                <label>Full Address <em>(house number/lot &amp; block, street, barangay, city/municipality,
+                        province)</em> <span class="required">*</span></label>
                 <input type="text" id="ar-address" required>
             </div>
             <p id="ar-error" class="ar-error"></p>
@@ -197,5 +204,24 @@
                 <button id="ar-saveBtn" type="submit">Save</button>
             </div>
         </form>
+    </dialog>
+    <dialog id="deleteConfirmDialog">
+        <div class="delete-dialog-header">
+            <h3>Delete Confirmation</h3>
+            <button id="deleteDialogCloseBtn" class="delete-dialog-x" type="button"
+                aria-label="Cancel delete">✖</button>
+        </div>
+        <div class="delete-dialog-body">
+            <h2>Are you sure?</h2>
+            <div class="delete-dialog-copy">
+                <p>Once deleted, there would be no way to retrieve lost information regarding this inhabitant.</p>
+                <p>Be advised.</p>
+            </div>
+            <p id="deleteDialogError" class="delete-dialog-error"></p>
+            <div class="delete-dialog-actions">
+                <button id="deleteDialogCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
+                <button id="deleteDialogConfirmBtn" class="delete-dialog-confirm" type="button">Delete</button>
+            </div>
+        </div>
     </dialog>
 </div>

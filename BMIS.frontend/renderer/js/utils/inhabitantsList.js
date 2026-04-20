@@ -1,3 +1,5 @@
+import { deleteData, getData } from './api.js'
+
 function getFieldNames() {
     return ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
 }
@@ -27,7 +29,80 @@ function getCells(resident) {
     ]
 }
 
-export async function loadData(result) {
+function getResidentId(resident) {
+    return resident.residentId ?? resident.ResidentId ?? resident.id
+}
+
+function openDeleteDialog(resident, options = {}) {
+    const dialog = document.getElementById('deleteConfirmDialog')
+    const closeBtn = document.getElementById('deleteDialogCloseBtn')
+    const cancelBtn = document.getElementById('deleteDialogCancelBtn')
+    const confirmBtn = document.getElementById('deleteDialogConfirmBtn')
+    const errorEl = document.getElementById('deleteDialogError')
+    const residentId = getResidentId(resident)
+
+    if (!dialog || !closeBtn || !cancelBtn || !confirmBtn || !errorEl) return
+
+    function closeDialog() {
+        errorEl.textContent = ''
+        confirmBtn.disabled = false
+        confirmBtn.textContent = 'Delete'
+        dialog.close()
+    }
+
+    closeBtn.onclick = closeDialog
+    cancelBtn.onclick = closeDialog
+    dialog.onclick = (e) => {
+        const rect = dialog.getBoundingClientRect()
+        const clickedInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+        )
+
+        if (!clickedInDialog) closeDialog()
+    }
+
+    confirmBtn.onclick = async () => {
+        if (!residentId) {
+            errorEl.textContent = 'Unable to delete this resident. Missing resident ID.'
+            return
+        }
+
+        confirmBtn.disabled = true
+        confirmBtn.textContent = 'Deleting...'
+        errorEl.textContent = ''
+
+        let result
+        try {
+            result = await deleteData('/residents', residentId)
+        }
+        catch (error) {
+            result = { success: false, message: error.message }
+        }
+
+        if (result?.success) {
+            options.addDeletedHistoryLog?.(resident)
+            closeDialog()
+            const freshData = await getData('/residents/filter?from=0&limit=50')
+            await loadData(freshData, options)
+            return
+        }
+
+        confirmBtn.disabled = false
+        confirmBtn.textContent = 'Delete'
+        errorEl.textContent = 'Failed to delete resident. Please try again.'
+        console.error(result?.message ?? 'Delete request failed.')
+    }
+
+    errorEl.textContent = ''
+    confirmBtn.disabled = false
+    confirmBtn.textContent = 'Delete'
+    dialog.showModal()
+}
+
+export async function loadData(result, options = {}) {
     console.log(result)
     const fieldNames = getFieldNames()
     const classes = [
@@ -95,7 +170,7 @@ export async function loadData(result) {
                 <div class="context-menu">
                     <button>Edit</button>
                     <hr class="context-menu-divider">
-                    <button>Delete</button>
+                    <button class="delete-btn" type="button">Delete</button>
                 </div>
             </div>
         `
@@ -105,6 +180,14 @@ export async function loadData(result) {
             const isOpen = rowAction.classList.contains('open')
             document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
             if (!isOpen) rowAction.classList.add('open')
+        })
+
+        const deleteBtn = actionTd.querySelector('.delete-btn')
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            actionTd.querySelector('.row-action').classList.remove('open')
+            openDeleteDialog(resident, options)
         })
 
         row.appendChild(actionTd)
