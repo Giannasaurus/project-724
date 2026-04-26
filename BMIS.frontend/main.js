@@ -3,52 +3,53 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const path = require('node:path')
 
 async function getFreePort() {
-    const net = require('net');
+    const net = require('net')
     return new Promise((resolve, reject) => {
-        const server = net.createServer();
+        const server = net.createServer()
         server.listen(0, () => {
-            const { port } = server.address();
-            server.close(() => resolve(port));
-        });
+            const { port } = server.address()
+            server.close(() => resolve(port))
+        })
 
         server.on('error', (err) => {
-            reject(err);
-        });
-    });
+            reject(err)
+        })
+    })
 }
 
 async function startBackend(port) {
-    const { spawn } = require('child_process');
-    const url = `http://localhost:${port}`;
+    const { spawn } = require('child_process')
+    const url = `http://localhost:${port}`
 
-    console.log(`[!] STARTING BACKEND @ ${url} `);
-    
+    console.log(`[!] STARTING BACKEND @ ${url} `)
+
     // SPAWN BACKEND PROCESS 
-    
-    // for DEV run backend using cli
-    if(!app.isPackaged) {
 
-        const fs = require('fs');
-        if(!fs.existsSync('../dev.backend')){
-            console.log('\n\n[!] Err: missing dev files \n please run "node dev.js"\n\n'); 
-            app.quit();
-            return;
-        } else {
+    // for DEV run backend using cli
+    if (!app.isPackaged) {
+
+        const fs = require('fs')
+        if (!fs.existsSync('../dev.backend')) {
+            console.log('\n\n[!] Err: missing dev files \n please run "node dev.js"\n\n')
+            app.quit()
+            return
+        }
+        else {
             // requires whole backend project
-            console.log('running dotnet'); 
-            await spawn(`dotnet ../dev.backend/bmis.dll dev --urls ${url}`, { shell: true, stdio: 'inherit'});
+            console.log('running dotnet')
+            await spawn(`dotnet ../dev.backend/bmis.dll dev --urls ${url}`, { shell: true, stdio: 'inherit' })
         }
 
         /*
          * uncomment to see backend startup information
          *
         cmd.stdout.on('data', (data) => {
-            console.log("OUPUT " + data);
-        });
+            console.log("OUPUT " + data)
+        })
         
         cmd.stderr.on('data', (data) => {
-            console.log("ERROR " + data);
-        });
+            console.log("ERROR " + data)
+        })
         */
     }
 
@@ -56,25 +57,26 @@ async function startBackend(port) {
     // TODO:
     //  build production read backend
     //  run executable using spawn
-   
+
 
     // wait for backend to finish loading
     // (30) attempts (1sec) each = 30sec timeout
     let attempt = 0;
-    while(attempt < 30) {
+    while (attempt < 30) {
         try {
-            const response = await fetch(url);
-            console.log(`[~] SUCCESS: backend connected ${url}`); 
-            return;
-        } catch (err) {
-            console.log(`[!] FAILED(${attempt}): backend connect failed ${url}`); 
-            attempt++;
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await fetch(url)
+            console.log(`[~] SUCCESS: backend connected ${url}`)
+            return
+        }
+        catch (err) {
+            console.log(`[!] FAILED(${attempt}): backend connect failed ${url}`)
+            attempt++
+            await new Promise((resolve) => setTimeout(resolve, 1000))
         }
     }
 
-    console.log(`\n\n[!] ERROR: BACKEND FAILED ${url}\n\n`);
-    app.quit();
+    console.log(`\n\n[!] ERROR: BACKEND FAILED ${url}\n\n`)
+    app.quit()
 }
 
 const createWindow = () => {
@@ -91,81 +93,119 @@ const createWindow = () => {
 }
 
 app.whenReady().then(async () => {
-    let port = await getFreePort();
-    await startBackend(port); 
+    let port = await getFreePort()
+    await startBackend(port)
 
-    ipcMain.handle('get-api-port', () => { 
-        return port;
-    });
+    ipcMain.handle('get-api-port', () => {
+        return port
+    })
 
-    ipcMain.handle('get-data', async (e, endpoint) => { 
-        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`;
+    ipcMain.handle('get-data', async (e, endpoint) => {
+        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url)
 
-            if(response.ok) {
-                return { 
+            if (response.ok) {
+                return {
                     success: true,
                     message: `[~] request ${response.status}: GET ${url}`,
                     data: await response.json()
-                };
-            } else {
-                return { 
+                }
+            }
+            else {
+                return {
                     success: false,
                     message: `[!] request ${response.status}: GET ${url}`,
-                    data: null 
-                };
+                    data: null
+                }
             }
-        } catch(err) {
-            return { 
+        }
+        catch (err) {
+            return {
                 success: false,
                 message: `[!] request failed: GET ${url} -> ${err.message}`,
-                data: null 
-            };
+                data: null
+            }
         }
-    });
+    })
 
     ipcMain.handle('post-data', async (e, endpoint, body) => {
-        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`;
+        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`
 
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
-            });
+            })
 
             if (response.ok) {
                 return {
                     success: true,
                     message: `[~] request ${response.status}: POST ${url}`,
                     data: await response.json()
-                };
-            } else {
+                }
+            }
+            else {
                 return {
                     success: false,
                     message: `[!] request ${response.status}: POST ${url}`,
                     data: null
-                };
+                }
             }
-        } catch (err) {
+        }
+        catch (err) {
             return {
                 success: false,
                 message: `[!] request failed: POST ${url} -> ${err.message}`,
                 data: null
-            };
+            }
         }
-    });
-    
+    })
+
+    ipcMain.handle('update-data', async (e, endpoint, body) => {
+        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}`
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+
+            if (response.ok) {
+                return {
+                    success: true,
+                    message: `[~] request ${response.status}: PUT ${url}`,
+                    data: await response.json()
+                }
+            }
+            else {
+                return {
+                    success: false,
+                    message: `[!] request ${response.status}: PUT ${url}`,
+                    data: null
+                }
+            }
+        }
+        catch (err) {
+            return {
+                success: false,
+                message: `[!] request failed: PUT ${url} -> ${err.message}`,
+                data: null
+            }
+        }
+    })
+
     ipcMain.handle('delete-data', async (e, endpoint, id) => {
         const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}/${id}`
-        
+
         try {
             const response = await fetch(url, {
                 method: 'DELETE'
             })
-            
+
             if (response.ok) {
                 return {
                     success: true,
@@ -174,7 +214,7 @@ app.whenReady().then(async () => {
             }
             else if (response.status === 404) {
                 return {
-                    
+
                 }
             }
         }
@@ -182,7 +222,7 @@ app.whenReady().then(async () => {
             return {
                 success: false,
                 message: `[!] request failed: DELETE ${url} -> ${err.message}`
-            };
+            }
         }
     })
 

@@ -1,7 +1,17 @@
 import { checkLogin, getData } from './utils/api.js'
-import { loadData } from './utils/inhabitantsList.js'
+import { loadData } from './utils/residents.js'
+import { openAddResidentPage } from './utils/residentForm.js'
 import { renderPagination, initInhabitantListeners } from './utils/pagination.js'
-import { addResidentDeletedHistoryLog, addResidentHistoryLog, loadHistory } from './utils/history.js'
+import { addResidentDeletedHistoryLog, addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
+
+/** 
+ * TODO
+ * 
+ * 
+ * 
+ * 
+ * a lot 
+ */
 
 const app = document.getElementById('app')
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
@@ -72,10 +82,20 @@ async function loadApp() {
         if (activeLink) activeLink.classList.add('active')
     }
 
+    async function showResidentsView(page = 1) {
+        await fetchFile('./views/residents.html', mainBody)
+        await goToPage(page)
+        // cursed ahh function
+        initInhabitantListeners({
+            handleCloseOnBackdrop,
+            addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
+            loadData: loadInhabitantData,
+            showResidentsView
+        })
+    }
+
     // FOR LOADING DEFAULT PAGE
-    await fetchFile("inhabitantList.html", mainBody)
-    await goToPage(1)
-    initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData: loadInhabitantData })
+    await showResidentsView(1)
     let currentView = 'inhabitantList'
     setActiveNav(currentView)
     // await fetchFile("home.html", mainBody)
@@ -90,29 +110,34 @@ async function loadApp() {
             if (currentView === 'home') return
             currentView = 'home'
             setActiveNav(currentView)
-            await fetchFile('home.html', mainBody)
-            // await loadSummary(data)
+            await fetchFile('./views/home.html', mainBody)
+            const summaryData = await getData('/residents')
+            await loadSummary(summaryData)
         }
         else if (target.closest('#inhabitantList')) {
             if (currentView === 'inhabitantList') return
             currentView = 'inhabitantList'
             setActiveNav(currentView)
 
-            await fetchFile('inhabitantList.html', mainBody)
-            await goToPage(1)
-            initInhabitantListeners({ handleCloseOnBackdrop, addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident), loadData: loadInhabitantData })
+            await showResidentsView(1)
+        }
+        else if (target.closest('#household')) {
+            if (currentView === 'household') return
+            currentView = 'household'
+            setActiveNav(currentView)
+            await fetchFile('./views/household.html', mainBody)
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
             currentView = 'templates'
             setActiveNav(currentView)
-            await fetchFile('templates.html', mainBody)
+            await fetchFile('./views/document-requests.html', mainBody)
         }
         else if (target.closest('#history')) {
             if (currentView === 'history') return
             currentView = 'history'
             setActiveNav(currentView)
-            await fetchFile('history.html', mainBody)
+            await fetchFile('./views/activity-log.html', mainBody)
             loadHistory(RESIDENT_HISTORY_KEY)
         }
         else if (target.closest('#settings')) {
@@ -135,6 +160,42 @@ async function loadApp() {
             console.log("clicked close button")
         })
     })
+    
+    openAddResidentPage({
+        addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
+        showResidentsView
+    })
+}
+
+async function loadSummary(result) {
+    const newInhabitants = document.getElementById('newInhabitants')
+    const newRequested = document.getElementById('newRequested')
+    const totalInhabitantsEl = document.getElementById('totalInhabitants')
+    const totalHouseholds = document.getElementById('totalHouseholds')
+    const totalSectors = document.getElementById('totalSectors')
+    const totalSectorsSecondary = document.getElementById('totalSectorsSecondary')
+    const totalMales = document.getElementById('totalMales')
+    const totalFemales = document.getElementById('totalFemales')
+    const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
+    const homePopulationHealth = document.getElementById('homePopulationHealth')
+
+    if (!result?.success) return
+
+    const totalInhabitants = result.data.length
+    if (totalInhabitantsEl) totalInhabitantsEl.textContent = totalInhabitants
+
+    const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
+    if (totalSectors) totalSectors.textContent = pwdsSeniors
+    if (totalSectorsSecondary) totalSectorsSecondary.textContent = pwdsSeniors
+    const males = result.data.filter(r => r.sex === 0).length
+    if (totalMales) totalMales.textContent = males
+    const females = result.data.filter(r => r.sex === 1).length
+    if (totalFemales) totalFemales.textContent = females
+    if (newInhabitants) newInhabitants.textContent = Math.min(totalInhabitants, 8)
+    if (newRequested) newRequested.textContent = Math.max(1, Math.ceil(totalInhabitants / 25))
+    if (totalHouseholds) totalHouseholds.textContent = Math.max(1, Math.ceil(totalInhabitants / 4))
+    if (totalRegisteredVoters) totalRegisteredVoters.textContent = Math.max(0, Math.floor(totalInhabitants * 0.62))
+    if (homePopulationHealth) homePopulationHealth.textContent = totalInhabitants > 0 ? 'Active' : 'No data'
 }
 
 function handleCloseOnBackdrop(e) {
@@ -150,26 +211,7 @@ function handleCloseOnBackdrop(e) {
     if (!clickedInDialog) dialog.close();
 }
 
-async function loadSummary(result) {
-    const newInhabitants = document.getElementById('newInhabitants')
-    const newRequested = document.getElementById('newRequested')
-    const totalHouseholds = document.getElementById('totalHouseholds')
-    const totalSectors = document.getElementById('totalSectors')
-    const totalMales = document.getElementById('totalMales')
-    const totalFemales = document.getElementById('totalFemales')
-    const totalRegisteredVoters = document.getElementById('totalRegisteredVoters')
-
-    const totalInhabitants = result.data.length
-
-    const pwdsSeniors = result.data.filter(r => r.sector === 1 || r.sector === 2).length
-    totalSectors.textContent = pwdsSeniors
-    const males = result.data.filter(r => r.sex === 0).length
-    totalMales.textContent = males
-    const females = result.data.filter(r => r.sex === 1).length
-    totalFemales.textContent = females
-}
-
-async function fetchFile(file, container) {
+export async function fetchFile(file, container) {
     try {
         const response = await fetch(file)
         if (!response.ok) throw new Error(response.status)
@@ -182,6 +224,8 @@ async function fetchFile(file, container) {
     }
 }
 
+// move this inside the table only
+// first-class event listener 💀💀
 document.addEventListener('click', () => {
     document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
 })
