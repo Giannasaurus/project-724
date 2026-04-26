@@ -125,7 +125,7 @@ async function loadApp() {
             if (currentView === 'household') return
             currentView = 'household'
             setActiveNav(currentView)
-            await fetchFile('./views/household.html', mainBody)
+            await fetchFile('./views/households.html', mainBody)
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
