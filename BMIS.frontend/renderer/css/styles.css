@@ -240,6 +240,12 @@ label {
     top: 0;
 }
 
+.sub-main-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
 .sub-main-nav-a {
     display: flex;
     align-items: center;
@@ -247,7 +253,6 @@ label {
     width: 100%;
     padding: var(--gap-md);
 }
-
 
 .main-nav-icon {
     width: 20px;
