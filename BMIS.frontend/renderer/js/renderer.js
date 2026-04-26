@@ -1,6 +1,6 @@
 import { checkLogin, getData } from './utils/api.js'
 import { loadData } from './utils/residents.js'
-import { openAddResidentPage } from './utils/residentForm.js'
+import { openAddResidentForm } from './utils/residentForm.js'
 import { renderPagination, initInhabitantListeners } from './utils/pagination.js'
 import { addResidentDeletedHistoryLog, addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
 
@@ -161,7 +161,7 @@ async function loadApp() {
         })
     })
     
-    openAddResidentPage({
+    openAddResidentForm({
         addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
         showResidentsView
     })

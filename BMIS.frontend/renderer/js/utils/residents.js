@@ -1,4 +1,6 @@
-import { deleteData, getData, postData } from './api.js'
+import { deleteData, getData } from './api.js'
+import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
+import { addResidentHistoryLog } from './activityLog.js'
 
 function getFieldNames() {
     return ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
@@ -102,36 +104,6 @@ function openDeleteDialog(resident, options = {}) {
     dialog.showModal()
 }
 
-function getAddResidentFormValues() {
-    return {
-        firstName: document.getElementById('ar-firstName').value.trim(),
-        middleName: document.getElementById('ar-middleName').value.trim(),
-        lastName: document.getElementById('ar-lastName').value.trim(),
-        suffix: document.getElementById('ar-suffix').value.trim(),
-        address: document.getElementById('ar-address').value.trim(),
-        day: document.getElementById('ar-bday').value.padStart(2, '0'),
-        month: String(document.getElementById('ar-bmonth').value).padStart(2, '0'),
-        year: document.getElementById('ar-byear').value,
-        sex: parseInt(document.getElementById('ar-sex').value),
-        sector: parseInt(document.getElementById('ar-sector').value),
-        civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
-    }
-}
-
-function getAddResidentPayload(values) {
-    return {
-        firstName: values.firstName,
-        middleName: values.middleName,
-        lastName: values.lastName,
-        suffix: values.suffix,
-        birthDate: `${values.year}-${values.month}-${values.day}`,
-        sex: values.sex,
-        sector: values.sector,
-        civilStatus: values.civilStatus,
-        address: values.address
-    }
-}
-
 export async function loadData(result, options = {}) {
     console.log(result)
     const fieldNames = getFieldNames()
@@ -221,11 +193,11 @@ export async function loadData(result, options = {}) {
         })
 
         const editBtn = actionTd.querySelector('.edit-btn')
-        deleteBtn.addEventListener('click', (e) => {
+        editBtn.addEventListener('click', (e) => {
             e.preventDefault()
             e.stopPropagation()
             actionTd.querySelector('.row-action').classList.remove('open')
-            openEditWindow()
+            openEditResidentPage()
         })
 
         row.appendChild(actionTd)
@@ -234,4 +206,20 @@ export async function loadData(result, options = {}) {
 
     table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
+
+    // here temporarily
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const ilView = document.getElementById('iLView')
+    if (addResidentBtn && ilView) {
+        addResidentBtn.onclick = async () => {
+            await openAddResidentForm({
+                ilView,
+                addResidentHistoryLog,
+                showResidentsView: async () => {
+                    const freshData = await getData('/residents/filter?from=0&limit=50')
+                    await loadData(freshData, options)
+                }
+            })
+        }
+    }
 }
