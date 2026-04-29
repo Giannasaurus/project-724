@@ -26,4 +26,8 @@ public class Resident {
 
         return _age;
     }
+
+    public override string ToString(){
+        return $"{LastName}, {FirstName} {MiddleName[0]}., {Suffix}";
+    }
 }
