@@ -7,12 +7,12 @@ public record ResidentFilterCriteria(
     int? minAge,
     int? maxAge,
 
-    string[]? sex,
-    string[]? sector,
-    string[]? civilStat,
-
-    ResidentOrder order = ResidentOrder.ByLastName,
+    IEnumerable<string>? sex,
+    IEnumerable<string>? sector,
+    IEnumerable<string>? civilStat,
     
-    int from = 1,
-    int limit = 50
+    ResidentOrder? order,
+    
+    int? from,
+    int? limit
 );
