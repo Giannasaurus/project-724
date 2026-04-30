@@ -3,12 +3,12 @@ import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
 import { addResidentHistoryLog } from './activityLog.js'
 
 function getFieldNames() {
-    return ["Full Name", "Suffix", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
+    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
 }
 
 function getCells(resident) {
     const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial}`
+    const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix}`
     const sexes = { 0: "Male", 1: "Female" }
     const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
     const civilStatuses = {
@@ -22,7 +22,7 @@ function getCells(resident) {
 
     return [
         { value: fullName, class: 'col-name' },
-        { value: resident.suffix, class: 'col-suffix' },
+        // { value: resident.suffix, class: 'col-suffix' },
         { value: resident.birthDate, class: 'col-birthdate' },
         { value: sexes[resident.sex], class: 'col-sex' },
         { value: sectors[resident.sector], class: 'col-sector' },
@@ -108,7 +108,6 @@ export async function loadData(result, options = {}) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
-        'col-suffix',
         'col-birthdate',
         'col-sex',
         'col-sector',
