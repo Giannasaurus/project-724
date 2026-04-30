@@ -128,7 +128,8 @@ export async function loadData(result, options = {}) {
     
     dataContainer.innerHTML = ''
     scrollableContainer.appendChild(dataContainer)
-    mainBody.appendChild(scrollableContainer)
+    const paginationContainer = document.getElementById("paginationContainer")
+    paginationContainer.parentNode.insertBefore(dataContainer, paginationContainer)
     
     if (!result.success) {
         console.error(result.message)
