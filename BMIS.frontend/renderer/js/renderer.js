@@ -65,7 +65,6 @@ async function loadApp() {
             totalPages = Math.ceil(countData.data.length / limit)
         }
         await loadInhabitantData(data)
-        console.log(data)
         renderPagination(currentPage, totalPages, goToPage)
 
         return data
@@ -85,31 +84,19 @@ async function loadApp() {
     async function showResidentsView(page = 1) {
         await fetchFile('./views/residents.html', mainBody)
         await goToPage(page)
-        initInhabitantListeners({
-            loadData: loadInhabitantData
-        })
-        renderAddResidentButton()
-
-        const ilView = document.getElementById('iLView')
-        const addResidentBtn = document.getElementById('addResidentBtn')
-        if (ilView && addResidentBtn) {
-            addResidentBtn.onclick = async () => {
-                await openAddResidentForm({
-                    ilView,
-                    addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
-                    showResidentsView
-                })
-            }
-        }
+        initInhabitantListeners({ loadData: loadInhabitantData })
+        attachAddResidentButton()
     }
 
     // FOR LOADING DEFAULT PAGE
     await showResidentsView(1)
     let currentView = 'inhabitantList'
+    console.log(document.getElementById("mainBody"),
+        document.getElementById("dataContainer"))
     setActiveNav(currentView)
     // await fetchFile("home.html", mainBody)
     // await loadSummary(data)
-
+    
     mainNav.addEventListener('click', async (e) => {
         const target = e.target
         const navLink = target.closest('.sub-main-nav-a')
@@ -228,7 +215,7 @@ export async function fetchFile(file, container) {
     }
 }
 
-function renderAddResidentButton() {
+function attachAddResidentButton() {
     const addResidentBtn = document.getElementById('addResidentBtn')
     const ilView = document.getElementById('iLView')
     if (addResidentBtn && ilView) {

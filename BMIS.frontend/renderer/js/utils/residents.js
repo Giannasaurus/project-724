@@ -96,7 +96,7 @@ function openDeleteDialog(resident, options = {}) {
         confirmBtn.textContent = 'Delete'
         errorEl.textContent = 'Failed to delete resident. Please try again.'
         console.error(result?.message ?? 'Delete request failed.')
-    }
+    }   
 
     errorEl.textContent = ''
     confirmBtn.disabled = false
@@ -104,7 +104,7 @@ function openDeleteDialog(resident, options = {}) {
     dialog.showModal()
 }
 
-export async function loadData(result, container, options = {}) {
+export async function loadData(result, options = {}) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
@@ -117,9 +117,20 @@ export async function loadData(result, container, options = {}) {
         'col-action'
     ]
 
-    const dataContainer = document.getElementById('dataContainer')
+    const scrollableContainer = document.createElement("div")
+    scrollableContainer.setAttribute("id", "scrollableContainer")
+    const dataContainer = document.createElement("div")
+    dataContainer.setAttribute("id", "dataContainer")
+    
+    if (!dataContainer) {
+        console.error('#dataContainer not found')
+        return
+    }
+    
     dataContainer.innerHTML = ''
-
+    scrollableContainer.appendChild(dataContainer)
+    mainBody.appendChild(scrollableContainer)
+    
     if (!result.success) {
         console.error(result.message)
         dataContainer.innerHTML = "<p>Error loading residents.</p>"
