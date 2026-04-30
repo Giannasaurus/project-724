@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using BMIS.Models;
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 
 namespace BMIS.Endpoints;
+
+public record SearchName(string? name);
 
 public static class ResidentEndpoints {
     public static void MapResidentEndpoints(this WebApplication app) {
@@ -11,9 +15,10 @@ public static class ResidentEndpoints {
 
         group.MapGet("/", Get);
         group.MapGet("/filter", GetFiltered);
-        
+
         group.MapGet("/{id}", GetById); 
-        
+
+        group.MapPost("/search", SearchResident);
         group.MapPost("/", Create); 
 
         group.MapPut("/{id}", Update); 
@@ -33,10 +38,118 @@ public static class ResidentEndpoints {
         return TypedResults.Ok(residents); 
     }
 
+    /*
+     *  TODO: 
+     *      Move this to a different file or a utility class
+     *
+     *  Definition:
+     *      Checks how similar (2) set of strings are
+     *      
+     *      Formula:
+     *          cosine similarity = dot(A, B) / (l2_norm(A) * l2_norm(B))
+     *
+     *
+     *      set of strings <- a string with multiple words separated by spaces
+     *
+     */
+    private static double GetCosineSim(string a, string b) {
+        Dictionary<string, int> vocabulary = new Dictionary<string, int>();
+
+        string[] wordsA = a.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                            .Select(s => s.Trim().Trim(',').ToLower())
+                            .ToArray();
+
+        string[] wordsB = b.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                            .Select(s => s.Trim().Trim(',').ToLower())
+                            .ToArray();
+        
+        string[] allWords = wordsA.Concat(wordsB).ToArray();
+
+        int index = 0;
+        foreach(string s in allWords) {
+            if(!vocabulary.ContainsKey(s)) {
+                vocabulary.Add(s, index);
+                index++;
+            }
+        }
+       
+        int[] A = new int[index];
+        int[] B = new int[index];
+        
+        foreach(string s in wordsA){
+            A[vocabulary[s]] += 1; 
+        }
+        
+        foreach(string s in wordsB){
+            B[vocabulary[s]] += 1; 
+        }
+        
+        double dotp = 0; 
+        double normA = 0;
+        double normB = 0;
+
+        for(int i = 0; i < index; i++) {
+            dotp += A[i] * B[i]; 
+            normA += A[i] * A[i];
+            normB += B[i] * B[i];
+        }
+
+        normA = Math.Sqrt(normA);
+        normB = Math.Sqrt(normB);
+        
+        return dotp / (normA * normB);
+    }
+
+
+
+
+
+
+    private static async Task<IResult> SearchResident(
+            [FromBody] SearchName name,
+            [AsParameters] ResidentFilterCriteria criteria,
+            AppDbContext db) {
+
+        /*
+         *  BUG: 
+         *   GetFiltered() returns a list of residents that is paged and ordered
+         *   for ex. from = 2, limit = 50, order = ByLastName 
+         *      GetFiltered() will return a list of (50) residents starting from index (2)
+         *      in a list of residents that is ordered (ByLastName)
+         *
+         *  Goal:
+         *   this function should return a list of resident ordered by their similarity ranking
+         *   then from this list of residents we would apply the paging (e.g from index 2 take 50 residents)
+         *
+         *
+         *
+         */
+
+        var result = await GetFiltered(criteria, db);
+        List<Resident> contents = new List<Resident>();
+        if(result is Ok<List<Resident>> res) {
+            contents = res.Value ?? contents;
+        }
+
+        foreach(var c in contents) {
+            Console.WriteLine(c);
+        }
+        
+        return TypedResults.Ok(contents);
+    }
+
+
+
 
 
 
     /*
+     * URGENT: 
+     *  refactor this shitty function
+     *
+     *  
+     *
+     *
      * TODO:
      *  filtering w/ names is somewhat very straightfoward
      *  it does not account for human-errors like misspelled names
@@ -85,7 +198,7 @@ public static class ResidentEndpoints {
             residents = residents.Where(r => r.BirthDate >= maxCutoff);
         }
 
-        if(criteria.sex != null && criteria.sex.Length > 0) {
+        if(criteria.sex != null && criteria.sex.Count() > 0) {
             var selected = criteria.sex
                 .Select(s => Enum.TryParse<Sex>(s, true, out Sex parsed) ? parsed : (Sex?)null)
                 .Where(s => s.HasValue)
@@ -95,7 +208,7 @@ public static class ResidentEndpoints {
             residents = residents.Where(r => selected.Contains(r.Sex)); 
         }
         
-        if(criteria.sector != null && criteria.sector.Length > 0) {
+        if(criteria.sector != null && criteria.sector.Count() > 0) {
             var selected = criteria.sector
                 .Select(s => Enum.TryParse<Sector>(s, true, out Sector parsed) ? parsed : (Sector?)null)
                 .Where(s => s.HasValue)
@@ -105,7 +218,7 @@ public static class ResidentEndpoints {
             residents = residents.Where(r => selected.Contains(r.Sector)); 
         }
         
-        if(criteria.civilStat != null && criteria.civilStat.Length > 0) {
+        if(criteria.civilStat != null && criteria.civilStat.Count() > 0) {
             var selected = criteria.civilStat
                 .Select(s => Enum.TryParse<CivilStatus>(s, true, out CivilStatus parsed) ? parsed : (CivilStatus?)null)
                 .Where(s => s.HasValue)
@@ -145,14 +258,21 @@ public static class ResidentEndpoints {
                 break;
         }
 
-        // pagination
-        var results = await residents
-            .Skip(criteria.from)
-            .Take(criteria.limit)
-            .ToListAsync();
+        if(criteria.from != null) {
+            residents = residents.Skip(criteria.from ?? 0);
+        }
+
+        if(criteria.limit != null) {
+            residents = residents.Take(criteria.limit ?? residents.Count());
+        }
+
+        var results = await residents.ToListAsync();
 
         return TypedResults.Ok(results); 
     }
+
+
+
 
     private static async Task<IResult> GetByName(string? first, string? middle, string? last, AppDbContext db) {
         var residents = db.Residents.AsNoTracking();
