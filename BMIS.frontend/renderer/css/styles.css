@@ -860,6 +860,10 @@ td {
     border-top: 1px solid #e0e0e0;
 }
 
+#historyTable tbody tr {
+    color: var(--color-text-muted);
+}
+
 .history-empty {
     color: var(--color-text-muted);
 }
