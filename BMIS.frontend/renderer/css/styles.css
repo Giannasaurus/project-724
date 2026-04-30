@@ -32,6 +32,7 @@
     --color-bg-hover: rgba(211, 211, 211, 0.5);
     --color-bg-btn-cancel: #e0e0e0;
     --color-bg-btn-cancel-hover: #c8c8c8;
+    --color-deactivated: lightgray;
     --color-bg-btn-primary: #222;
     --color-bg-btn-primary-hover: #444;
     --color-bg-btn-disabled: #888;
@@ -874,7 +875,12 @@ td {
 }
 
 .ellipsis-btn {
+    color: var(--color-bg-btn-disabled);
     visibility: hidden;
+}
+
+.ellipsis-btn:hover {
+    color: #000;
 }
 
 tbody tr:hover .ellipsis-btn,
