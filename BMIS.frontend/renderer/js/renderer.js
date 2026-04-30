@@ -222,11 +222,13 @@ function attachAddResidentButton() {
         addResidentBtn.onclick = async () => {
             await openAddResidentForm({
                 ilView,
-                addResidentHistoryLog,
+                addResidentHistoryLog
+                /*
                 showResidentsView: async () => {
                     const freshData = await getData('/residents/filter?from=0&limit=50')
                     await loadData(freshData, options)
                 }
+                */
             })
         }
     }

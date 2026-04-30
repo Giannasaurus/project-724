@@ -116,8 +116,6 @@ export async function loadData(result, options = {}) {
         'col-action'
     ]
 
-    const scrollableContainer = document.createElement("div")
-    scrollableContainer.setAttribute("id", "scrollableContainer")
     const dataContainer = document.createElement("div")
     dataContainer.setAttribute("id", "dataContainer")
     
@@ -127,7 +125,6 @@ export async function loadData(result, options = {}) {
     }
     
     dataContainer.innerHTML = ''
-    scrollableContainer.appendChild(dataContainer)
     const paginationContainer = document.getElementById("paginationContainer")
     paginationContainer.parentNode.insertBefore(dataContainer, paginationContainer)
     

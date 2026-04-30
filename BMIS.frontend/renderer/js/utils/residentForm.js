@@ -1,7 +1,7 @@
 import { postData } from './api.js'
 
 export async function openAddResidentForm(options = {}) {
-    const { ilView, addResidentHistoryLog, showResidentsView } = options
+    const { ilView, addResidentHistoryLog } = options
     if (!ilView) return
 
     ilView.innerHTML = ''
