@@ -104,8 +104,7 @@ function openDeleteDialog(resident, options = {}) {
     dialog.showModal()
 }
 
-export async function loadData(result, options = {}) {
-    console.log(result)
+export async function loadData(result, container, options = {}) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
@@ -206,20 +205,4 @@ export async function loadData(result, options = {}) {
 
     table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
-
-    // here temporarily
-    const addResidentBtn = document.getElementById('addResidentBtn')
-    const ilView = document.getElementById('iLView')
-    if (addResidentBtn && ilView) {
-        addResidentBtn.onclick = async () => {
-            await openAddResidentForm({
-                ilView,
-                addResidentHistoryLog,
-                showResidentsView: async () => {
-                    const freshData = await getData('/residents/filter?from=0&limit=50')
-                    await loadData(freshData, options)
-                }
-            })
-        }
-    }
 }

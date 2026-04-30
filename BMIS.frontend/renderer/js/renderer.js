@@ -85,13 +85,22 @@ async function loadApp() {
     async function showResidentsView(page = 1) {
         await fetchFile('./views/residents.html', mainBody)
         await goToPage(page)
-        // cursed ahh function
         initInhabitantListeners({
-            handleCloseOnBackdrop,
-            addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
-            loadData: loadInhabitantData,
-            showResidentsView
+            loadData: loadInhabitantData
         })
+        renderAddResidentButton()
+
+        const ilView = document.getElementById('iLView')
+        const addResidentBtn = document.getElementById('addResidentBtn')
+        if (ilView && addResidentBtn) {
+            addResidentBtn.onclick = async () => {
+                await openAddResidentForm({
+                    ilView,
+                    addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
+                    showResidentsView
+                })
+            }
+        }
     }
 
     // FOR LOADING DEFAULT PAGE
@@ -160,11 +169,6 @@ async function loadApp() {
             console.log("clicked close button")
         })
     })
-    
-    openAddResidentForm({
-        addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
-        showResidentsView
-    })
 }
 
 async function loadSummary(result) {
@@ -221,6 +225,23 @@ export async function fetchFile(file, container) {
     catch (error) {
         console.error(`Cannot fetch ${file}`, error)
         container.innerHTML = `<p>Error loading ${file} page.</p>`
+    }
+}
+
+function renderAddResidentButton() {
+    const addResidentBtn = document.getElementById('addResidentBtn')
+    const ilView = document.getElementById('iLView')
+    if (addResidentBtn && ilView) {
+        addResidentBtn.onclick = async () => {
+            await openAddResidentForm({
+                ilView,
+                addResidentHistoryLog,
+                showResidentsView: async () => {
+                    const freshData = await getData('/residents/filter?from=0&limit=50')
+                    await loadData(freshData, options)
+                }
+            })
+        }
     }
 }
 
