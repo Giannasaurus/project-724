@@ -31,6 +31,9 @@
     --color-border: #C0C0C0;
     --color-bg-input: #fff;
     --color-bg-hover: rgba(211, 211, 211, 0.5);
+    --color-bg-btn-save: red;
+    --color-bg-btn-save-hover: darkred;
+    --color-bg-btn-save-active: #6e0000;
     --color-bg-btn-cancel: #e0e0e0;
     --color-bg-btn-cancel-hover: #c8c8c8;
     --color-deactivated: lightgray;
@@ -1057,12 +1060,16 @@ tbody tr:hover .ellipsis-btn,
     font-size: var(--font-size-base);
     border-radius: var(--radius-md);
     padding: var(--gap-md) 20px;
-    background-color: var(--color-bg-btn-primary);
+    background-color: var(--color-bg-btn-save);
     color: var(--color-white);
 }
 
 #ar-saveBtn:hover {
-    background-color: var(--color-bg-btn-primary-hover);
+    background-color: var(--color-bg-btn-save-hover);
+}
+
+#ar-saveBtn:active {
+    background-color: var(--color-bg-btn-save-active);
 }
 
 #ar-saveBtn:disabled {
