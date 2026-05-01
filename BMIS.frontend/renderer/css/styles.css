@@ -751,11 +751,6 @@ dialog::backdrop {
     width: 19%;
 }
 
-#dataTable .col-suffix {
-    color: #696969;
-    width: 9%;
-}
-
 #dataTable .col-birthdate {
     color: #696969;
     width: 13%;
@@ -935,17 +930,6 @@ tbody tr:hover .ellipsis-btn,
 
 .delete-btn {
     color: var(--color-dangerous);
-}
-
-/* ============================================================
-   PAGINATION
-   ============================================================ */
-
-#paginationContainer {
-    font-family: inherit;
-    font-size: var(--font-size-sm);
-    display: flex;
-    justify-content: space-between;
 }
 
 /* ============================================================
@@ -1188,6 +1172,8 @@ tbody tr:hover .ellipsis-btn,
    ============================================================ */
 
 #paginationContainer {
+    font-family: inherit;
+    font-size: var(--font-size-sm);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
