@@ -1,10 +1,19 @@
 import { postData } from './api.js'
 
 export async function openAddResidentForm(options = {}) {
-    const { ilView, addResidentHistoryLog } = options
+    const { ilView, addResidentHistoryLog, showResidentsView } = options
     if (!ilView) return
 
-    ilView.innerHTML = ''
+    const addResidentForm = await renderAddResidentForm(ilView)
+    if (!addResidentForm) return
+
+    attachEnterToSubmit(addResidentForm)
+    attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
+    attachNavigationHandlers(showResidentsView)
+}
+
+async function renderAddResidentForm(view) {
+    view.innerHTML = ''
     const response = await fetch('./views/subviews/addResident.html')
 
     try {
@@ -16,19 +25,26 @@ export async function openAddResidentForm(options = {}) {
     }
 
     const html = await response.text()
-    ilView.innerHTML = html
+    view.innerHTML = html
 
     const addResidentForm = document.getElementById('addResidentForm')
     if (!addResidentForm) return
+    return addResidentForm
+}
 
-    addResidentForm.addEventListener('keydown', (e) => {
+function attachEnterToSubmit(form) {
+    form.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.matches('input')) {
             e.preventDefault()
-            addResidentForm.requestSubmit()
+            form.requestSubmit()
         }
     })
+}
 
-    addResidentForm.addEventListener('submit', async (e) => {
+function attachSubmitHandler(form, options) {
+    const { addResidentHistoryLog, showResidentsView } = options
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault()
         const errorEl = document.getElementById('ar-error')
         errorEl.textContent = ''
@@ -46,32 +62,53 @@ export async function openAddResidentForm(options = {}) {
         saveBtn.disabled = true
         saveBtn.textContent = 'Saving...'
 
-        const result = await postData('/residents', payload)
+        try {
+            const result = await postData('/residents', payload)
 
-        saveBtn.disabled = false
-        saveBtn.textContent = 'Save'
-
-        if (result.success) {
-            addResidentHistoryLog?.(result.data)
-            await showResidentsView?.(1)
-        } else {
+            if (result.success) {
+                addResidentHistoryLog?.(result.data)
+                await showResidentsView?.(1)
+            } else {
+                errorEl.textContent = 'Failed to save resident. Please try again.'
+                console.error(result.message)
+            }
+        } catch (err) {
             errorEl.textContent = 'Failed to save resident. Please try again.'
-            console.error(result.message)
+            console.error(err)
+        } finally {
+            saveBtn.disabled = false
+            saveBtn.textContent = 'Save'
         }
     })
+}
 
+function attachNavigationHandlers(view) {
     const arCancelBtn = document.querySelector('.ar-cancel-btn')
     if (arCancelBtn) {
         arCancelBtn.addEventListener('click', async () => {
-            await showResidentsView?.(1)
+            await view?.(1)
         })
     }
 
     const backBtn = document.querySelector('.back-btn')
     if (backBtn) {
         backBtn.addEventListener('click', async () => {
-            await showResidentsView?.(1)
+            await view?.(1)
         })
+    }
+}
+
+function getAddResidentPayload(values) {
+    return {
+        firstName: values.firstName,
+        middleName: values.middleName,
+        lastName: values.lastName,
+        suffix: values.suffix,
+        birthDate: `${values.year}-${values.month}-${values.day}`,
+        sex: values.sex,
+        sector: values.sector,
+        civilStatus: values.civilStatus,
+        address: values.address
     }
 }
 
@@ -91,22 +128,8 @@ function getAddResidentFormValues() {
     }
 }
 
-function getAddResidentPayload(values) {
-    return {
-        firstName: values.firstName,
-        middleName: values.middleName,
-        lastName: values.lastName,
-        suffix: values.suffix,
-        birthDate: `${values.year}-${values.month}-${values.day}`,
-        sex: values.sex,
-        sector: values.sector,
-        civilStatus: values.civilStatus,
-        address: values.address
-    }
-}
-
+// temporarily here
 export function openEditResidentPage(viewToReplace) {
     // render Edit Resident subview
     // pre-fill input fields with the target resident
-
 }
