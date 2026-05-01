@@ -2,7 +2,7 @@ import { checkLogin, getData } from './utils/api.js'
 import { loadData } from './utils/residents.js'
 import { openAddResidentForm } from './utils/residentForm.js'
 import { renderPagination, initInhabitantListeners } from './utils/pagination.js'
-import { addResidentDeletedHistoryLog, addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
+import { addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
 
 /** 
  * TODO
@@ -52,9 +52,7 @@ async function loadApp() {
     let currentPage = 1
     const limit = 50
     let totalPages = 1
-    const loadInhabitantData = data => loadData(data, {
-        addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident)
-    })
+    const loadInhabitantData = data => loadData(data)
 
     async function goToPage(page) {
         currentPage = page
@@ -85,7 +83,7 @@ async function loadApp() {
         await fetchFile('./views/residents.html', mainBody)
         await goToPage(page)
         initInhabitantListeners({ loadData: loadInhabitantData })
-        attachAddResidentButton()
+        attachAddResidentButton(showResidentsView)
     }
 
     // FOR LOADING DEFAULT PAGE
@@ -215,18 +213,15 @@ export async function fetchFile(file, container) {
     }
 }
 
-function attachAddResidentButton() {
+function attachAddResidentButton(showResidentsView) {
     const addResidentBtn = document.getElementById('addResidentBtn')
     const ilView = document.getElementById('iLView')
     if (addResidentBtn && ilView) {
         addResidentBtn.onclick = async () => {
             await openAddResidentForm({
                 ilView,
-                addResidentHistoryLog,
-                showResidentsView: async () => {
-                    const freshData = await getData('/residents/filter?from=0&limit=50')
-                    await loadData(freshData)
-                }
+                addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
+                showResidentsView
             })
         }
     }

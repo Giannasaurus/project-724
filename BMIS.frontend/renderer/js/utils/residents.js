@@ -1,6 +1,5 @@
 import { deleteData, getData } from './api.js'
-import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
-import { addResidentHistoryLog } from './activityLog.js'
+import { openEditResidentPage } from './residentForm.js'
 
 /** DELETE DIALOG
  * 
@@ -120,17 +119,21 @@ export async function loadData(result) {
         'col-action'
     ]
 
-    const dataContainer = document.createElement("div")
-    dataContainer.setAttribute("id", "dataContainer")
-    
-    if (!dataContainer) {
-        console.error('#dataContainer not found')
+    const iLView = document.getElementById('iLView')
+    const paginationContainer = document.getElementById('paginationContainer')
+    if (!iLView || !paginationContainer) {
+        console.error('Residents view is not mounted')
         return
     }
-    
+
+    let dataContainer = document.getElementById('dataContainer')
+    if (!dataContainer) {
+        dataContainer = document.createElement('div')
+        dataContainer.id = 'dataContainer'
+        iLView.insertBefore(dataContainer, paginationContainer)
+    }
+
     dataContainer.innerHTML = ''
-    const paginationContainer = document.getElementById("paginationContainer")
-    paginationContainer.parentNode.insertBefore(dataContainer, paginationContainer)
     
     if (!result.success) {
         console.error(result.message)
@@ -200,7 +203,7 @@ export async function loadData(result) {
             e.preventDefault()
             e.stopPropagation()
             actionTd.querySelector('.row-action').classList.remove('open')
-            openDeleteDialog(resident, options)
+            openDeleteDialog(resident)
         })
 
         const editBtn = actionTd.querySelector('.edit-btn')
