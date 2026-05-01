@@ -2,40 +2,11 @@ import { deleteData, getData } from './api.js'
 import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
 import { addResidentHistoryLog } from './activityLog.js'
 
-function getFieldNames() {
-    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
-}
+/** DELETE DIALOG
+ * 
+ */
 
-function getCells(resident) {
-    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix}`
-    const sexes = { 0: "Male", 1: "Female" }
-    const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
-    const civilStatuses = {
-        0: "Single",
-        1: "Married",
-        2: "Widowed",
-        3: "Divorced",
-        4: "Annulled",
-        5: "Legally Separated"
-    }
-
-    return [
-        { value: fullName, class: 'col-name' },
-        // { value: resident.suffix, class: 'col-suffix' },
-        { value: resident.birthDate, class: 'col-birthdate' },
-        { value: sexes[resident.sex], class: 'col-sex' },
-        { value: sectors[resident.sector], class: 'col-sector' },
-        { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
-        { value: resident.address, class: 'col-address' }
-    ]
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
-}
-
-function openDeleteDialog(resident, options = {}) {
+function openDeleteDialog(resident) {
     const dialog = document.getElementById('deleteConfirmDialog')
     const closeBtn = document.getElementById('deleteDialogCloseBtn')
     const cancelBtn = document.getElementById('deleteDialogCancelBtn')
@@ -85,10 +56,10 @@ function openDeleteDialog(resident, options = {}) {
         }
 
         if (result?.success) {
-            options.addDeletedHistoryLog?.(resident)
+            // options.addDeletedHistoryLog?.(resident)
             closeDialog()
             const freshData = await getData('/residents/filter?from=0&limit=50')
-            await loadData(freshData, options)
+            await loadData(freshData)
             return
         }
 
@@ -96,7 +67,7 @@ function openDeleteDialog(resident, options = {}) {
         confirmBtn.textContent = 'Delete'
         errorEl.textContent = 'Failed to delete resident. Please try again.'
         console.error(result?.message ?? 'Delete request failed.')
-    }   
+    }
 
     errorEl.textContent = ''
     confirmBtn.disabled = false
@@ -104,7 +75,40 @@ function openDeleteDialog(resident, options = {}) {
     dialog.showModal()
 }
 
-export async function loadData(result, options = {}) {
+function getFieldNames() {
+    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
+}
+
+function getCells(resident) {
+    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+    const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix}`
+    const sexes = { 0: "Male", 1: "Female" }
+    const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
+    const civilStatuses = {
+        0: "Single",
+        1: "Married",
+        2: "Widowed",
+        3: "Divorced",
+        4: "Annulled",
+        5: "Legally Separated"
+    }
+
+    return [
+        { value: fullName, class: 'col-name' },
+        // { value: resident.suffix, class: 'col-suffix' },
+        { value: resident.birthDate, class: 'col-birthdate' },
+        { value: sexes[resident.sex], class: 'col-sex' },
+        { value: sectors[resident.sector], class: 'col-sector' },
+        { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
+        { value: resident.address, class: 'col-address' }
+    ]
+}
+
+function getResidentId(resident) {
+    return resident.residentId ?? resident.ResidentId ?? resident.id
+}
+
+export async function loadData(result) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
