@@ -21,6 +21,7 @@
     --color-text-muted: #555;
     --color-required: red;
     --color-error: red;
+    --color-dangerous: red;
     --color-white: #fff;
     --color-bg-nav: #f8f8f7;
     --color-nav-outline: #e5e5e2;
@@ -926,6 +927,10 @@ tbody tr:hover .ellipsis-btn,
 .row-action.open .context-menu {
     display: flex;
     flex-direction: column;
+}
+
+.delete-btn {
+    color: var(--color-dangerous);
 }
 
 /* ============================================================
