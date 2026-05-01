@@ -913,7 +913,8 @@ tbody tr:hover .ellipsis-btn,
     padding: 8px;
 }
 
-.context-menu button:hover {
+.context-menu button:hover,
+.context-menu button:focus-visible {
     background-color: var(--color-bg-hover);
     border-radius: var(--radius-sm);
 }
