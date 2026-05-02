@@ -63,29 +63,3 @@ export function renderPagination(current, total, onPageChange) {
     next.addEventListener('click', () => onPageChange(current + 1))
     nav.appendChild(next)
 }
-
-// cursed ahh function
-// move this soon
-export function initInhabitantListeners({ loadData }) {
-    const searchBar = document.getElementById('searchBar')
-    const searchBtn = document.getElementById('btn_search')
-
-    async function displayInhabitants() {
-        const query = searchBar.value.trim()
-        const endpoint = query
-            ? `/residents/filter?firstName=${encodeURIComponent(query)}`
-            : '/residents/filter?from=0&limit=50'
-        const data = await getData(endpoint)
-        await loadData(data)
-    }
-
-    if (searchBtn) {
-        searchBtn.addEventListener('click', displayInhabitants)
-    }
-
-    if (searchBar) {
-        searchBar.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') displayInhabitants()
-        })
-    }
-}

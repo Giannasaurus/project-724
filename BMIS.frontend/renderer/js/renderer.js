@@ -1,7 +1,7 @@
 import { checkLogin, getData } from './utils/api.js'
-import { loadData } from './utils/residents.js'
+import { handleSearchInput, loadData } from './utils/residents.js'
 import { openAddResidentForm } from './utils/residentForm.js'
-import { renderPagination, initInhabitantListeners } from './utils/pagination.js'
+import { renderPagination } from './utils/pagination.js'
 import { addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
 
 /** 
@@ -82,7 +82,7 @@ async function loadApp() {
     async function showResidentsView(page = 1) {
         await fetchFile('./views/residents.html', mainBody)
         await goToPage(page)
-        initInhabitantListeners({ loadData: loadInhabitantData })
+        handleSearchInput({ loadData: loadInhabitantData, goToPage })
         attachAddResidentButton(showResidentsView)
     }
 

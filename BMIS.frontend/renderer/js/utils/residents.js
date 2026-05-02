@@ -1,6 +1,78 @@
 import { deleteData, getData } from './api.js'
 import { openEditResidentPage } from './residentForm.js'
 
+/* ============================================================
+   SEARCH INPUT
+   ============================================================ */
+export function handleSearchInput({ loadData, goToPage }) {
+    const searchBar = document.getElementById('searchBar')
+    const searchBtn = document.getElementById('btn_search')
+    const paginationContainer = document.getElementById('paginationContainer')
+
+    async function displayResidents() {
+        if (!searchBar) return
+
+        const query = searchBar.value.trim()
+
+        if (!query) {
+            await goToPage?.(1)
+            return
+        }
+        
+        await processSearchQuery(query)
+
+        if (paginationContainer) {
+            paginationContainer.innerHTML = ''
+        }
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', displayResidents)
+    }
+
+    if (searchBar) {
+        searchBar.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                displayResidents()
+            }
+        })
+    }
+}
+
+async function processSearchQuery(query) {
+    const fields = ['firstName', 'middleName', 'lastName']
+    const results = await Promise.all(fields.map(async (field) => {
+        const params = new URLSearchParams({
+            [field]: query,
+            from: '0',
+            limit: '50'
+        })
+
+        return getData(`/residents/filter?${params.toString()}`)
+    }))
+
+    const mergedResidents = []
+    const seenResidentIds = new Set()
+
+    results.forEach((result) => {
+        if (!result?.success || !Array.isArray(result.data)) return
+
+        result.data.forEach((resident) => {
+            const residentId = getResidentId(resident) ?? JSON.stringify(resident)
+            if (seenResidentIds.has(residentId)) return
+
+            seenResidentIds.add(residentId)
+            mergedResidents.push(resident)
+        })
+    })
+
+    await loadData({
+        success: true,
+        data: mergedResidents
+    })
+}
+
 /** DELETE DIALOG
  * 
  */
@@ -134,7 +206,7 @@ export async function loadData(result) {
     }
 
     dataContainer.innerHTML = ''
-    
+
     if (!result.success) {
         console.error(result.message)
         dataContainer.innerHTML = "<p>Error loading residents.</p>"
