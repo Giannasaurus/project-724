@@ -4,16 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using BMIS.Models;
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
+using BMIS.Services;
 
 namespace BMIS.Endpoints;
-
-public record SearchName(string? name);
 
 public static class ResidentEndpoints {
     public static void MapResidentEndpoints(this WebApplication app) {
         var group = app.MapGroup("/residents");
 
-        group.MapGet("/", Get);
+        group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);
 
         group.MapGet("/{id}", GetById); 
@@ -33,148 +32,19 @@ public static class ResidentEndpoints {
      *  might take some time to load
      *
     */
-    private static async Task<IResult> Get(AppDbContext db) {
-        var residents = await db.Residents.AsNoTracking().ToListAsync();
+    private static async Task<IResult> GetAll(
+            IResidentService residentService) {
+
+        var residents = await residentService.GetAllResidents(); 
         return TypedResults.Ok(residents); 
+
     }
-
-    /*
-     *  TODO: 
-     *      Move this to a different file or a utility class
-     *
-     *  Definition:
-     *      Checks how similar (2) set of strings are
-     *      
-     *      Formula:
-     *          cosine similarity = dot(A, B) / (l2_norm(A) * l2_norm(B))
-     *
-     *
-     *      set of strings <- a string with multiple words separated by spaces
-     *
-     */
-    private static double GetCosineSim(string a, string b) {
-        Dictionary<string, int> vocabulary = new Dictionary<string, int>();
-
-        string[] wordsA = a.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                            .Select(s => s.Trim().Trim(',').ToLower())
-                            .ToArray();
-
-        string[] wordsB = b.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                            .Select(s => s.Trim().Trim(',').ToLower())
-                            .ToArray();
-        
-        string[] allWords = wordsA.Concat(wordsB).ToArray();
-
-        int index = 0;
-        foreach(string s in allWords) {
-            if(!vocabulary.ContainsKey(s)) {
-                vocabulary.Add(s, index);
-                index++;
-            }
-        }
-       
-        int[] A = new int[index];
-        int[] B = new int[index];
-        
-        foreach(string s in wordsA){
-            A[vocabulary[s]] += 1; 
-        }
-        
-        foreach(string s in wordsB){
-            B[vocabulary[s]] += 1; 
-        }
-        
-        double dotp = 0; 
-        double normA = 0;
-        double normB = 0;
-
-        for(int i = 0; i < index; i++) {
-            dotp += A[i] * B[i]; 
-            normA += A[i] * A[i];
-            normB += B[i] * B[i];
-        }
-
-        normA = Math.Sqrt(normA);
-        normB = Math.Sqrt(normB);
-        
-        return dotp / (normA * normB);
-    }
-
-
-    private static double JaroWinklerSim(string a, string b) {
-        a = a.Trim(new char[]{',', ' '}).ToLower();    
-        b = b.Trim(new char[]{',', ' '}).ToLower();    
-
-        int searchDis = Math.Min((int)Math.Floor(Math.Max(a.Length, b.Length) / 2.0) - 1, 4);
-        
-        bool[] aflag = new bool[a.Length];
-        bool[] bflag = new bool[b.Length];
-        
-        double common = 0;
-        double transp = 0;
-
-        int i = 0;
-        while(i < a.Length){
-            int lowLim = Math.Max(0, i - searchDis);
-            int uppLim = Math.Min(i + searchDis + 1, b.Length);
-            for(int k = lowLim; k < uppLim; k++) {
-                if(!bflag[k] && a[i] == b[k]) {
-                    common += 1;
-                    aflag[i] = true;
-                    bflag[k] = true;
-                    break;
-                }
-            }
-
-            i++;
-        }
-
-        if(common == 0) {
-            return 0;
-        }
-
-        int l = 0;
-        for(int j = 0; j < a.Length; j++) {
-            if(aflag[j]) {
-                while(bflag[l] == false) {
-                    l++;
-                }
-
-                transp += a[j] != b[l] ? 0.5 : 0;
-                l++;
-            }
-        }
-
-
-        double f1 = common / a.Length;
-        double f2 = common / b.Length;
-        double f3 = (common - transp) / common;
-        double jaro = (f1 + f2 + f3) / 3.0;
-        
-        if(jaro < 0.7) {
-            return jaro ;
-        }
-
-        double pref = 0;
-        int maxPref = Math.Min(Math.Min(a.Length, b.Length), 4);
-
-        i = 0;
-        while(i < maxPref && a[i] == b[i]) {
-            pref++;
-            i++;
-        }
-
-        double winkler = jaro + (pref * 0.1 * (1.0 - jaro));  
-
-        return winkler ;
-    }
-
 
 
     private static async Task<IResult> SearchResident(
-            [FromBody] SearchName name,
+            [FromBody] SearchRequest search,
             [AsParameters] ResidentFilterCriteria criteria,
-            AppDbContext db) {
+            IResidentService residentService) {
 
         /*
          *  BUG: 
@@ -191,177 +61,19 @@ public static class ResidentEndpoints {
          *
          */
 
-        var result = await GetFiltered(criteria, db);
-        List<Resident> contents = new List<Resident>();
-        if(result is Ok<List<Resident>> res) {
-            contents = res.Value ?? contents;
-        }
-
-        foreach(var c in contents) {
-            Console.WriteLine(c);
-        }
-        
-        return TypedResults.Ok(contents);
+        var result = await residentService.GetSearchResidentResults(search, criteria);  
+        return TypedResults.Ok(result);
     }
 
 
+    private static async Task<IResult> GetFiltered(
+            [AsParameters] ResidentFilterCriteria criteria,
+            IResidentService residentService) {
 
-
-
-
-    /*
-     * URGENT: 
-     *  refactor this shitty function
-     *
-     *  
-     *
-     *
-     * TODO:
-     *  filtering w/ names is somewhat very straightfoward
-     *  it does not account for human-errors like misspelled names
-     *  
-     *  therefore, we should implement a threshold for this where least error
-     *  or better matching entries are on top
-     *
-     *
-     *
-     */
-    private static async Task<IResult> GetFiltered([AsParameters] ResidentFilterCriteria criteria, AppDbContext db) {
-        var residents = db.Residents.AsNoTracking();
-        /* 
-         * [WARNING] SHOULD BE MOVE, PUTTING NAME SEARCH IN URL IS NOT PRIVATE
-         *
-         * START NAME SEARCH
-         *
-         */
-
-        if(!string.IsNullOrEmpty(criteria.firstName)) {   
-            residents = residents.Where(r => r.FirstName.ToLower().Contains(criteria.firstName.ToLower()));
-        }
-
-        if(!string.IsNullOrEmpty(criteria.middleName)) {   
-            residents = residents.Where(r => r.MiddleName.ToLower().Contains(criteria.middleName.ToLower()));
-        }
-        
-        if(!string.IsNullOrEmpty(criteria.lastName)) {   
-            residents = residents.Where(r => r.LastName.ToLower().Contains(criteria.lastName.ToLower()));
-        }
-
-        /*
-         *
-         * END NAME SEARCH
-         *
-         */
-        
-
-        if(criteria.minAge.HasValue) {
-            DateOnly minCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.minAge ?? 0);
-            residents = residents.Where(r => r.BirthDate <= minCutoff);
-        }
-
-        if(criteria.maxAge.HasValue) {
-            DateOnly maxCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.maxAge ?? 0);
-            residents = residents.Where(r => r.BirthDate >= maxCutoff);
-        }
-
-        if(criteria.sex != null && criteria.sex.Count() > 0) {
-            var selected = criteria.sex
-                .Select(s => Enum.TryParse<Sex>(s, true, out Sex parsed) ? parsed : (Sex?)null)
-                .Where(s => s.HasValue)
-                .Select(s => s!.Value)
-                .ToList();
-            
-            residents = residents.Where(r => selected.Contains(r.Sex)); 
-        }
-        
-        if(criteria.sector != null && criteria.sector.Count() > 0) {
-            var selected = criteria.sector
-                .Select(s => Enum.TryParse<Sector>(s, true, out Sector parsed) ? parsed : (Sector?)null)
-                .Where(s => s.HasValue)
-                .Select(s => s!.Value)
-                .ToList();
-            
-            residents = residents.Where(r => selected.Contains(r.Sector)); 
-        }
-        
-        if(criteria.civilStat != null && criteria.civilStat.Count() > 0) {
-            var selected = criteria.civilStat
-                .Select(s => Enum.TryParse<CivilStatus>(s, true, out CivilStatus parsed) ? parsed : (CivilStatus?)null)
-                .Where(s => s.HasValue)
-                .Select(s => s!.Value)
-                .ToList();
-            
-            residents = residents.Where(r => selected.Contains(r.CivilStatus)); 
-        }
-
-        switch(criteria.order) {
-            case ResidentOrder.ByFirstName:
-                residents = residents.OrderBy(r => r.FirstName);
-                break;
-            case ResidentOrder.ByFirstNameDesc:
-                residents = residents.OrderByDescending(r => r.FirstName);
-                break;
-            case ResidentOrder.ByMiddleName:
-                residents = residents.OrderBy(r => r.MiddleName);
-                break;
-            case ResidentOrder.ByMiddleNameDesc:
-                residents = residents.OrderByDescending(r => r.MiddleName);
-                break;
-            case ResidentOrder.ByLastName:
-                residents = residents.OrderBy(r => r.LastName);
-                break;
-            case ResidentOrder.ByLastNameDesc:
-                residents = residents.OrderByDescending(r => r.LastName);
-                break;
-            case ResidentOrder.ByAge:
-                residents = residents.OrderByDescending(r => r.BirthDate); // starts from youngest to oldest
-                break;
-            case ResidentOrder.ByAgeDesc:
-                residents = residents.OrderBy(r => r.BirthDate); // starts from oldest to youngest
-                break;
-            default:
-                residents = residents.OrderBy(r => r.LastName);
-                break;
-        }
-
-        if(criteria.from != null) {
-            residents = residents.Skip(criteria.from ?? 0);
-        }
-
-        if(criteria.limit != null) {
-            residents = residents.Take(criteria.limit ?? residents.Count());
-        }
-
-        var results = await residents.ToListAsync();
-
+        var results = await residentService.GetFilteredResidents(criteria); 
         return TypedResults.Ok(results); 
+
     }
-
-
-
-
-    private static async Task<IResult> GetByName(string? first, string? middle, string? last, AppDbContext db) {
-        var residents = db.Residents.AsNoTracking();
-
-        first = first == null ? string.Empty : first.Trim().ToLower();
-        middle = middle == null ? string.Empty : middle.Trim().ToLower();
-        last = last == null ? string.Empty : last.Trim().ToLower();
-
-        if(first != string.Empty) {
-            residents = residents.Where(r => r.FirstName == first);
-        }
-
-        if(middle != string.Empty) {
-            residents = residents.Where(r => r.MiddleName == middle);
-        }
-
-        if(last != string.Empty) {
-            residents = residents.Where(r => r.LastName == last);
-        }
-
-        return TypedResults.Ok(await residents.ToListAsync());
-    }
-
     
     /*
      *
