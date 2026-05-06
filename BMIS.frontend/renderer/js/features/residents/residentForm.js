@@ -1,4 +1,4 @@
-import { postData } from './api.js'
+import { postData } from '../../core/api.js'
 
 export async function openAddResidentForm(options = {}) {
     const { ilView, addResidentHistoryLog, showResidentsView } = options
@@ -14,7 +14,7 @@ export async function openAddResidentForm(options = {}) {
 
 async function renderAddResidentForm(view) {
     view.innerHTML = ''
-    const response = await fetch('./views/subviews/addResident.html')
+    const response = await fetch('views/subviews/add-resident.html')
 
     try {
         if (!response.ok) throw new Error(response.status)

@@ -1,17 +1,8 @@
-import { checkLogin, getData } from './utils/api.js'
-import { handleSearchInput, loadData } from './utils/residents.js'
-import { openAddResidentForm } from './utils/residentForm.js'
-import { renderPagination } from './utils/pagination.js'
-import { addResidentHistoryLog, loadHistory } from './utils/activityLog.js'
-
-/** 
- * TODO
- * 
- * 
- * 
- * 
- * a lot 
- */
+import { checkLogin, getData } from './core/api.js'
+import { handleSearchInput, loadData } from './features/residents/residentsPage.js'
+import { openAddResidentForm } from './features/residents/residentForm.js'
+import { renderPagination } from './features/residents/residentsPagination.js'
+import { addResidentHistoryLog, loadHistory } from './features/activityLog/activityLogPage.js'
 
 const app = document.getElementById('app')
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
@@ -23,7 +14,7 @@ const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 loadApp();
 
 async function loadLogin() {
-    await fetchFile("login.html", app)
+    await fetchFile("views/login.html", app)
 
     const loginForm = document.getElementById('loginForm')
     loginForm.addEventListener('submit', async (e) => {
@@ -46,7 +37,7 @@ async function loadLogin() {
 }
 
 async function loadApp() {
-    await fetchFile("app.html", app)
+    await fetchFile("views/app.html", app)
 
     // api request data sample
     let currentPage = 1
@@ -80,7 +71,7 @@ async function loadApp() {
     }
 
     async function showResidentsView(page = 1) {
-        await fetchFile('./views/residents.html', mainBody)
+        await fetchFile('views/residents.html', mainBody)
         await goToPage(page)
         handleSearchInput({ loadData: loadInhabitantData, goToPage })
         attachAddResidentButton(showResidentsView)
@@ -92,7 +83,7 @@ async function loadApp() {
     console.log(document.getElementById("mainBody"),
         document.getElementById("dataContainer"))
     setActiveNav(currentView)
-    // await fetchFile("home.html", mainBody)
+    // await fetchFile("views/home.html", mainBody)
     // await loadSummary(data)
     
     mainNav.addEventListener('click', async (e) => {
@@ -104,7 +95,7 @@ async function loadApp() {
             if (currentView === 'home') return
             currentView = 'home'
             setActiveNav(currentView)
-            await fetchFile('./views/home.html', mainBody)
+            await fetchFile('views/home.html', mainBody)
             const summaryData = await getData('/residents')
             await loadSummary(summaryData)
         }
@@ -119,19 +110,19 @@ async function loadApp() {
             if (currentView === 'household') return
             currentView = 'household'
             setActiveNav(currentView)
-            await fetchFile('./views/households.html', mainBody)
+            await fetchFile('views/households.html', mainBody)
         }
         else if (target.closest('#templates')) {
             if (currentView === 'templates') return
             currentView = 'templates'
             setActiveNav(currentView)
-            await fetchFile('./views/document-requests.html', mainBody)
+            await fetchFile('views/document-requests.html', mainBody)
         }
         else if (target.closest('#history')) {
             if (currentView === 'history') return
             currentView = 'history'
             setActiveNav(currentView)
-            await fetchFile('./views/activity-log.html', mainBody)
+            await fetchFile('views/activity-log.html', mainBody)
             loadHistory(RESIDENT_HISTORY_KEY)
         }
         else if (target.closest('#settings')) {

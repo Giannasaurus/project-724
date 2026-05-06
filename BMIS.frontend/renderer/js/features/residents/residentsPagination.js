@@ -1,4 +1,4 @@
-import { getData, postData } from './api.js'
+import { getData, postData } from '../../core/api.js'
 
 export function getPageNumbers(current, total) {
     const delta = 1

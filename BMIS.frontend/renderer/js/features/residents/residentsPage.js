@@ -1,4 +1,4 @@
-import { deleteData, getData } from './api.js'
+import { deleteData, getData } from '../../core/api.js'
 import { openEditResidentPage } from './residentForm.js'
 
 /* ============================================================
