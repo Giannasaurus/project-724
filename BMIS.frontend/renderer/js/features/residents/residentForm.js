@@ -1,10 +1,13 @@
 import { postData } from '../../core/api.js'
 
+const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
+const RESIDENT_FORM_ID = 'addResidentForm'
+
 export async function openAddResidentForm(options = {}) {
     const { ilView, addResidentHistoryLog, showResidentsView } = options
     if (!ilView) return
 
-    const addResidentForm = await renderAddResidentForm(ilView)
+    const addResidentForm = await renderResidentForm(ilView, ADD_RESIDENT_FORM_VIEW)
     if (!addResidentForm) return
 
     attachEnterToSubmit(addResidentForm)
@@ -12,24 +15,22 @@ export async function openAddResidentForm(options = {}) {
     attachNavigationHandlers(showResidentsView)
 }
 
-async function renderAddResidentForm(view) {
+async function renderResidentForm(view, formViewPath) {
     view.innerHTML = ''
-    const response = await fetch('views/subviews/add-resident.html')
 
     try {
+        const response = await fetch(formViewPath)
         if (!response.ok) throw new Error(response.status)
+
+        view.innerHTML = await response.text()
     }
-    catch (err) {
-        console.log(err)
-        return
+    catch (error) {
+        console.error(`Cannot fetch ${formViewPath}`, error)
+        view.innerHTML = `<p>Error loading resident form.</p>`
+        return null
     }
 
-    const html = await response.text()
-    view.innerHTML = html
-
-    const addResidentForm = document.getElementById('addResidentForm')
-    if (!addResidentForm) return
-    return addResidentForm
+    return document.getElementById(RESIDENT_FORM_ID)
 }
 
 function attachEnterToSubmit(form) {
@@ -49,20 +50,19 @@ function attachSubmitHandler(form, options) {
         const errorEl = document.getElementById('ar-error')
         errorEl.textContent = ''
 
-        const values = getAddResidentFormValues()
+        const values = getResidentFormValues()
+        const validationError = getResidentFormValidationError(values)
 
-        if (!values.firstName || !values.middleName || !values.lastName || !values.address || !values.day || !values.year) {
-            errorEl.textContent = 'Please fill in all required fields.'
+        if (validationError) {
+            errorEl.textContent = validationError
             return
         }
 
-        const payload = getAddResidentPayload(values)
-
         const saveBtn = document.getElementById('ar-saveBtn')
-        saveBtn.disabled = true
-        saveBtn.textContent = 'Saving...'
+        setSubmitState(saveBtn, true)
 
         try {
+            const payload = getResidentPayload(values)
             const result = await postData('/residents', payload)
 
             if (result.success) {
@@ -76,8 +76,7 @@ function attachSubmitHandler(form, options) {
             errorEl.textContent = 'Failed to save resident. Please try again.'
             console.error(err)
         } finally {
-            saveBtn.disabled = false
-            saveBtn.textContent = 'Save'
+            setSubmitState(saveBtn, false)
         }
     })
 }
@@ -98,13 +97,13 @@ function attachNavigationHandlers(view) {
     }
 }
 
-function getAddResidentPayload(values) {
+function getResidentPayload(values) {
     return {
         firstName: values.firstName,
         middleName: values.middleName,
         lastName: values.lastName,
         suffix: values.suffix,
-        birthDate: `${values.year}-${values.month}-${values.day}`,
+        birthDate: `${values.year}-${values.month.padStart(2, '0')}-${values.day.padStart(2, '0')}`,
         sex: values.sex,
         sector: values.sector,
         civilStatus: values.civilStatus,
@@ -112,24 +111,39 @@ function getAddResidentPayload(values) {
     }
 }
 
-function getAddResidentFormValues() {
+function getResidentFormValues() {
     return {
         firstName: document.getElementById('ar-firstName').value.trim(),
         middleName: document.getElementById('ar-middleName').value.trim(),
         lastName: document.getElementById('ar-lastName').value.trim(),
         suffix: document.getElementById('ar-suffix').value.trim(),
         address: document.getElementById('ar-address').value.trim(),
-        day: document.getElementById('ar-bday').value.padStart(2, '0'),
-        month: String(document.getElementById('ar-bmonth').value).padStart(2, '0'),
+        day: document.getElementById('ar-bday').value.trim(),
+        month: document.getElementById('ar-bmonth').value,
         year: document.getElementById('ar-byear').value,
-        sex: parseInt(document.getElementById('ar-sex').value),
-        sector: parseInt(document.getElementById('ar-sector').value),
-        civilStatus: parseInt(document.getElementById('ar-civilStatus').value),
+        sex: parseInt(document.getElementById('ar-sex').value, 10),
+        sector: parseInt(document.getElementById('ar-sector').value, 10),
+        civilStatus: parseInt(document.getElementById('ar-civilStatus').value, 10),
     }
 }
 
-// temporarily here
-export function openEditResidentPage(viewToReplace) {
-    // render Edit Resident subview
-    // pre-fill input fields with the target resident
+function getResidentFormValidationError(values) {
+    if (!values.firstName || !values.middleName || !values.lastName || !values.address || !values.day || !values.year) {
+        return 'Please fill in all required fields.'
+    }
+
+    return ''
+}
+
+function setSubmitState(button, isSaving) {
+    if (!button) return
+
+    button.disabled = isSaving
+    button.textContent = isSaving ? 'Saving...' : 'Save'
+}
+
+export function openEditResidentPage(resident) {
+    if (!resident) return
+
+    // Edit Resident will reuse the resident form helpers in this module.
 }

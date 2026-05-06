@@ -283,7 +283,7 @@ export async function loadData(result) {
             e.preventDefault()
             e.stopPropagation()
             actionTd.querySelector('.row-action').classList.remove('open')
-            openEditResidentPage()
+            openEditResidentPage(resident)
         })
 
         row.appendChild(actionTd)
