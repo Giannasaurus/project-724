@@ -2,6 +2,7 @@ import { postData } from '../../core/api.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const RESIDENT_FORM_ID = 'addResidentForm'
+const MIN_BIRTH_YEAR = 1900
 
 export async function openAddResidentForm(options = {}) {
     const { ilView, addResidentHistoryLog, showResidentsView } = options
@@ -120,7 +121,7 @@ function getResidentFormValues() {
         address: document.getElementById('ar-address').value.trim(),
         day: document.getElementById('ar-bday').value.trim(),
         month: document.getElementById('ar-bmonth').value,
-        year: document.getElementById('ar-byear').value,
+        year: document.getElementById('ar-byear').value.trim(),
         sex: parseInt(document.getElementById('ar-sex').value, 10),
         sector: parseInt(document.getElementById('ar-sector').value, 10),
         civilStatus: parseInt(document.getElementById('ar-civilStatus').value, 10),
@@ -128,11 +129,69 @@ function getResidentFormValues() {
 }
 
 function getResidentFormValidationError(values) {
-    if (!values.firstName || !values.middleName || !values.lastName || !values.address || !values.day || !values.year) {
+    if (!values.firstName || !values.middleName || !values.lastName || !values.address) {
         return 'Please fill in all required fields.'
     }
 
+    const birthdateError = getBirthdateValidationError(values)
+    if (birthdateError) return birthdateError
+
     return ''
+}
+
+function getBirthdateValidationError(values) {
+    if (!values.day || !values.year) {
+        return 'Please enter a complete birthdate.'
+    }
+
+    if (!isWholeNumber(values.day) || !isWholeNumber(values.year)) {
+        return 'Birthdate must use whole numbers for day and year.'
+    }
+
+    const day = Number(values.day)
+    const month = Number(values.month)
+    const year = Number(values.year)
+    const currentYear = new Date().getFullYear()
+
+    if (year < MIN_BIRTH_YEAR || year > currentYear) {
+        return `Birth year must be between ${MIN_BIRTH_YEAR} and ${currentYear}.`
+    }
+
+    if (day < 1 || day > 31) {
+        return 'Birth day must be between 1 and 31.'
+    }
+
+    if (!isRealDate(year, month, day)) {
+        return 'Please enter a valid birthdate.'
+    }
+
+    if (isFutureDate(year, month, day)) {
+        return 'Birthdate cannot be in the future.'
+    }
+
+    return ''
+}
+
+function isWholeNumber(value) {
+    return /^\d+$/.test(value)
+}
+
+function isRealDate(year, month, day) {
+    const date = new Date(year, month - 1, day)
+
+    return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+    )
+}
+
+function isFutureDate(year, month, day) {
+    const today = new Date()
+    const birthdate = new Date(year, month - 1, day)
+
+    today.setHours(0, 0, 0, 0)
+    return birthdate > today
 }
 
 function setSubmitState(button, isSaving) {
