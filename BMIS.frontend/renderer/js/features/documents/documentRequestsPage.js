@@ -66,18 +66,47 @@ export function initDocumentRequestsPage(options = {}) {
 function bindSearchControls() {
     const searchInput = document.getElementById('dr-residentSearch')
     const searchBtn = document.getElementById('dr-searchBtn')
+    const clearSearchBtn = document.getElementById('dr-clearSearchBtn')
 
     if (selectedResident && searchInput) {
         searchInput.value = getResidentFullName(selectedResident)
     }
 
+    updateClearSearchButton()
+
     searchBtn?.addEventListener('click', searchResidents)
+    clearSearchBtn?.addEventListener('click', clearResidentSearch)
+    searchInput?.addEventListener('input', updateClearSearchButton)
     searchInput?.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return
 
         event.preventDefault()
         searchResidents()
     })
+}
+
+function clearResidentSearch() {
+    const searchInput = document.getElementById('dr-residentSearch')
+    const selectedContainer = document.getElementById('dr-selectedResident')
+    const resultsContainer = document.getElementById('dr-searchResults')
+
+    selectedResident = null
+    if (searchInput) searchInput.value = ''
+    if (selectedContainer) selectedContainer.textContent = ''
+    if (resultsContainer) resultsContainer.innerHTML = ''
+
+    clearError()
+    clearPreview()
+    updateClearSearchButton()
+    searchInput?.focus()
+}
+
+function updateClearSearchButton() {
+    const searchInput = document.getElementById('dr-residentSearch')
+    const clearSearchBtn = document.getElementById('dr-clearSearchBtn')
+    if (!searchInput || !clearSearchBtn) return
+
+    clearSearchBtn.hidden = searchInput.value.trim().length === 0
 }
 
 function bindDocumentControls() {
@@ -211,6 +240,7 @@ function setSelectedResident(resident) {
 
     if (searchInput) {
         searchInput.value = getResidentFullName(resident)
+        updateClearSearchButton()
     }
 
     clearPreview()

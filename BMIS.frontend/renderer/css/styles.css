@@ -969,9 +969,44 @@ tbody tr:hover .ellipsis-btn,
     gap: var(--gap-md);
 }
 
-.dr-search-row input {
+.dr-search-input-wrap {
     flex: 1;
     min-width: 0;
+    position: relative;
+}
+
+.dr-search-input-wrap input {
+    padding-right: 44px;
+    width: 100%;
+}
+
+.dr-clear-search-btn {
+    align-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    display: inline-flex;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    height: 28px;
+    justify-content: center;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+}
+
+.dr-search-input-wrap:hover .dr-clear-search-btn:not([hidden]),
+.dr-search-input-wrap:focus-within .dr-clear-search-btn:not([hidden]) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dr-clear-search-btn:hover {
+    background-color: var(--color-bg-hover);
 }
 
 .dr-selected-resident,
