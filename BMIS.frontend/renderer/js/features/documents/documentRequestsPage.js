@@ -115,12 +115,11 @@ async function searchResidents() {
     clearPreview()
 
     if (!query) {
-        setError('Enter a resident name to search.')
-        renderSearchResults([])
+        renderSearchMessage('Enter a resident name to search.')
         return
     }
 
-    resultsContainer.innerHTML = '<p class="dr-search-empty">Searching...</p>'
+    renderSearchMessage('Searching...')
 
     const residents = await findResidents(query)
     renderSearchResults(residents)
@@ -163,7 +162,7 @@ function renderSearchResults(residents) {
     resultsContainer.innerHTML = ''
 
     if (residents.length === 0) {
-        resultsContainer.innerHTML = '<p class="dr-search-empty">No residents found.</p>'
+        renderSearchMessage('No residents found.')
         return
     }
 
@@ -184,6 +183,18 @@ function renderSearchResults(residents) {
 
         resultsContainer.appendChild(button)
     })
+}
+
+function renderSearchMessage(message) {
+    const resultsContainer = document.getElementById('dr-searchResults')
+    if (!resultsContainer) return
+
+    const messageElement = document.createElement('p')
+    messageElement.className = 'dr-search-empty'
+    messageElement.textContent = message
+
+    resultsContainer.innerHTML = ''
+    resultsContainer.appendChild(messageElement)
 }
 
 function setSelectedResident(resident) {
