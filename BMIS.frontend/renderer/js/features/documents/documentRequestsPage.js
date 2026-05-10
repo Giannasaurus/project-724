@@ -205,7 +205,7 @@ function setSelectedResident(resident) {
     if (!selectedContainer) return
 
     if (!resident) {
-        selectedContainer.textContent = 'No resident selected.'
+        selectedContainer.textContent = ''
         return
     }
 
