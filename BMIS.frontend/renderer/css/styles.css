@@ -1053,6 +1053,12 @@ tbody tr:hover .ellipsis-btn,
     background-color: var(--color-bg-hover);
 }
 
+.dr-field-group input:disabled {
+    background-color: #f3f4f6;
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
+
 .dr-preview-panel {
     display: flex;
     flex-direction: column;

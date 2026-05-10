@@ -6,6 +6,8 @@ const DOCUMENT_TYPES = {
     2: 'Certificate of Indigency'
 }
 
+const OTHER_REASON_VALUE = 'other'
+
 const REASON_OPTIONS = {
     medical: {
         label: 'Medical Assistance',
@@ -234,7 +236,7 @@ async function previewDocument() {
 function getDocumentRequestError() {
     if (!selectedResident) return 'Select a resident before generating a document.'
     if (!getReasonType()) return 'Select a reason for the document request.'
-    if (getReasonType() === 'other' && !getOtherReason()) return 'Specify the reason for the document request.'
+    if (getReasonType() === OTHER_REASON_VALUE && !getOtherReason()) return 'Specify the reason for the document request.'
 
     return ''
 }
@@ -262,7 +264,7 @@ function applyRequestReason(html) {
         if (checkbox) checkbox.setAttribute('checked', 'checked')
     })
 
-    if (othersReason && getReasonType() === 'other') {
+    if (othersReason && getReasonType() === OTHER_REASON_VALUE) {
         othersReason.setAttribute('value', getOtherReason())
     }
 
@@ -327,8 +329,10 @@ function updateOtherReasonState() {
     const otherReason = document.getElementById('dr-otherReason')
     if (!otherReason) return
 
-    const needsOtherReason = getReasonType() === 'other'
+    const needsOtherReason = getReasonType() === OTHER_REASON_VALUE
     otherReason.disabled = !needsOtherReason
+    otherReason.required = needsOtherReason
+    otherReason.setAttribute('aria-disabled', String(!needsOtherReason))
 
     if (!needsOtherReason) {
         otherReason.value = ''
