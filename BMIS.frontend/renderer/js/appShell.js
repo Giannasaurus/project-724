@@ -1,6 +1,7 @@
 import { checkLogin, getData } from './core/api.js'
 import { loadView } from './core/viewLoader.js'
 import { loadHistory, addResidentHistoryLog } from './features/activityLog/activityLogPage.js'
+import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
 import { renderHomeSummary } from './features/home/homePage.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
 import { handleSearchInput, loadData } from './features/residents/residentsPage.js'
@@ -25,7 +26,8 @@ const views = {
         file: 'views/households.html'
     },
     templates: {
-        file: 'views/document-requests.html'
+        file: 'views/document-requests.html',
+        afterRender: showDocumentRequestsView
     },
     history: {
         file: 'views/activity-log.html',
@@ -61,7 +63,8 @@ export async function loadApp(app) {
     const state = {
         currentView: 'inhabitantList',
         currentPage: 1,
-        totalPages: 1
+        totalPages: 1,
+        documentRequestResident: null
     }
 
     bindNav(state, app)
@@ -89,7 +92,16 @@ function bindNav(state, app) {
             return
         }
 
-        if (navLink.id === state.currentView) return
+        if (navLink.id === state.currentView) {
+            if (navLink.id === 'templates') {
+                state.documentRequestResident = null
+                await renderView(state, navLink.id)
+            }
+
+            return
+        }
+
+        if (navLink.id === 'templates') state.documentRequestResident = null
         await renderView(state, navLink.id)
     })
 }
@@ -107,9 +119,13 @@ async function renderView(state, viewId) {
 }
 
 async function showResidentsView(state) {
+    const renderResidentData = data => loadData(data, {
+        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident)
+    })
+
     await goToResidentsPage(state, state.currentPage)
     handleSearchInput({
-        loadData,
+        loadData: renderResidentData,
         goToPage: page => goToResidentsPage(state, page)
     })
     attachAddResidentButton(state)
@@ -126,10 +142,23 @@ async function goToResidentsPage(state, page) {
         state.totalPages = Math.ceil(countData.data.length / DEFAULT_PAGE_SIZE)
     }
 
-    await loadData(data)
+    await loadData(data, {
+        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident)
+    })
     renderPagination(state.currentPage, state.totalPages, nextPage => goToResidentsPage(state, nextPage))
 
     return data
+}
+
+function showDocumentRequestsView(state) {
+    initDocumentRequestsPage({
+        selectedResident: state.documentRequestResident
+    })
+}
+
+async function openDocumentRequestsForResident(state, resident) {
+    state.documentRequestResident = resident
+    await renderView(state, 'templates')
 }
 
 function attachAddResidentButton(state) {

@@ -933,6 +933,166 @@ tbody tr:hover .ellipsis-btn,
 }
 
 /* ============================================================
+   DOCUMENT REQUESTS
+   ============================================================ */
+
+#drView {
+    min-height: 100%;
+}
+
+.dr-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.4fr);
+    gap: 24px;
+    min-height: calc(100vh - 120px);
+}
+
+.dr-request-panel {
+    border-right: 1px solid #e5e5e2;
+    padding-right: 24px;
+}
+
+.dr-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+.dr-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+}
+
+.dr-search-row {
+    display: flex;
+    gap: var(--gap-md);
+}
+
+.dr-search-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.dr-selected-resident,
+.dr-search-empty,
+#dr-previewStatus {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.dr-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.dr-resident-result {
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.dr-resident-result:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.dr-resident-result span {
+    font-weight: 600;
+}
+
+.dr-resident-result small {
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dr-error {
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    min-height: 1rem;
+}
+
+.dr-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-md);
+}
+
+.dr-primary-btn,
+.dr-secondary-btn {
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-height: 42px;
+    padding: var(--gap-md) var(--gap-lg);
+}
+
+.dr-primary-btn {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.dr-primary-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.dr-secondary-btn {
+    border: 2px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.dr-secondary-btn:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.dr-preview-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.dr-preview-header {
+    align-items: baseline;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-md);
+    margin-bottom: var(--gap-md);
+}
+
+.dr-preview-header h3 {
+    font-size: 1rem;
+}
+
+#dr-previewFrame {
+    background-color: #f8f8f7;
+    border: 1px solid #d3d3d3;
+    border-radius: var(--radius-sm);
+    flex: 1;
+    min-height: 680px;
+    width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .dr-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .dr-request-panel {
+        border-right: 0;
+        border-bottom: 1px solid #e5e5e2;
+        padding: 0 0 24px;
+    }
+}
+
+/* ============================================================
    ADD RESIDENT PAGE
    ============================================================ */
 

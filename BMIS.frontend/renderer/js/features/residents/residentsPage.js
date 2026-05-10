@@ -19,7 +19,7 @@ export function handleSearchInput({ loadData, goToPage }) {
             return
         }
         
-        await processSearchQuery(query)
+        await processSearchQuery(query, loadData)
 
         if (paginationContainer) {
             paginationContainer.innerHTML = ''
@@ -40,7 +40,7 @@ export function handleSearchInput({ loadData, goToPage }) {
     }
 }
 
-async function processSearchQuery(query) {
+async function processSearchQuery(query, renderData) {
     const fields = ['firstName', 'middleName', 'lastName']
     const results = await Promise.all(fields.map(async (field) => {
         const params = new URLSearchParams({
@@ -67,7 +67,7 @@ async function processSearchQuery(query) {
         })
     })
 
-    await loadData({
+    await renderData({
         success: true,
         data: mergedResidents
     })
@@ -179,7 +179,7 @@ function getResidentId(resident) {
     return resident.residentId ?? resident.ResidentId ?? resident.id
 }
 
-export async function loadData(result) {
+export async function loadData(result, options = {}) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
@@ -257,6 +257,7 @@ export async function loadData(result) {
                 <button class="ellipsis-btn">•••</button>
                 <div class="context-menu">
                     <button class="edit-btn">Edit</button>
+                    <button class="document-request-btn" type="button">Document Request</button>
                     <hr class="context-menu-divider">
                     <button class="delete-btn" type="button">Delete</button>
                 </div>
@@ -284,6 +285,14 @@ export async function loadData(result) {
             e.stopPropagation()
             actionTd.querySelector('.row-action').classList.remove('open')
             openEditResidentPage(resident)
+        })
+
+        const documentRequestBtn = actionTd.querySelector('.document-request-btn')
+        documentRequestBtn.addEventListener('click', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            actionTd.querySelector('.row-action').classList.remove('open')
+            options.onDocumentRequest?.(resident)
         })
 
         row.appendChild(actionTd)
