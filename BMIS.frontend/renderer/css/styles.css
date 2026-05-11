@@ -48,6 +48,10 @@
     --input-border: 2px solid var(--color-border);
     --input-padding: 8px 12px;
 
+    --hover-transition-delay: 45ms;
+    --hover-transition-duration: 140ms;
+    --hover-transition-timing: ease;
+
     --gap-xs: 4px;
     --gap-sm: 6px;
     --gap-md: 8px;
@@ -95,6 +99,23 @@ a {
 button {
     background: none;
     cursor: pointer;
+}
+
+button,
+a,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select,
+tbody tr,
+.sub-main-nav-li,
+.sub-main-nav-a,
+.filterOption,
+.dr-resident-result {
+    transition-delay: var(--hover-transition-delay);
+    transition-duration: var(--hover-transition-duration);
+    transition-property: background-color, border-color, box-shadow, color, opacity, transform;
+    transition-timing-function: var(--hover-transition-timing);
 }
 
 button:focus,
