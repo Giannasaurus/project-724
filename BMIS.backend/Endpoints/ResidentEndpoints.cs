@@ -32,9 +32,8 @@ public static class ResidentEndpoints {
     private static async Task<IResult> GetAll(
             IResidentService residentService) {
 
-        var residents = await residentService.GetAll(); 
-        return TypedResults.Ok(residents); 
-
+        var result = await residentService.GetAll(); 
+        return TypedResults.Ok(result.value); 
     }
 
 
@@ -44,7 +43,7 @@ public static class ResidentEndpoints {
             IResidentService residentService) {
 
         var result = await residentService.GetSearchResults(search, criteria);  
-        return TypedResults.Ok(result);
+        return TypedResults.Ok(result.value);
     }
 
 
@@ -52,25 +51,29 @@ public static class ResidentEndpoints {
             [AsParameters] ResidentFilterCriteria criteria,
             IResidentService residentService) {
 
-        var results = await residentService.GetFiltered(criteria); 
-        return TypedResults.Ok(results); 
+        var result = await residentService.GetFiltered(criteria); 
+        return TypedResults.Ok(result.value); 
 
     }
     
     private static async Task<IResult> GetById(int id, IResidentService residentService) {
-        var resident = await residentService.GetById(id);
+        var result = await residentService.GetById(id);
 
-        if(resident is null) return TypedResults.NotFound();
+        if(result.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
+        }
 
-        return TypedResults.Ok(resident);
+        return TypedResults.Ok(result.value);
     }
 
-    private static async Task<IResult> Create(Resident resident, AppDbContext db) {
-        db.Residents.Add(resident);
+    private static async Task<IResult> Create(Resident resident, IResidentService residentService) {
+        var result = await residentService.Create(resident);
+        
+        if (!result.isSuccess) {
+            return TypedResults.Conflict();
+        }
 
-        await db.SaveChangesAsync();
-
-        return TypedResults.Created($"/residents/{resident.ResidentId}", resident);
+        return TypedResults.Created($"/residents/{result.value}", resident);
     }
 
     private static async Task<IResult> Delete(int id, AppDbContext db) {
