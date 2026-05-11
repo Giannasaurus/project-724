@@ -76,15 +76,11 @@ public static class ResidentEndpoints {
         return TypedResults.Created($"/residents/{result.value}", resident);
     }
 
-    private static async Task<IResult> Delete(int id, AppDbContext db) {
-        var resident = await db.Residents.FindAsync(id);
-
-        if(resident is null) {
-            return Results.NotFound();
+    private static async Task<IResult> Delete(int id, IResidentService residentService) {
+        var result = await residentService.Delete(id);
+        if(result.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
         }
-
-        db.Residents.Remove(resident);
-        await db.SaveChangesAsync();
 
         return TypedResults.NoContent();
     }

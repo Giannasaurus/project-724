@@ -10,4 +10,6 @@ public interface IResidentService {
     Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria); 
 
     Task<Result<int>> Create(Resident resident);
+
+    Task<Result<Resident>> Delete(int id);
 }

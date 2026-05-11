@@ -96,6 +96,35 @@ public class ResidentService : IResidentService, ISearchable {
         return resident.ResidentId;
     }
 
+    /*
+     * TODO: 
+     *  - should have a history of deletion, and should also be recovered
+     *
+     */
+    public async Task<Result<Resident>> Delete(int id) {
+        var resident = await _db.Residents.FindAsync(id);
+
+        if(resident is null) {
+            return ResultStatus.NotFound;
+        }
+
+        /*
+         *  SHOULD BACKUP BEFORE DELETE
+         *
+         */
+
+        _db.Residents.Remove(resident);
+        
+        /*
+         *  SHOULD BACKUP AFTER DELETE
+         *
+         */
+
+        await _db.SaveChangesAsync();
+
+        return resident; 
+    }
+
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
         var residents = _db.Residents.AsNoTracking();
 
