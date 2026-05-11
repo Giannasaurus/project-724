@@ -5,14 +5,14 @@ namespace BMIS.Models.Entities;
 public class Resident {
     [Key]
     public int ResidentId { get; set; }
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
     public string MiddleName { get; set; }
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
     public string Suffix { get; set; }
     public DateOnly BirthDate { get; set; }
     public int Age { get => GetAge(); }
     public Sector Sector { get; set; }
-    public BMIS.Models.Sex Sex { get; set; }
+    public required Sex Sex { get; set; }
     public CivilStatus CivilStatus { get; set; }
     public string Address { get; set; }
     

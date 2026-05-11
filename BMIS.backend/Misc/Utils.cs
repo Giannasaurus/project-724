@@ -182,4 +182,28 @@ public static class Utils {
 
         return results;    
     }
+
+
+    /*
+     * Parameters:
+     *  list  = items to paginize
+     *  index = what page to view
+     *  size  = number of items per page
+     *  
+     * Returns:
+     *  items FROM list with index of [(index - 1) * size] TO [index * size]
+     *
+     *
+     */
+    public static List<T> PaginizeList<T>(List<T> list, int index, int size) {
+        return list.GetRange(Math.Min((index - 1), list.Count) * size, Math.Min(index * size, list.Count));
+    }
+
+    public static List<T> GetListRange<T>(List<T> list, int? start, int? end) { 
+        int count = list.Count;
+        int nstart = start == null ? 0 : Math.Min((int)start, count);
+        int nend = end == null ? count : Math.Min((int)end, count);
+
+        return list.GetRange(nstart, nend);
+    }
 }

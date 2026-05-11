@@ -4,7 +4,10 @@ using BMIS.Models.DTOs;
 namespace BMIS.Services;
 
 public interface IResidentService {
-    Task<List<Resident>> GetAllResidents();
-    Task<List<Resident>> GetFilteredResidents(ResidentFilterCriteria criteria);
-    Task<List<Resident>> GetSearchResidentResults(SearchRequest search, ResidentFilterCriteria criteria); 
+    Task<Resident?> GetById(int id);
+    Task<List<Resident>> GetAll();
+    Task<List<Resident>> GetFiltered(ResidentFilterCriteria criteria);
+    Task<List<Resident>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria); 
+
+    void Create(Resident resident);
 }

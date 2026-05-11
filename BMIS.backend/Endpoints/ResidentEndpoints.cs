@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using BMIS.Models;
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 using BMIS.Services;
@@ -46,21 +43,6 @@ public static class ResidentEndpoints {
             [AsParameters] ResidentFilterCriteria criteria,
             IResidentService residentService) {
 
-        /*
-         *  BUG: 
-         *   GetFiltered() returns a list of residents that is paged and ordered
-         *   for ex. from = 2, limit = 50, order = ByLastName 
-         *      GetFiltered() will return a list of (50) residents starting from index (2)
-         *      in a list of residents that is ordered (ByLastName)
-         *
-         *  Goal:
-         *   this function should return a list of resident ordered by their similarity ranking
-         *   then from this list of residents we would apply the paging (e.g from index 2 take 50 residents)
-         *
-         *
-         *
-         */
-
         var result = await residentService.GetSearchResidentResults(search, criteria);  
         return TypedResults.Ok(result);
     }
@@ -75,21 +57,13 @@ public static class ResidentEndpoints {
 
     }
     
-    /*
-     *
-     * returns: resident w/ id
-     *
-     *
-     */
-    private static async Task<IResult> GetById(int id, AppDbContext db) {
-        var resident = await db.Residents.FindAsync(id);
+    private static async Task<IResult> GetById(int id, IResidentService residentService) {
+        var resident = await residentService.GetById(id);
 
         if(resident is null) return TypedResults.NotFound();
 
         return TypedResults.Ok(resident);
     }
-
-
 
     private static async Task<IResult> Create(Resident resident, AppDbContext db) {
         db.Residents.Add(resident);
@@ -98,8 +72,6 @@ public static class ResidentEndpoints {
 
         return TypedResults.Created($"/residents/{resident.ResidentId}", resident);
     }
-
-
 
     private static async Task<IResult> Delete(int id, AppDbContext db) {
         var resident = await db.Residents.FindAsync(id);
