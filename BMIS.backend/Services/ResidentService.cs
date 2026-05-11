@@ -71,9 +71,11 @@ public class ResidentService : IResidentService, ISearchable {
         return Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
     }
 
-    public async void Create(string resident) {
-        _db.Add(resident);
-        await _db.SaveChangesAsync();
+    public async void Create(Resident resident) {
+        if(!HasDuplicate(resident)) {
+            _db.Add(resident);
+            await _db.SaveChangesAsync();
+        }
     }
 
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
@@ -142,5 +144,13 @@ public class ResidentService : IResidentService, ISearchable {
         }
 
         return max;
+    }
+    
+    private bool HasDuplicate(Resident resident) {
+        string reference = resident.ToString();
+        var similar = _db.Residents.AsNoTracking()
+                            .Where(r => reference == r.ToString()); 
+
+        return similar.Any();    
     }
 }

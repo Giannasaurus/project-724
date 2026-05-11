@@ -32,7 +32,7 @@ public static class ResidentEndpoints {
     private static async Task<IResult> GetAll(
             IResidentService residentService) {
 
-        var residents = await residentService.GetAllResidents(); 
+        var residents = await residentService.GetAll(); 
         return TypedResults.Ok(residents); 
 
     }
@@ -43,7 +43,7 @@ public static class ResidentEndpoints {
             [AsParameters] ResidentFilterCriteria criteria,
             IResidentService residentService) {
 
-        var result = await residentService.GetSearchResidentResults(search, criteria);  
+        var result = await residentService.GetSearchResults(search, criteria);  
         return TypedResults.Ok(result);
     }
 
@@ -52,7 +52,7 @@ public static class ResidentEndpoints {
             [AsParameters] ResidentFilterCriteria criteria,
             IResidentService residentService) {
 
-        var results = await residentService.GetFilteredResidents(criteria); 
+        var results = await residentService.GetFiltered(criteria); 
         return TypedResults.Ok(results); 
 
     }
