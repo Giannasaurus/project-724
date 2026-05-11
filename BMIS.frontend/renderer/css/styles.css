@@ -995,7 +995,7 @@ tbody tr:hover .ellipsis-btn,
     position: absolute;
     right: 8px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-45%);
     width: 28px;
 }
 
