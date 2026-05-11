@@ -91,22 +91,13 @@ public static class ResidentEndpoints {
      *
      *
      */
-    private static async Task<IResult> Update(int id, Resident changes, AppDbContext db) {
-        var resident = await db.Residents.FindAsync(id);
+    private static async Task<IResult> Update(int id, ResidentUpdateDto changes, IResidentService residentService) {
+        var result = await residentService.Update(id, changes); 
+        
+        if(result.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
+        }
 
-        if(resident is null) return Results.NotFound();
-
-        resident.FirstName = changes.FirstName;
-        resident.MiddleName = changes.MiddleName;
-        resident.LastName = changes.LastName;
-        resident.BirthDate = changes.BirthDate;
-        resident.Sector = changes.Sector;
-        resident.Sex = changes.Sex;
-        resident.CivilStatus = changes.CivilStatus;
-        resident.Address = changes.Address;
-
-        await db.SaveChangesAsync();
-
-        return Results.NoContent();
+        return TypedResults.NoContent(); 
     }
 }

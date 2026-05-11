@@ -125,6 +125,25 @@ public class ResidentService : IResidentService, ISearchable {
         return resident; 
     }
 
+    public async Task<Result<Resident>> Update(int id, ResidentUpdateDto changes) {
+        var resident = await _db.Residents.FindAsync(id);
+
+        if(resident is null) {
+            return ResultStatus.NotFound;
+        }
+
+        if(changes.firstName != null) resident.FirstName = changes.firstName;
+        if(changes.middleName != null) resident.MiddleName = changes.middleName;
+        if(changes.suffix != null) resident.Suffix = changes.suffix;
+        if(changes.birthDate != null) resident.BirthDate = (DateOnly)changes.birthDate;
+        if(changes.sector != null) resident.Sector = (Sector)changes.sector;
+        if(changes.sex != null) resident.Sex = (Sex)changes.sex;
+        if(changes.civilStatus != null) resident.CivilStatus = (CivilStatus)changes.civilStatus;
+        if(changes.address != null) resident.Address = changes.address;
+
+        return resident;
+    }
+
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
         var residents = _db.Residents.AsNoTracking();
 
