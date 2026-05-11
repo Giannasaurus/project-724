@@ -3,6 +3,7 @@ using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 using BMIS.Models;
 using BMIS.Interfaces;
+using System.Net;
 
 namespace BMIS.Services;
 
@@ -14,15 +15,36 @@ public class ResidentService : IResidentService, ISearchable {
         _db = db;
     }
 
-    public async Task<List<Resident>> GetAll() {
-        return await _db.Residents.AsNoTracking().ToListAsync();
+    public async Task<Result<List<Resident>>> GetAll() {
+        var value = await _db.Residents.AsNoTracking().ToListAsync();
+        return new Result<List<Resident>>(
+                true,
+                value,
+                "none",
+                HttpStatusCode.OK
+            );
     }
 
-    public async Task<Resident?> GetById(int id) {
-        return await _db.Residents.FindAsync(id);
+    public async Task<Result<Resident>> GetById(int id) {
+        var value = await _db.Residents.FindAsync(id);
+        if(value == null) {
+            return new Result<Resident>(
+                    true,
+                    new Resident() { LastName = String.Empty, FirstName = String.Empty, Sex = Sex.Male},
+                    "none",
+                    HttpStatusCode.NotFound
+                );
+        } 
+
+        return new Result<Resident>(
+                true,
+                value,
+                "none",
+                HttpStatusCode.OK
+            );
     }
 
-    public async Task<List<Resident>> GetFiltered(ResidentFilterCriteria criteria) {
+    public async Task<Result<List<Resident>>> GetFiltered(ResidentFilterCriteria criteria) {
         var residents = FilterResidents(criteria);
 
         switch(criteria.order) {
@@ -56,26 +78,45 @@ public class ResidentService : IResidentService, ISearchable {
         }
 
         var results = await residents.ToListAsync();
-        results = Utils.GetListRange(results, criteria.from, criteria.limit);
+        var paginize = Utils.GetListRange(results, criteria.from, criteria.limit);
 
-        return results;
+        return new Result<List<Resident>>(
+                    true,
+                    paginize,
+                    "success",
+                    HttpStatusCode.OK
+                );
     } 
     
-    public async Task<List<Resident>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria) {
+    public async Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria) {
         var residents = FilterResidents(criteria)
-                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, r.ToString() })
+                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, r.ToString()) })
                             .OrderByDescending(r => r.Score)
                             .ThenBy(r => r.Resident.ToString())
                             .Select(r => r.Resident);
-
-        return Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
+        
+        var paginize = Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
+        
+        return new Result<List<Resident>>(
+                true,
+                paginize,
+                "success",
+                HttpStatusCode.OK
+            );
     }
 
-    public async void Create(Resident resident) {
+    public async Task<Result<Resident>> Create(Resident resident) {
         if(!HasDuplicate(resident)) {
             _db.Add(resident);
             await _db.SaveChangesAsync();
         }
+        
+        return new Result<Resident>(
+                true,
+                resident,
+                $"Successfully added {resident.ToString()}",
+                HttpStatusCode.Created
+            ); 
     }
 
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
