@@ -1,6 +1,5 @@
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
-using BMIS;
 
 namespace BMIS.Services;
 
