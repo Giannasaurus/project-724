@@ -804,11 +804,12 @@ dialog::backdrop {
 }
 
 #iLView .btn_sub:hover {
-    background-color: #2d4fbe;
+    background-color: rgba(52, 114, 250, 0.1);
 }
 
 #iLView .btn_sub:active {
     background-color: rgba(52, 114, 250, 0.18);
+    color: #1E40AF;
 }
 
 
