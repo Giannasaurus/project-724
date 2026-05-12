@@ -9,6 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IResidentService, ResidentService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 /* 
  * [!] WARNING
