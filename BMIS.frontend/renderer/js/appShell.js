@@ -5,8 +5,9 @@ import { initDocumentRequestsPage } from './features/documents/documentRequestsP
 import { renderHomeSummary } from './features/home/homePage.js'
 import { initHouseholdsPage } from './features/households/householdsPage.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
-import { handleSearchInput, loadData } from './features/residents/residentsPage.js'
+import { bindResidentFilterControls, handleSearchInput, loadData, renderFilterIndicators } from './features/residents/residentsPage.js'
 import { renderPagination } from './features/residents/residentsPagination.js'
+import { getResidentQueryParams, searchResidentsByName } from './features/residents/residentSearch.js'
 
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 const DEFAULT_PAGE_SIZE = 50
@@ -66,6 +67,8 @@ export async function loadApp(app) {
         currentView: 'inhabitantList',
         currentPage: 1,
         totalPages: 1,
+        residentFilters: {},
+        residentSearchQuery: '',
         documentRequestResident: null
     }
 
@@ -128,8 +131,17 @@ async function showResidentsView(state) {
 
     await goToResidentsPage(state, state.currentPage)
     handleSearchInput({
-        loadData: renderResidentData,
+        onSearch: query => searchResidentsView(state, query),
         goToPage: page => goToResidentsPage(state, page)
+    })
+    bindResidentFilterControls({
+        getFilters: () => state.residentFilters,
+        onApplyFilters: filters => applyResidentFilters(state, filters),
+        onClearFilters: () => clearResidentFilters(state)
+    })
+    renderFilterIndicators(state.residentFilters, {
+        onApplyFilters: filters => applyResidentFilters(state, filters),
+        onClearFilters: () => clearResidentFilters(state)
     })
     attachAddResidentButton(state)
 }
@@ -138,11 +150,15 @@ async function goToResidentsPage(state, page) {
     state.currentPage = page
 
     const from = (page - 1) * DEFAULT_PAGE_SIZE
-    const data = await getData(`/residents/filter?from=${from}&limit=${DEFAULT_PAGE_SIZE}`)
-    const countData = await getData('/residents')
+    const filters = state.residentFilters
+    const query = state.residentSearchQuery
+    const data = query
+        ? await searchResidentsByName(query, { from, limit: DEFAULT_PAGE_SIZE, filters })
+        : await getData(`/residents/filter?${getResidentQueryParams({ from, limit: DEFAULT_PAGE_SIZE, filters }).toString()}`)
+    const countData = await getResidentCountData(query, filters)
 
     if (countData.success) {
-        state.totalPages = Math.ceil(countData.data.length / DEFAULT_PAGE_SIZE)
+        state.totalPages = Math.max(1, Math.ceil(countData.data.length / DEFAULT_PAGE_SIZE))
     }
 
     await loadData(data, {
@@ -152,6 +168,43 @@ async function goToResidentsPage(state, page) {
     renderPagination(state.currentPage, state.totalPages, nextPage => goToResidentsPage(state, nextPage))
 
     return data
+}
+
+async function searchResidentsView(state, query) {
+    state.residentSearchQuery = query
+    await goToResidentsPage(state, 1)
+}
+
+async function applyResidentFilters(state, filters) {
+    state.residentFilters = filters
+    await goToResidentsPage(state, 1)
+    renderFilterIndicators(state.residentFilters, {
+        onApplyFilters: filters => applyResidentFilters(state, filters),
+        onClearFilters: () => clearResidentFilters(state)
+    })
+}
+
+async function clearResidentFilters(state) {
+    state.residentFilters = {}
+    await goToResidentsPage(state, 1)
+    renderFilterIndicators(state.residentFilters, {
+        onApplyFilters: filters => applyResidentFilters(state, filters),
+        onClearFilters: () => clearResidentFilters(state)
+    })
+}
+
+async function getResidentCountData(query, filters) {
+    if (query) {
+        return searchResidentsByName(query, {
+            from: 0,
+            limit: 10000,
+            filters
+        })
+    }
+
+    const params = getResidentQueryParams({ filters })
+    const endpoint = params.toString() ? `/residents/filter?${params.toString()}` : '/residents'
+    return getData(endpoint)
 }
 
 function showDocumentRequestsView(state) {

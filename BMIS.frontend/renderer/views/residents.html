@@ -14,100 +14,102 @@
                 <input id="searchBar" type="text" placeholder="Search resident name">
                 <button id="btn_search" class="btn_main" type="button">Search</button>
                 <button id="btn_filter" class="btn_sub" type="button">Filter</button>
-                <!-- COMMENTED OUT FOR CLEANLINESS
                 <dialog id="filterMenu">
-                    <h1>Filter Options</h1>
+                    <div class="filter-dialog-header">
+                        <h3>Filter Residents</h3>
+                        <button id="filterDialogCloseBtn" class="delete-dialog-x" type="button"
+                            aria-label="Close filters">✖</button>
+                    </div>
                     <div class="filterMenuOptions">
-                        <div>
+                        <fieldset>
                             <h3>Age</h3>
-                            <div class="filterSectionNonGrid">
-                                <input type="checkbox">
-                                    Age <input type="number" id="filterMinAge" class="filterAgeConst" value="0"/>
-                                    to <input type="number" id="filterMaxAge" class="filterAgeConst" value="999"/>
-                                </input>
+                            <div class="filter-range-row">
+                                <label for="filterMinAge">Minimum age</label>
+                                <input type="number" id="filterMinAge" class="filterAgeConst" min="0" max="150">
+                                <label for="filterMaxAge">Maximum age</label>
+                                <input type="number" id="filterMaxAge" class="filterAgeConst" min="0" max="150">
                             </div>
-                        </div>
-                        <div>
+                        </fieldset>
+                        <fieldset>
                             <h3>Sex</h3>
                             <div class="filterSection">
-                                <div>
-                                    <input type="checkbox" id="filterSexAll"/>
-                                    <label for="filterSexAll">All</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSexMale"/>
-                                    <label for="filterSexMale">Male</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSexFemale"/>
-                                    <label for="filterSexFemale">Female</label>
-                                </div>
+                                <label>
+                                    <input type="checkbox" id="filterSexMale" name="filterSex" value="Male">
+                                    Male
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSexFemale" name="filterSex" value="Female">
+                                    Female
+                                </label>
                             </div>
-                        </div>
-                        <div>
+                        </fieldset>
+                        <fieldset>
                             <h3>Sector</h3>
                             <div class="filterSection">
-                                <div>
-                                    <input type="checkbox" id="filterSectorAll"/>
-                                    <label for="filterSectorAll">All</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSectorPwd"/>
-                                    <label for="filterSectorPwd">PWD</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterSectorSenior"/>
-                                    <label for="filterSectorSenior">Senior</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilSingle"/>
-                                    <label for="filterCivilSingle">Single</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilMarried"/>
-                                    <label for="filterCivilMarried">Married</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilWidowed"/>
-                                    <label for="filterCivilWidowed">Widowed</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilDivorced"/>
-                                    <label for="filterCivilDivorced">Divorced</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilAnulled"/>
-                                    <label for="filterCivilAnulled">Anulled</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="filterCivilLS"/>
-                                    <label for="filterCivilLS">Legally Separated</label>
-                                </div>
+                                <label>
+                                    <input type="checkbox" id="filterSectorGeneral" name="filterSector" value="General">
+                                    General
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSectorPwd" name="filterSector" value="PWD">
+                                    PWD
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSectorSenior" name="filterSector" value="Senior">
+                                    Senior
+                                </label>
                             </div>
-                        </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Civil Status</h3>
+                            <div class="filterSection">
+                                <label>
+                                    <input type="checkbox" id="filterCivilSingle" name="filterCivil" value="Single">
+                                    Single
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilMarried" name="filterCivil" value="Married">
+                                    Married
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilWidowed" name="filterCivil" value="Widowed">
+                                    Widowed
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilDivorced" name="filterCivil" value="Divorced">
+                                    Divorced
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilAnulled" name="filterCivil" value="Anulled">
+                                    Annulled
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilLS" name="filterCivil" value="LegallySeparated">
+                                    Legally Separated
+                                </label>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Sort</h3>
+                            <select id="filterOrder">
+                                <option value="">Default: last name A-Z</option>
+                                <option value="ByLastName">Last name A-Z</option>
+                                <option value="ByLastNameDesc">Last name Z-A</option>
+                                <option value="ByFirstName">First name A-Z</option>
+                                <option value="ByFirstNameDesc">First name Z-A</option>
+                                <option value="ByAgeDesc">Oldest first</option>
+                                <option value="ByAge">Youngest first</option>
+                            </select>
+                        </fieldset>
                     </div>
-                    <div class="filterSectionNonGrid">
-                        <button id="saveFilter" class="btn_main" type="button">
-                            Search
-                        </button>
-                        <button id="cancelFilter" class="btn_sub" type="button">
-                            Cancel
-                        </button>
+                    <div class="filter-dialog-actions">
+                        <button id="clearFilter" class="btn_sub" type="button">Clear</button>
+                        <button id="cancelFilter" class="btn_sub" type="button">Cancel</button>
+                        <button id="saveFilter" class="btn_main" type="button">Apply</button>
                     </div>
                 </dialog>
-                -->
             </div>
-            <div id="filterIndicators">
-                <div class="filterOption">
-                    <span>Filter 1</span>
-                    <button type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg">
-                            <line x1="5" y1="15" x2="15" y2="5" />
-                            <line x1="5" y1="5" x2="15" y2="15" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+            <div id="filterIndicators"></div>
         </div>
         <div id="addSection">
             <div>

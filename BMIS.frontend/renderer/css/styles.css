@@ -615,37 +615,64 @@ dialog::backdrop {
 }
 
 #iLView #filterMenu {
+    width: min(720px, calc(100vw - 48px));
+    padding: var(--gap-xl);
+}
+
+#iLView #filterMenu:not([open]) {
+    display: none;
+}
+
+#iLView #filterMenu[open] {
     display: flex;
     flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+.filter-dialog-header {
+    align-items: center;
+    display: flex;
     justify-content: space-between;
-    padding: 2rem;
-    gap: 1rem;
-    border: 2px solid #d3d3d3;
-    width: 50%;
 }
 
 #iLView .filterMenuOptions {
+    display: grid;
+    gap: var(--gap-xl);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#iLView .filterMenuOptions fieldset {
+    border: 1px solid #d3d3d3;
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: var(--gap-md);
+    padding: var(--gap-lg);
 }
 
 #iLView #filterMenu .filterAgeConst {
-    padding: 0.25rem 0.5rem;
-    width: 5rem;
+    width: 100%;
 }
 
 #iLView .filterOption {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
     width: auto;
-    border: 0.15rem solid #d3d3d3;
+    border: 2px solid #d3d3d3;
     border-radius: 32px;
-    padding-left: 1rem;
+    min-height: 32px;
+    padding: 3px 6px 3px 12px;
     color: #696969;
+}
+
+#iLView .filter-clear-all {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+    font-family: inherit;
+    padding: 6px 12px;
 }
 
 #iLView .filterOption button {
@@ -653,22 +680,44 @@ dialog::backdrop {
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    padding: 0.25rem;
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    height: 24px;
+    line-height: 1;
+    padding: 0;
+    width: 24px;
 }
 
 #iLView .filterSection {
     display: grid;
-    grid-template-columns: 20% 50%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-md);
     font-size: 1rem;
-    padding-left: 1rem;
 }
 
-#iLView #filterSectionAge {
-    padding-left: 1rem;
+#iLView .filterSection label,
+.filter-range-row label {
+    align-items: center;
+    display: flex;
+    gap: var(--gap-sm);
+    height: auto;
 }
 
-#iLView .filterSectionNonGrid {
-    padding-left: 1rem;
+.filter-range-row {
+    display: grid;
+    gap: var(--gap-md);
+    grid-template-columns: 1fr 120px;
+}
+
+.filter-dialog-actions {
+    display: flex;
+    gap: var(--gap-md);
+    justify-content: flex-end;
+}
+
+#filterOrder {
+    width: 100%;
 }
 
 #iLView .filterOption button:hover {
