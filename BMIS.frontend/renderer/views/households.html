@@ -5,11 +5,11 @@
                 <h2>Households</h2>
                 <p>Grouped resident addresses and manually added household records.</p>
             </div>
-            <button id="addHouseholdBtn" class="households-primary-btn" type="button">Add household</button>
         </div>
 
         <div class="households-toolbar">
             <input id="householdSearch" type="text" placeholder="Search household name or address">
+            <button id="addHouseholdBtn" class="households-primary-btn" type="button">Add household</button>
         </div>
 
         <div class="households-list-header">
@@ -21,20 +21,21 @@
     </section>
 
     <section id="addHouseholdView" hidden>
-        <button id="householdBackBtn" class="back-btn" type="button">&lt; Back</button>
         <h2>Add Household</h2>
+        <button id="householdBackBtn" class="back-btn" type="button">&lt; Back</button>
 
         <form id="householdForm" class="household-form" novalidate>
-            <div class="household-form-group">
-                <label for="householdNameInput">Household name <span class="required">*</span></label>
-                <input id="householdNameInput" type="text" placeholder="e.g. 122A-Clara">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="householdNameInput">Household Name <span class="required">*</span></label>
+                    <input id="householdNameInput" type="text" placeholder="200-Lim">
+                </div>
             </div>
 
-            <div class="household-form-group">
-                <label for="householdMemberSearch">Household members</label>
+            <div class="form-group">
+                <label for="householdMemberSearch">Household Members</label>
                 <input id="householdMemberSearch" type="text" placeholder="Search resident name">
             </div>
-
             <div class="household-members-table-wrap">
                 <table id="householdMembersTable">
                     <thead>
@@ -50,17 +51,19 @@
                 </table>
             </div>
 
-            <div class="household-form-group">
-                <label for="householdHeadSelect">Household Head <span class="required">*</span></label>
-                <select id="householdHeadSelect">
-                    <option value="">Select household head</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="householdHeadSelect">Household Head <span class="required">*</span></label>
+                    <select id="householdHeadSelect">
+                        <option value="">Select household head</option>
+                    </select>
+                </div>
             </div>
 
-            <p id="householdFormError" class="household-form-error" aria-live="polite"></p>
-            <div class="household-form-actions">
-                <button id="householdCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
-                <button class="households-primary-btn" type="submit">Save</button>
+            <p id="householdFormError" class="ar-error" aria-live="polite"></p>
+            <div class="form-actions">
+                <button id="householdCancelBtn" class="ar-cancel-btn" type="button">Cancel</button>
+                <button class="form-save-btn" type="submit">Save</button>
             </div>
         </form>
     </section>
