@@ -339,8 +339,10 @@ function openResidentDetails(resident, options = {}) {
     const detailsView = document.createElement('section')
     detailsView.className = 'entity-detail-view'
     detailsView.innerHTML = `
-        <h2>Resident Details</h2>
-        <button class="back-btn" type="button">&lt; Back</button>
+        <div class="subview-heading">
+            <button class="back-btn" type="button">&lt; Back</button>
+            <h2>Resident Details</h2>
+        </div>
         <div class="entity-detail-panel">
             <div class="entity-detail-header">
                 <div>

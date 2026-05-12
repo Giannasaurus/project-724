@@ -1826,9 +1826,29 @@ tbody tr:hover .ellipsis-btn,
    GLOBAL MISCELLANEOUS
    ============================================================ */
    
+.subview-heading {
+    align-items: center;
+    display: flex;
+    gap: var(--gap-xl);
+    margin-bottom: var(--gap-xl);
+    min-height: 32px;
+}
+
+.subview-heading h2 {
+    line-height: 1;
+    margin-bottom: 0;
+}
+
 .back-btn {
-    display: inline-block;
-    margin-bottom: 12px;
+    align-self: center;
+    align-items: center;
+    display: inline-flex;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    justify-content: center;
+    line-height: 1;
+    margin-bottom: 0;
+    width: fit-content;
 }
 
 .back-btn:hover {
