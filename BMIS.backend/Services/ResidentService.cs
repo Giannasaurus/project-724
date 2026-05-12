@@ -79,18 +79,22 @@ public class ResidentService : IResidentService, ISearchable {
         return paginize;
     }
 
+    public async Task<Result<int>> Create(ResidentCreateDto details) {
+        Resident resident = new Resident(details);
 
-    /*
-     * TODO:
-     *  - function should be the one who makes the ID
-     *  - should be in a AddResidentDTO
-     *
-     *
-     */
-    public async Task<Result<int>> Create(Resident resident) {
-        if(!HasDuplicate(resident)) {
-            _db.Add(resident);
+        if(HasDuplicate(resident)) {
+            return ResultStatus.Conflict;
+        }
+
+        _db.Add(resident);
+        
+        try {
             await _db.SaveChangesAsync();
+            Console.WriteLine("[~] save successful");
+        } catch (DbUpdateException e) {
+            Console.WriteLine($"[!] problem saving {string.Join(" ", e.Entries)}");
+
+            return ResultStatus.Conflict; 
         }
         
         return resident.ResidentId;
@@ -119,8 +123,12 @@ public class ResidentService : IResidentService, ISearchable {
          *  SHOULD BACKUP AFTER DELETE
          *
          */
-
-        await _db.SaveChangesAsync();
+        try {
+            await _db.SaveChangesAsync();
+            Console.WriteLine("[~] save successful");
+        } catch (DbUpdateException e) {
+            Console.WriteLine("[!] error saving");
+        }
 
         return resident; 
     }

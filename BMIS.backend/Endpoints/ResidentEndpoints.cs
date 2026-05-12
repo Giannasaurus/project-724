@@ -11,7 +11,6 @@ public static class ResidentEndpoints {
 
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);
-
         group.MapGet("/{id}", GetById); 
 
         group.MapPost("/search", SearchResident);
@@ -22,13 +21,6 @@ public static class ResidentEndpoints {
         group.MapDelete("/{id}", Delete); 
     }
 
-
-    /*
-     *  returns: all data in the database 
-     *  
-     *  might take some time to load
-     *
-    */
     private static async Task<IResult> GetAll(
             IResidentService residentService) {
 
@@ -66,14 +58,14 @@ public static class ResidentEndpoints {
         return TypedResults.Ok(result.value);
     }
 
-    private static async Task<IResult> Create(Resident resident, IResidentService residentService) {
-        var result = await residentService.Create(resident);
+    private static async Task<IResult> Create(ResidentCreateDto details, IResidentService residentService) {
+        var result = await residentService.Create(details);
         
-        if (!result.isSuccess) {
+        if (result.code == ResultStatus.Conflict) {
             return TypedResults.Conflict();
         }
 
-        return TypedResults.Created($"/residents/{result.value}", resident);
+        return TypedResults.Created($"/residents/{result.value}");
     }
 
     private static async Task<IResult> Delete(int id, IResidentService residentService) {
@@ -85,12 +77,6 @@ public static class ResidentEndpoints {
         return TypedResults.NoContent();
     }
 
-
-    /*
-     *  TODO: implement DTO
-     *
-     *
-     */
     private static async Task<IResult> Update(int id, ResidentUpdateDto changes, IResidentService residentService) {
         var result = await residentService.Update(id, changes); 
         

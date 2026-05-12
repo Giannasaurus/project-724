@@ -9,7 +9,9 @@ public interface IResidentService {
     Task<Result<List<Resident>>> GetFiltered(ResidentFilterCriteria criteria);
     Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria); 
 
-    Task<Result<int>> Create(Resident resident);
+    Task<Result<int>> Create(ResidentCreateDto detail);
+
     Task<Result<Resident>> Delete(int id);
+
     Task<Result<Resident>> Update(int id, ResidentUpdateDto changes);
 }
