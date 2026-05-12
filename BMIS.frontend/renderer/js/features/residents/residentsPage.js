@@ -1,5 +1,6 @@
 import { deleteData, getData } from '../../core/api.js'
 import { openEditResidentPage } from './residentForm.js'
+import { searchResidentsByName } from './residentSearch.js'
 
 const SEX_LABELS = { 0: 'Male', 1: 'Female' }
 const SECTOR_LABELS = { 0: 'General', 1: 'Senior', 2: 'PWD' }
@@ -52,36 +53,12 @@ export function handleSearchInput({ loadData, goToPage }) {
 }
 
 async function processSearchQuery(query, renderData) {
-    const fields = ['firstName', 'middleName', 'lastName']
-    const results = await Promise.all(fields.map(async (field) => {
-        const params = new URLSearchParams({
-            [field]: query,
-            from: '0',
-            limit: '50'
-        })
-
-        return getData(`/residents/filter?${params.toString()}`)
-    }))
-
-    const mergedResidents = []
-    const seenResidentIds = new Set()
-
-    results.forEach((result) => {
-        if (!result?.success || !Array.isArray(result.data)) return
-
-        result.data.forEach((resident) => {
-            const residentId = getResidentId(resident) ?? JSON.stringify(resident)
-            if (seenResidentIds.has(residentId)) return
-
-            seenResidentIds.add(residentId)
-            mergedResidents.push(resident)
-        })
+    const result = await searchResidentsByName(query, {
+        from: 0,
+        limit: 50
     })
 
-    await renderData({
-        success: true,
-        data: mergedResidents
-    })
+    await renderData(result)
 }
 
 /** DELETE DIALOG

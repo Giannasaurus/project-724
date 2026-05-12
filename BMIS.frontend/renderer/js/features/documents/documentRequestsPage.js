@@ -1,4 +1,4 @@
-import { getData } from '../../core/api.js'
+import { searchResidentsByName } from '../residents/residentSearch.js'
 
 const DOCUMENT_TYPES = {
     0: 'Barangay Clearance',
@@ -155,33 +155,12 @@ async function searchResidents() {
 }
 
 async function findResidents(query) {
-    const fields = ['firstName', 'middleName', 'lastName']
-    const responses = await Promise.all(fields.map(async (field) => {
-        const params = new URLSearchParams({
-            [field]: query,
-            from: '0',
-            limit: '8'
-        })
-
-        return getData(`/residents/filter?${params.toString()}`)
-    }))
-
-    const residents = []
-    const seenIds = new Set()
-
-    responses.forEach((response) => {
-        if (!response?.success || !Array.isArray(response.data)) return
-
-        response.data.forEach((resident) => {
-            const residentId = getResidentId(resident)
-            if (!residentId || seenIds.has(residentId)) return
-
-            seenIds.add(residentId)
-            residents.push(resident)
-        })
+    const result = await searchResidentsByName(query, {
+        from: 0,
+        limit: 8
     })
 
-    return residents
+    return result?.success && Array.isArray(result.data) ? result.data : []
 }
 
 function renderSearchResults(residents) {
