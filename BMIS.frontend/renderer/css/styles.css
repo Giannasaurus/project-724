@@ -899,6 +899,18 @@ td {
     gap: var(--gap-xl);
 }
 
+#householdsListView,
+#addHouseholdView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+#addHouseholdView[hidden],
+#householdsListView[hidden] {
+    display: none;
+}
+
 .households-header {
     align-items: flex-start;
     display: flex;
@@ -1001,21 +1013,15 @@ td {
     color: var(--color-text);
 }
 
-.household-dialog {
-    width: min(620px, calc(100vw - 40px));
-}
-
-.household-dialog-header {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: var(--gap-xl);
-}
-
 .household-form {
+    background-color: var(--color-white);
+    border: 1px solid #e5e5e2;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    gap: var(--gap-lg);
+    gap: var(--gap-xl);
+    padding: 28px;
 }
 
 .household-form-group {
@@ -1024,13 +1030,86 @@ td {
     gap: var(--gap-xs);
 }
 
+.household-form-group input,
+.household-form-group select {
+    width: 100%;
+}
+
+.household-members-table-wrap {
+    border: 1px solid #d3d3d3;
+    border-radius: var(--radius-md);
+    max-height: 360px;
+    overflow: auto;
+}
+
+#householdMembersTable {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+
+#householdMembersTable th,
+#householdMembersTable td {
+    border-bottom: 1px solid #e5e5e2;
+    height: 52px;
+    overflow: hidden;
+    padding: 10px 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#householdMembersTable th {
+    background-color: var(--color-white);
+    border-bottom: 2px solid #d3d3d3;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#householdMembersTable td {
+    color: var(--color-text-muted);
+}
+
+#householdMembersTable tbody tr:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.household-member-check {
+    align-items: center;
+    display: flex;
+    gap: var(--gap-md);
+    height: auto;
+}
+
+.household-member-check input {
+    flex: 0 0 auto;
+}
+
+.household-member-check span {
+    color: var(--color-text);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .household-form-error {
     color: var(--color-error);
     font-size: var(--font-size-sm);
+}
+
+.household-members-empty {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.household-form-error {
     min-height: 1rem;
 }
 
-.household-dialog-actions {
+.household-form-actions {
     display: flex;
     justify-content: flex-end;
     gap: var(--gap-md);

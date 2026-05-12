@@ -3,41 +3,40 @@ import { getData } from '../../core/api.js'
 const HOUSEHOLDS_STORAGE_KEY = 'bmisHouseholds'
 
 let households = []
+let residents = []
+let selectedMemberIds = new Set()
 
 export async function initHouseholdsPage() {
     bindHouseholdControls()
-    await loadHouseholds()
+    await loadHouseholdData()
 }
 
 function bindHouseholdControls() {
-    const searchInput = document.getElementById('householdSearch')
-    const addBtn = document.getElementById('addHouseholdBtn')
-    const dialog = document.getElementById('householdDialog')
-    const closeBtn = document.getElementById('householdDialogCloseBtn')
-    const cancelBtn = document.getElementById('householdCancelBtn')
-    const form = document.getElementById('householdForm')
-
-    searchInput?.addEventListener('input', renderHouseholds)
-    addBtn?.addEventListener('click', openHouseholdDialog)
-    closeBtn?.addEventListener('click', closeHouseholdDialog)
-    cancelBtn?.addEventListener('click', closeHouseholdDialog)
-    dialog?.addEventListener('click', closeDialogOnBackdrop)
-    form?.addEventListener('submit', handleHouseholdSubmit)
+    document.getElementById('householdSearch')?.addEventListener('input', renderHouseholds)
+    document.getElementById('addHouseholdBtn')?.addEventListener('click', showAddHouseholdView)
+    document.getElementById('householdBackBtn')?.addEventListener('click', showHouseholdsListView)
+    document.getElementById('householdCancelBtn')?.addEventListener('click', showHouseholdsListView)
+    document.getElementById('householdMemberSearch')?.addEventListener('input', renderMemberRows)
+    document.getElementById('householdForm')?.addEventListener('submit', handleHouseholdSubmit)
 }
 
-async function loadHouseholds() {
-    const derivedHouseholds = await getResidentHouseholds()
-    households = mergeHouseholds(derivedHouseholds, readManualHouseholds())
+async function loadHouseholdData() {
+    residents = await getResidents()
+    households = mergeHouseholds(getResidentHouseholds(residents), readManualHouseholds())
     renderHouseholds()
 }
 
-async function getResidentHouseholds() {
+async function getResidents() {
     const result = await getData('/residents')
     if (!result?.success || !Array.isArray(result.data)) return []
 
+    return result.data
+}
+
+function getResidentHouseholds(residentList) {
     const groups = new Map()
 
-    result.data.forEach((resident) => {
+    residentList.forEach((resident) => {
         const address = resident.address?.trim()
         if (!address) return
 
@@ -55,7 +54,7 @@ async function getResidentHouseholds() {
         groups.set(key, group)
     })
 
-    return Array.from(groups.values()).sort((a, b) => a.name.localeCompare(b.name))
+    return Array.from(groups.values()).sort(sortByName)
 }
 
 function mergeHouseholds(derivedHouseholds, manualHouseholds) {
@@ -72,12 +71,12 @@ function mergeHouseholds(derivedHouseholds, manualHouseholds) {
         householdMap.set(key, {
             ...existing,
             ...household,
-            memberCount: existing?.memberCount ?? household.memberCount ?? 0,
+            memberCount: household.memberIds?.length ?? existing?.memberCount ?? 0,
             source: existing ? 'resident+manual' : 'manual'
         })
     })
 
-    return Array.from(householdMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+    return Array.from(householdMap.values()).sort(sortByName)
 }
 
 function renderHouseholds() {
@@ -98,18 +97,15 @@ function renderHouseholds() {
 }
 
 function getFilteredHouseholds() {
-    const searchInput = document.getElementById('householdSearch')
-    const query = searchInput?.value.trim().toLowerCase() ?? ''
+    const query = document.getElementById('householdSearch')?.value.trim().toLowerCase() ?? ''
 
     if (!query) return households
 
-    return households.filter((household) => {
-        return (
-            household.name.toLowerCase().includes(query) ||
-            household.address.toLowerCase().includes(query) ||
-            household.head.toLowerCase().includes(query)
-        )
-    })
+    return households.filter((household) => (
+        household.name.toLowerCase().includes(query) ||
+        household.address.toLowerCase().includes(query) ||
+        household.head.toLowerCase().includes(query)
+    ))
 }
 
 function createHouseholdRow(household) {
@@ -135,70 +131,187 @@ function createHouseholdRow(household) {
     return row
 }
 
-function openHouseholdDialog() {
-    const dialog = document.getElementById('householdDialog')
-    const form = document.getElementById('householdForm')
-    const error = document.getElementById('householdFormError')
-
-    form?.reset()
-    if (error) error.textContent = ''
-    dialog?.showModal()
+function showAddHouseholdView() {
+    selectedMemberIds = new Set()
+    document.getElementById('householdForm')?.reset()
+    setText('householdFormError', '')
+    showSubview('add')
+    renderMemberRows()
+    renderHeadOptions()
 }
 
-function closeHouseholdDialog() {
-    const dialog = document.getElementById('householdDialog')
-    dialog?.close()
+function showHouseholdsListView() {
+    showSubview('list')
+    renderHouseholds()
 }
 
-function closeDialogOnBackdrop(event) {
-    const dialog = event.currentTarget
-    const rect = dialog.getBoundingClientRect()
-    const clickedInDialog = (
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width
-    )
+function showSubview(view) {
+    const listView = document.getElementById('householdsListView')
+    const addView = document.getElementById('addHouseholdView')
 
-    if (!clickedInDialog) dialog.close()
+    if (listView) listView.hidden = view !== 'list'
+    if (addView) addView.hidden = view !== 'add'
+}
+
+function renderMemberRows() {
+    const tableBody = document.getElementById('householdMembersBody')
+    if (!tableBody) return
+
+    const filteredResidents = getFilteredResidents()
+    tableBody.innerHTML = ''
+
+    if (filteredResidents.length === 0) {
+        const row = document.createElement('tr')
+        const cell = document.createElement('td')
+        cell.className = 'household-members-empty'
+        cell.colSpan = 5
+        cell.textContent = 'No residents found.'
+        row.appendChild(cell)
+        tableBody.appendChild(row)
+        return
+    }
+
+    filteredResidents.forEach((resident) => {
+        tableBody.appendChild(createMemberRow(resident))
+    })
+}
+
+function getFilteredResidents() {
+    const query = document.getElementById('householdMemberSearch')?.value.trim().toLowerCase() ?? ''
+
+    if (!query) return residents
+
+    return residents.filter((resident) => (
+        getResidentFullName(resident).toLowerCase().includes(query) ||
+        resident.address?.toLowerCase().includes(query)
+    ))
+}
+
+function createMemberRow(resident) {
+    const row = document.createElement('tr')
+    const residentId = getResidentId(resident)
+    const isSelected = selectedMemberIds.has(residentId)
+    const cells = [
+        createMemberNameCell(resident, residentId, isSelected),
+        resident.birthDate,
+        getSexLabel(resident.sex),
+        getCivilStatusLabel(resident.civilStatus),
+        getSectorLabel(resident.sector)
+    ]
+
+    cells.forEach((cell) => {
+        const td = document.createElement('td')
+        if (cell instanceof Node) {
+            td.appendChild(cell)
+        }
+        else {
+            td.textContent = cell
+        }
+        row.appendChild(td)
+    })
+
+    return row
+}
+
+function createMemberNameCell(resident, residentId, isSelected) {
+    const label = document.createElement('label')
+    const checkbox = document.createElement('input')
+    const name = document.createElement('span')
+
+    label.className = 'household-member-check'
+    checkbox.type = 'checkbox'
+    checkbox.checked = isSelected
+    checkbox.addEventListener('change', () => {
+        toggleSelectedMember(residentId, checkbox.checked)
+    })
+    name.textContent = getResidentFullName(resident)
+
+    label.append(checkbox, name)
+    return label
+}
+
+function toggleSelectedMember(residentId, isSelected) {
+    if (isSelected) {
+        selectedMemberIds.add(residentId)
+    }
+    else {
+        selectedMemberIds.delete(residentId)
+    }
+
+    renderHeadOptions()
+}
+
+function renderHeadOptions() {
+    const select = document.getElementById('householdHeadSelect')
+    if (!select) return
+
+    const previousValue = select.value
+    const selectedResidents = getSelectedResidents()
+
+    select.innerHTML = '<option value="">Select household head</option>'
+    selectedResidents.forEach((resident) => {
+        const option = document.createElement('option')
+        option.value = String(getResidentId(resident))
+        option.textContent = getResidentFullName(resident)
+        select.appendChild(option)
+    })
+
+    if (selectedMemberIds.has(Number(previousValue))) {
+        select.value = previousValue
+    }
 }
 
 function handleHouseholdSubmit(event) {
     event.preventDefault()
 
-    const error = document.getElementById('householdFormError')
     const household = getHouseholdFormValues()
+    const validationError = getHouseholdValidationError(household)
 
-    if (!household.name || !household.address) {
-        if (error) error.textContent = 'Household name and address are required.'
+    if (validationError) {
+        setText('householdFormError', validationError)
         return
     }
 
     const manualHouseholds = readManualHouseholds()
     const updatedHouseholds = [
-        ...manualHouseholds.filter(item => item.id !== household.id && item.address.toLowerCase() !== household.address.toLowerCase()),
+        ...manualHouseholds.filter(item => item.address.toLowerCase() !== household.address.toLowerCase()),
         household
     ]
 
     writeManualHouseholds(updatedHouseholds)
-    households = mergeHouseholds(households.filter(item => item.source !== 'manual'), updatedHouseholds)
-    renderHouseholds()
-    closeHouseholdDialog()
+    households = mergeHouseholds(getResidentHouseholds(residents), updatedHouseholds)
+    showHouseholdsListView()
 }
 
 function getHouseholdFormValues() {
+    const selectedResidents = getSelectedResidents()
+    const headId = Number(document.getElementById('householdHeadSelect')?.value)
+    const headResident = selectedResidents.find(resident => getResidentId(resident) === headId)
+    const firstResident = selectedResidents[0]
     const name = document.getElementById('householdNameInput')?.value.trim() ?? ''
-    const head = document.getElementById('householdHeadInput')?.value.trim() ?? ''
-    const address = document.getElementById('householdAddressInput')?.value.trim() ?? ''
 
     return {
         id: `manual-${Date.now()}`,
         source: 'manual',
         name,
-        head,
-        address,
-        memberCount: 0
+        head: headResident ? getResidentFullName(headResident) : '',
+        headId,
+        address: firstResident?.address?.trim() || name,
+        memberIds: selectedResidents.map(getResidentId),
+        memberCount: selectedResidents.length
     }
+}
+
+function getHouseholdValidationError(household) {
+    if (!household.name) return 'Household name is required.'
+    if (household.memberIds.length === 0) return 'Select at least one household member.'
+    if (!household.headId) return 'Select a household head.'
+
+    return ''
+}
+
+function getSelectedResidents() {
+    return residents.filter(resident => selectedMemberIds.has(getResidentId(resident)))
 }
 
 function readManualHouseholds() {
@@ -216,6 +329,11 @@ function writeManualHouseholds(householdsToSave) {
     localStorage.setItem(HOUSEHOLDS_STORAGE_KEY, JSON.stringify(householdsToSave))
 }
 
+function setText(id, value) {
+    const element = document.getElementById(id)
+    if (element) element.textContent = value
+}
+
 function getHouseholdName(resident) {
     const houseNumber = resident.address?.match(/^\s*([A-Za-z0-9-]+)/)?.[1]
     const namePrefix = houseNumber || 'Household'
@@ -226,4 +344,31 @@ function getHouseholdName(resident) {
 function getResidentFullName(resident) {
     const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
     return `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix ?? ''}`.trim()
+}
+
+function getResidentId(resident) {
+    return resident.residentId ?? resident.ResidentId ?? resident.id
+}
+
+function sortByName(a, b) {
+    return a.name.localeCompare(b.name)
+}
+
+function getSexLabel(sex) {
+    return ({ 0: 'Male', 1: 'Female' })[sex] ?? 'Unknown'
+}
+
+function getSectorLabel(sector) {
+    return ({ 0: 'General', 1: 'Senior', 2: 'PWD' })[sector] ?? 'Unknown'
+}
+
+function getCivilStatusLabel(civilStatus) {
+    return ({
+        0: 'Single',
+        1: 'Married',
+        2: 'Widowed',
+        3: 'Divorced',
+        4: 'Annulled',
+        5: 'Legally Separated'
+    })[civilStatus] ?? 'Unknown'
 }
