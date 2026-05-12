@@ -163,7 +163,7 @@ function openDeleteDialog(resident, options = {}) {
 }
 
 function getFieldNames() {
-    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", "Actions"]
+    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
 }
 
 function getCells(resident) {
@@ -190,8 +190,7 @@ export async function loadData(result, options = {}) {
         'col-sex',
         'col-sector',
         'col-civilstatus',
-        'col-address',
-        'col-action'
+        'col-address'
     ]
 
     const iLView = document.getElementById('iLView')
@@ -240,17 +239,23 @@ export async function loadData(result, options = {}) {
 
     // make body
     const tableBody = document.createElement('tbody')
+    let selectedResident = null
+    let selectedRow = null
+
+    const actionBar = document.createElement('div')
+    actionBar.className = 'entity-selection-bar'
+    actionBar.hidden = true
 
     result.data.forEach(resident => {
         const cells = getCells(resident)
         const row = document.createElement('tr')
         row.className = 'entity-row'
         row.tabIndex = 0
-        row.addEventListener('click', () => openResidentDetails(resident, options))
+        row.addEventListener('click', () => selectResidentRow(row, resident))
         row.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter' && e.key !== ' ') return
             e.preventDefault()
-            openResidentDetails(resident, options)
+            selectResidentRow(row, resident)
         })
 
         cells.forEach(cell => {
@@ -260,16 +265,31 @@ export async function loadData(result, options = {}) {
             row.appendChild(td)
         })
 
-        const actionTd = document.createElement('td')
-        actionTd.className = 'col-action'
-        actionTd.appendChild(createResidentActions(resident, options))
-
-        row.appendChild(actionTd)
         tableBody.appendChild(row)
     })
 
     table.append(colGroup, tableHeader, tableBody)
+    dataContainer.appendChild(actionBar)
     dataContainer.appendChild(table)
+
+    function selectResidentRow(row, resident) {
+        selectedResident = resident
+        selectedRow?.classList.remove('is-selected')
+        selectedRow = row
+        selectedRow.classList.add('is-selected')
+        renderResidentActionBar(actionBar, selectedResident, options)
+    }
+}
+
+function renderResidentActionBar(actionBar, resident, options) {
+    actionBar.hidden = false
+    actionBar.innerHTML = ''
+
+    const label = document.createElement('span')
+    label.className = 'entity-selection-label'
+    label.textContent = `Selected resident: ${getResidentFullName(resident)}`
+
+    actionBar.append(label, createResidentActions(resident, options))
 }
 
 function createResidentActions(resident, options, actionOptions = {}) {

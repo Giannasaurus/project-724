@@ -243,8 +243,8 @@ label {
 
 #mainView {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     gap: 0;
     height: 100%;
     min-height: 0;
@@ -253,33 +253,55 @@ label {
 
 #mainNav {
     background-color: var(--color-bg-nav);
-    border-right: 1px solid var(--color-nav-outline);
+    border-bottom: 1px solid var(--color-nav-outline);
     border-radius: 0;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    gap: var(--gap-lg);
     grid-column: 1;
     grid-row: 1;
     justify-content: space-between;
-    align-self: stretch;
     min-height: 0;
     margin: 0;
-    padding: 24px var(--gap-lg) var(--gap-lg);
+    padding: var(--gap-lg) 24px;
     position: sticky;
     top: 0;
+    z-index: 10;
+}
+
+.app-brand {
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .sub-main-nav ul {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    flex-direction: row;
+    gap: var(--gap-xs);
+}
+
+.sub-main-nav--primary {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sub-main-nav--primary ul {
+    flex-wrap: wrap;
+}
+
+.sub-main-nav--account {
+    flex: 0 0 auto;
 }
 
 .sub-main-nav-a {
     display: flex;
     align-items: center;
     gap: var(--gap-md);
-    width: 100%;
+    min-height: 40px;
     padding: var(--gap-md);
+    white-space: nowrap;
 }
 
 .main-nav-icon {
@@ -309,8 +331,8 @@ li,
 }
 
 #mainBody {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -771,12 +793,12 @@ dialog::backdrop {
 }
 
 #dataTable .col-name {
-    width: 17%;
+    width: 21%;
 }
 
 #dataTable .col-birthdate {
     color: #696969;
-    width: 11%;
+    width: 13%;
 }
 
 #dataTable .col-sex {
@@ -791,23 +813,15 @@ dialog::backdrop {
 
 #dataTable .col-civilstatus {
     color: #696969;
-    width: 12%;
+    width: 14%;
 }
 
 #dataTable .col-address {
     color: #696969;
-    width: 14%;
+    width: 26%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-#dataTable .col-action {
-    width: 25%;
-}
-
-#dataTable td.col-action {
-    overflow: visible;
 }
 
 table {
@@ -828,6 +842,12 @@ th {
 
 tbody tr:hover {
     background-color: var(--color-bg-hover);
+}
+
+.entity-row.is-selected,
+.household-row.is-selected {
+    background-color: rgba(37, 99, 235, 0.12);
+    box-shadow: inset 4px 0 0 var(--color-accent);
 }
 
 td {
@@ -960,7 +980,7 @@ td {
 .households-list-header,
 .household-row {
     display: grid;
-    grid-template-columns: minmax(220px, 1.3fr) minmax(160px, 0.8fr) minmax(90px, 0.4fr) minmax(210px, 0.9fr);
+    grid-template-columns: minmax(260px, 1.4fr) minmax(220px, 0.9fr) minmax(120px, 0.4fr);
     gap: var(--gap-xl);
 }
 
@@ -1027,6 +1047,31 @@ td {
     flex-wrap: wrap;
     gap: var(--gap-sm);
     justify-content: flex-end;
+}
+
+.entity-selection-bar {
+    align-items: center;
+    background-color: #f8fbff;
+    border: 1px solid #d8e4ff;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: var(--gap-lg);
+    justify-content: space-between;
+    margin-bottom: var(--gap-lg);
+    min-height: 52px;
+    padding: var(--gap-md) var(--gap-lg);
+}
+
+.entity-selection-bar[hidden] {
+    display: none;
+}
+
+.entity-selection-label {
+    color: var(--color-text);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .entity-action-btn {

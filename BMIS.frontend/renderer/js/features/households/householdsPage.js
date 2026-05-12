@@ -6,6 +6,7 @@ let households = []
 let residents = []
 let selectedMemberIds = new Set()
 let editingHousehold = null
+let selectedHousehold = null
 
 export async function initHouseholdsPage() {
     bindHouseholdControls()
@@ -87,6 +88,8 @@ function renderHouseholds() {
 
     const filteredHouseholds = getFilteredHouseholds()
     list.innerHTML = ''
+    selectedHousehold = null
+    renderHouseholdActionBar()
 
     if (filteredHouseholds.length === 0) {
         list.innerHTML = '<p class="households-empty">No households found.</p>'
@@ -117,15 +120,14 @@ function createHouseholdRow(household) {
     const address = document.createElement('small')
     const head = document.createElement('span')
     const members = document.createElement('span')
-    const actions = document.createElement('span')
 
     row.className = 'household-row'
     row.tabIndex = 0
-    row.addEventListener('click', () => showHouseholdDetailsView(household))
+    row.addEventListener('click', () => selectHouseholdRow(row, household))
     row.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return
         e.preventDefault()
-        showHouseholdDetailsView(household)
+        selectHouseholdRow(row, household)
     })
 
     name.textContent = household.name
@@ -135,18 +137,42 @@ function createHouseholdRow(household) {
 
     head.textContent = household.head || 'Not specified'
     members.textContent = `${household.memberCount} ${household.memberCount === 1 ? 'member' : 'members'}`
+
+    row.append(householdInfo, head, members)
+    return row
+}
+
+function selectHouseholdRow(row, household) {
+    selectedHousehold = household
+    document.querySelectorAll('.household-row.is-selected').forEach(item => item.classList.remove('is-selected'))
+    row.classList.add('is-selected')
+    renderHouseholdActionBar()
+}
+
+function renderHouseholdActionBar() {
+    const actionBar = document.getElementById('householdActionBar')
+    if (!actionBar) return
+
+    actionBar.innerHTML = ''
+    actionBar.hidden = !selectedHousehold
+    if (!selectedHousehold) return
+
+    const label = document.createElement('span')
+    label.className = 'entity-selection-label'
+    label.textContent = `Selected household: ${selectedHousehold.name}`
+
+    const actions = document.createElement('div')
     actions.className = 'entity-row-actions'
     actions.append(
-        createActionButton('View', 'entity-action-btn', () => showHouseholdDetailsView(household)),
-        createActionButton('Edit', 'entity-action-btn', () => showEditHouseholdView(household)),
-        createActionButton('Delete', 'entity-action-btn entity-action-btn--danger', () => openHouseholdDeleteDialog(household), {
-            disabled: !canDeleteHousehold(household),
+        createActionButton('View', 'entity-action-btn', () => showHouseholdDetailsView(selectedHousehold)),
+        createActionButton('Edit', 'entity-action-btn', () => showEditHouseholdView(selectedHousehold)),
+        createActionButton('Delete', 'entity-action-btn entity-action-btn--danger', () => openHouseholdDeleteDialog(selectedHousehold), {
+            disabled: !canDeleteHousehold(selectedHousehold),
             title: 'Only manually saved household records can be deleted.'
         })
     )
 
-    row.append(householdInfo, head, members, actions)
-    return row
+    actionBar.append(label, actions)
 }
 
 function showAddHouseholdView() {
