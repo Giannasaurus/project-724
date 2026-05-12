@@ -1,6 +1,7 @@
-import { postData } from '../../core/api.js'
+import { postData, updateData } from '../../core/api.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
+const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
 const RESIDENT_FORM_ID = 'addResidentForm'
 const MIN_BIRTH_YEAR = 1900
 
@@ -201,8 +202,96 @@ function setSubmitState(button, isSaving) {
     button.textContent = isSaving ? 'Saving...' : 'Save'
 }
 
-export function openEditResidentPage(resident) {
+export async function openEditResidentPage(resident, options = {}) {
     if (!resident) return
 
-    // Edit Resident will reuse the resident form helpers in this module.
+    const { ilView = document.getElementById('iLView'), showResidentsView } = options
+    if (!ilView) return
+
+    const editResidentForm = await renderResidentForm(ilView, EDIT_RESIDENT_FORM_VIEW)
+    if (!editResidentForm) return
+
+    fillResidentForm(resident)
+    attachEnterToSubmit(editResidentForm)
+    attachEditSubmitHandler(editResidentForm, resident, { showResidentsView })
+    attachNavigationHandlers(showResidentsView)
+}
+
+function attachEditSubmitHandler(form, resident, options) {
+    const { showResidentsView } = options
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const errorEl = document.getElementById('ar-error')
+        errorEl.textContent = ''
+
+        const residentId = getResidentId(resident)
+        if (!residentId) {
+            errorEl.textContent = 'Unable to update resident. Missing resident ID.'
+            return
+        }
+
+        const values = getResidentFormValues()
+        const validationError = getResidentFormValidationError(values)
+
+        if (validationError) {
+            errorEl.textContent = validationError
+            return
+        }
+
+        const saveBtn = document.getElementById('ar-saveBtn')
+        setSubmitState(saveBtn, true)
+
+        try {
+            const payload = getResidentPayload(values)
+            const result = await updateData(`/residents/${residentId}`, payload)
+
+            if (result.success) {
+                await showResidentsView?.(1)
+            } else {
+                errorEl.textContent = 'Failed to update resident. Please try again.'
+                console.error(result.message)
+            }
+        } catch (err) {
+            errorEl.textContent = 'Failed to update resident. Please try again.'
+            console.error(err)
+        } finally {
+            setSubmitState(saveBtn, false)
+        }
+    })
+}
+
+function fillResidentForm(resident) {
+    const birthdate = parseBirthdate(resident.birthDate)
+
+    setInputValue('ar-firstName', resident.firstName)
+    setInputValue('ar-middleName', resident.middleName)
+    setInputValue('ar-lastName', resident.lastName)
+    setInputValue('ar-suffix', resident.suffix)
+    setInputValue('ar-address', resident.address)
+    setInputValue('ar-bday', birthdate.day)
+    setInputValue('ar-bmonth', birthdate.month)
+    setInputValue('ar-byear', birthdate.year)
+    setInputValue('ar-sex', resident.sex)
+    setInputValue('ar-sector', resident.sector)
+    setInputValue('ar-civilStatus', resident.civilStatus)
+}
+
+function setInputValue(id, value) {
+    const input = document.getElementById(id)
+    if (input) input.value = value ?? ''
+}
+
+function parseBirthdate(value) {
+    const [year = '', month = '', day = ''] = String(value ?? '').split('-')
+
+    return {
+        day: String(Number(day) || ''),
+        month: String(Number(month) || 1),
+        year
+    }
+}
+
+function getResidentId(resident) {
+    return resident.residentId ?? resident.ResidentId ?? resident.id
 }

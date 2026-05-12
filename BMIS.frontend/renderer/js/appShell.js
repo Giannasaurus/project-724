@@ -122,7 +122,8 @@ async function renderView(state, viewId) {
 
 async function showResidentsView(state) {
     const renderResidentData = data => loadData(data, {
-        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident)
+        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
+        showResidentsView: () => returnToResidentsView(state, state.currentPage)
     })
 
     await goToResidentsPage(state, state.currentPage)
@@ -145,7 +146,8 @@ async function goToResidentsPage(state, page) {
     }
 
     await loadData(data, {
-        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident)
+        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
+        showResidentsView: () => returnToResidentsView(state, state.currentPage)
     })
     renderPagination(state.currentPage, state.totalPages, nextPage => goToResidentsPage(state, nextPage))
 

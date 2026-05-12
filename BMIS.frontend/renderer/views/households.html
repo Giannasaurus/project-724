@@ -16,12 +16,19 @@
             <span>Household</span>
             <span>Head</span>
             <span>Members</span>
+            <span>Actions</span>
         </div>
         <div id="householdsList" class="households-list" aria-live="polite"></div>
     </section>
 
+    <section id="householdDetailsView" hidden>
+        <h2>Household Details</h2>
+        <button id="householdDetailsBackBtn" class="back-btn" type="button">&lt; Back</button>
+        <div id="householdDetailsContent" class="entity-detail-panel"></div>
+    </section>
+
     <section id="addHouseholdView" hidden>
-        <h2>Add Household</h2>
+        <h2 id="householdFormTitle">Add Household</h2>
         <button id="householdBackBtn" class="back-btn" type="button">&lt; Back</button>
 
         <form id="householdForm" class="household-form" novalidate>
@@ -67,4 +74,23 @@
             </div>
         </form>
     </section>
+
+    <dialog id="householdDeleteDialog" class="delete-confirm-dialog">
+        <div class="delete-dialog-header">
+            <h3>Delete Household?</h3>
+            <button id="householdDeleteCloseBtn" class="delete-dialog-x" type="button"
+                aria-label="Cancel delete">✖</button>
+        </div>
+        <div class="delete-dialog-body">
+            <h2>Are you sure?</h2>
+            <div class="delete-dialog-copy">
+                <p id="householdDeleteCopy">This household record will be removed.</p>
+            </div>
+            <p id="householdDeleteError" class="delete-dialog-error"></p>
+            <div class="delete-dialog-actions">
+                <button id="householdDeleteCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
+                <button id="householdDeleteConfirmBtn" class="delete-dialog-confirm" type="button">Delete</button>
+            </div>
+        </div>
+    </dialog>
 </div>

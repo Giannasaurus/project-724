@@ -112,7 +112,8 @@ tbody tr,
 .sub-main-nav-a,
 .filterOption,
 .dr-resident-result,
-.household-row {
+.household-row,
+.entity-action-btn {
     transition-delay: var(--hover-transition-delay);
     transition-duration: var(--hover-transition-duration);
     transition-property: background-color, border-color, box-shadow, color, opacity, transform;
@@ -770,12 +771,12 @@ dialog::backdrop {
 }
 
 #dataTable .col-name {
-    width: 19%;
+    width: 17%;
 }
 
 #dataTable .col-birthdate {
     color: #696969;
-    width: 13%;
+    width: 11%;
 }
 
 #dataTable .col-sex {
@@ -790,19 +791,19 @@ dialog::backdrop {
 
 #dataTable .col-civilstatus {
     color: #696969;
-    width: 14%;
+    width: 12%;
 }
 
 #dataTable .col-address {
     color: #696969;
-    width: 19%;
+    width: 14%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 #dataTable .col-action {
-    width: 8%;
+    width: 25%;
 }
 
 #dataTable td.col-action {
@@ -959,7 +960,7 @@ td {
 .households-list-header,
 .household-row {
     display: grid;
-    grid-template-columns: minmax(260px, 1.4fr) minmax(180px, 0.8fr) minmax(100px, 0.4fr);
+    grid-template-columns: minmax(220px, 1.3fr) minmax(160px, 0.8fr) minmax(90px, 0.4fr) minmax(210px, 0.9fr);
     gap: var(--gap-xl);
 }
 
@@ -978,6 +979,7 @@ td {
 .household-row {
     align-items: center;
     border-bottom: 1px solid #d3d3d3;
+    cursor: pointer;
     font-family: inherit;
     font-size: var(--font-size-base);
     min-height: 64px;
@@ -1012,6 +1014,117 @@ td {
 
 .household-row-main strong {
     color: var(--color-text);
+}
+
+.entity-row {
+    cursor: pointer;
+}
+
+.entity-row-actions,
+.entity-detail-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+    justify-content: flex-end;
+}
+
+.entity-action-btn {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    min-height: 36px;
+    padding: 6px 10px;
+    white-space: nowrap;
+}
+
+.entity-action-btn:hover,
+.entity-action-btn:focus-visible {
+    background-color: var(--color-bg-hover);
+}
+
+.entity-action-btn--danger {
+    border-color: var(--color-dangerous);
+    color: var(--color-dangerous);
+}
+
+.entity-action-btn--danger:hover,
+.entity-action-btn--danger:focus-visible {
+    background-color: rgba(255, 0, 0, 0.08);
+}
+
+.entity-action-btn:disabled {
+    border-color: var(--color-deactivated);
+    color: var(--color-bg-btn-disabled);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.entity-detail-view,
+#householdDetailsView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+#householdDetailsView[hidden] {
+    display: none;
+}
+
+.entity-detail-panel {
+    border-top: 1px solid #d3d3d3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+    padding-top: var(--gap-xl);
+}
+
+.entity-detail-header {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--gap-xl);
+    justify-content: space-between;
+}
+
+.entity-detail-header h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--gap-sm);
+}
+
+.entity-detail-header p,
+.entity-detail-grid dd,
+.entity-detail-list {
+    color: var(--color-text-muted);
+}
+
+.entity-detail-grid {
+    display: grid;
+    gap: var(--gap-lg);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.entity-detail-grid div {
+    border-bottom: 1px solid #e5e5e2;
+    padding-bottom: var(--gap-lg);
+}
+
+.entity-detail-grid dt {
+    font-weight: 600;
+    margin-bottom: var(--gap-xs);
+}
+
+.entity-detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.entity-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
 }
 
 .household-form {
@@ -1504,7 +1617,8 @@ tbody tr:hover .ellipsis-btn,
    DELETE CONFIRMATION DIALOG
    ============================================================ */
 
-#deleteConfirmDialog {
+#deleteConfirmDialog,
+.delete-confirm-dialog {
     width: min(680px, calc(100vw - 40px));
     min-height: 0;
     padding: var(--gap-xl);

@@ -1,6 +1,17 @@
 import { deleteData, getData } from '../../core/api.js'
 import { openEditResidentPage } from './residentForm.js'
 
+const SEX_LABELS = { 0: 'Male', 1: 'Female' }
+const SECTOR_LABELS = { 0: 'General', 1: 'Senior', 2: 'PWD' }
+const CIVIL_STATUS_LABELS = {
+    0: 'Single',
+    1: 'Married',
+    2: 'Widowed',
+    3: 'Divorced',
+    4: 'Annulled',
+    5: 'Legally Separated'
+}
+
 /* ============================================================
    SEARCH INPUT
    ============================================================ */
@@ -77,12 +88,15 @@ async function processSearchQuery(query, renderData) {
  * 
  */
 
-function openDeleteDialog(resident) {
+function openDeleteDialog(resident, options = {}) {
     const dialog = document.getElementById('deleteConfirmDialog')
     const closeBtn = document.getElementById('deleteDialogCloseBtn')
     const cancelBtn = document.getElementById('deleteDialogCancelBtn')
     const confirmBtn = document.getElementById('deleteDialogConfirmBtn')
     const errorEl = document.getElementById('deleteDialogError')
+    const titleEl = dialog?.querySelector('.delete-dialog-header h3')
+    const headingEl = dialog?.querySelector('.delete-dialog-body h2')
+    const copyEl = dialog?.querySelector('.delete-dialog-copy p')
     const residentId = getResidentId(resident)
 
     if (!dialog || !closeBtn || !cancelBtn || !confirmBtn || !errorEl) return
@@ -129,8 +143,7 @@ function openDeleteDialog(resident) {
         if (result?.success) {
             // options.addDeletedHistoryLog?.(resident)
             closeDialog()
-            const freshData = await getData('/residents/filter?from=0&limit=50')
-            await loadData(freshData)
+            await options.onDeleted?.()
             return
         }
 
@@ -141,36 +154,26 @@ function openDeleteDialog(resident) {
     }
 
     errorEl.textContent = ''
+    if (titleEl) titleEl.textContent = 'Delete resident?'
+    if (headingEl) headingEl.textContent = 'Are you sure?'
+    if (copyEl) copyEl.textContent = `This will remove ${getResidentFullName(resident)} from the residents list.`
     confirmBtn.disabled = false
     confirmBtn.textContent = 'Delete'
     dialog.showModal()
 }
 
 function getFieldNames() {
-    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", ""]
+    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address", "Actions"]
 }
 
 function getCells(resident) {
-    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    const fullName = `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix}`
-    const sexes = { 0: "Male", 1: "Female" }
-    const sectors = { 0: "General", 1: "Senior", 2: "PWD" }
-    const civilStatuses = {
-        0: "Single",
-        1: "Married",
-        2: "Widowed",
-        3: "Divorced",
-        4: "Annulled",
-        5: "Legally Separated"
-    }
-
     return [
-        { value: fullName, class: 'col-name' },
+        { value: getResidentFullName(resident), class: 'col-name' },
         // { value: resident.suffix, class: 'col-suffix' },
         { value: resident.birthDate, class: 'col-birthdate' },
-        { value: sexes[resident.sex], class: 'col-sex' },
-        { value: sectors[resident.sector], class: 'col-sector' },
-        { value: civilStatuses[resident.civilStatus], class: 'col-civilstatus' },
+        { value: SEX_LABELS[resident.sex], class: 'col-sex' },
+        { value: SECTOR_LABELS[resident.sector], class: 'col-sector' },
+        { value: CIVIL_STATUS_LABELS[resident.civilStatus], class: 'col-civilstatus' },
         { value: resident.address, class: 'col-address' }
     ]
 }
@@ -241,6 +244,14 @@ export async function loadData(result, options = {}) {
     result.data.forEach(resident => {
         const cells = getCells(resident)
         const row = document.createElement('tr')
+        row.className = 'entity-row'
+        row.tabIndex = 0
+        row.addEventListener('click', () => openResidentDetails(resident, options))
+        row.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return
+            e.preventDefault()
+            openResidentDetails(resident, options)
+        })
 
         cells.forEach(cell => {
             const td = document.createElement('td')
@@ -249,51 +260,9 @@ export async function loadData(result, options = {}) {
             row.appendChild(td)
         })
 
-        // make action button + context menu
         const actionTd = document.createElement('td')
         actionTd.className = 'col-action'
-        actionTd.innerHTML = `
-            <div class="row-action">
-                <button class="ellipsis-btn">•••</button>
-                <div class="context-menu">
-                    <button class="edit-btn">Edit</button>
-                    <button class="document-request-btn" type="button">Document Request</button>
-                    <hr class="context-menu-divider">
-                    <button class="delete-btn" type="button">Delete</button>
-                </div>
-            </div>
-        `
-        actionTd.querySelector('.ellipsis-btn').addEventListener('click', (e) => {
-            e.stopPropagation()
-            const rowAction = actionTd.querySelector('.row-action')
-            const isOpen = rowAction.classList.contains('open')
-            document.querySelectorAll('.row-action.open').forEach(el => el.classList.remove('open'))
-            if (!isOpen) rowAction.classList.add('open')
-        })
-
-        const deleteBtn = actionTd.querySelector('.delete-btn')
-        deleteBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            actionTd.querySelector('.row-action').classList.remove('open')
-            openDeleteDialog(resident)
-        })
-
-        const editBtn = actionTd.querySelector('.edit-btn')
-        editBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            actionTd.querySelector('.row-action').classList.remove('open')
-            openEditResidentPage(resident)
-        })
-
-        const documentRequestBtn = actionTd.querySelector('.document-request-btn')
-        documentRequestBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            actionTd.querySelector('.row-action').classList.remove('open')
-            options.onDocumentRequest?.(resident)
-        })
+        actionTd.appendChild(createResidentActions(resident, options))
 
         row.appendChild(actionTd)
         tableBody.appendChild(row)
@@ -301,4 +270,94 @@ export async function loadData(result, options = {}) {
 
     table.append(colGroup, tableHeader, tableBody)
     dataContainer.appendChild(table)
+}
+
+function createResidentActions(resident, options, actionOptions = {}) {
+    const actions = document.createElement('div')
+    actions.className = 'entity-row-actions'
+    const buttons = [
+        createActionButton('Edit', 'entity-action-btn', () => openEditResidentPage(resident, options)),
+        createActionButton('Document Request', 'entity-action-btn', () => options.onDocumentRequest?.(resident)),
+        createActionButton('Delete', 'entity-action-btn entity-action-btn--danger', () => {
+            openDeleteDialog(resident, {
+                onDeleted: options.showResidentsView
+            })
+        })
+    ]
+
+    if (actionOptions.includeView !== false) {
+        buttons.unshift(createActionButton('View', 'entity-action-btn', () => openResidentDetails(resident, options)))
+    }
+
+    actions.append(...buttons)
+
+    return actions
+}
+
+function createActionButton(label, className, onClick) {
+    const button = document.createElement('button')
+
+    button.className = className
+    button.type = 'button'
+    button.textContent = label
+    button.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onClick()
+    })
+
+    return button
+}
+
+function openResidentDetails(resident, options = {}) {
+    const iLView = document.getElementById('iLView')
+    if (!iLView) return
+
+    const deleteDialog = document.getElementById('deleteConfirmDialog')
+    iLView.innerHTML = ''
+
+    const detailsView = document.createElement('section')
+    detailsView.className = 'entity-detail-view'
+    detailsView.innerHTML = `
+        <h2>Resident Details</h2>
+        <button class="back-btn" type="button">&lt; Back</button>
+        <div class="entity-detail-panel">
+            <div class="entity-detail-header">
+                <div>
+                    <h3>${escapeHtml(getResidentFullName(resident))}</h3>
+                    <p>${escapeHtml(resident.address ?? 'No address recorded')}</p>
+                </div>
+                <div class="entity-detail-actions"></div>
+            </div>
+            <dl class="entity-detail-grid">
+                <div><dt>Birthdate</dt><dd>${escapeHtml(resident.birthDate ?? 'Not specified')}</dd></div>
+                <div><dt>Sex</dt><dd>${escapeHtml(SEX_LABELS[resident.sex] ?? 'Unknown')}</dd></div>
+                <div><dt>Sector</dt><dd>${escapeHtml(SECTOR_LABELS[resident.sector] ?? 'Unknown')}</dd></div>
+                <div><dt>Civil Status</dt><dd>${escapeHtml(CIVIL_STATUS_LABELS[resident.civilStatus] ?? 'Unknown')}</dd></div>
+                <div><dt>Resident ID</dt><dd>${escapeHtml(String(getResidentId(resident) ?? 'Not available'))}</dd></div>
+            </dl>
+        </div>
+    `
+
+    detailsView.querySelector('.back-btn').addEventListener('click', () => options.showResidentsView?.())
+    detailsView.querySelector('.entity-detail-actions').appendChild(createResidentActions(resident, options, {
+        includeView: false
+    }))
+    iLView.appendChild(detailsView)
+    if (deleteDialog) iLView.appendChild(deleteDialog)
+}
+
+function getResidentFullName(resident) {
+    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
+    return `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix ?? ''}`.trim()
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    })[char])
 }
