@@ -6,7 +6,7 @@ namespace BMIS.Models.Entities;
 
 public class Resident {
     [Key]
-    public int ResidentId { get; set; }
+    public int Id { get; set; }
     public required string FirstName { get; set; }
     public string? MiddleName { get; set; }
     public required string LastName { get; set; }

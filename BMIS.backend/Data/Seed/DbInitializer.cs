@@ -8,7 +8,7 @@ public static class DbInitializer {
             
             int resId = 1;
             var residentFaker = new Faker<Resident>()
-                .RuleFor(r => r.ResidentId, f => resId++) 
+                .RuleFor(r => r.Id, f => resId++) 
                 .RuleFor(r => r.FirstName, f => f.Name.FirstName())
                 .RuleFor(r => r.MiddleName, f => f.Name.LastName())
                 .RuleFor(r => r.LastName, f => f.Name.LastName())

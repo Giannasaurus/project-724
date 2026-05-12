@@ -97,7 +97,7 @@ public class ResidentService : IResidentService, ISearchable {
             return ResultStatus.Conflict; 
         }
         
-        return resident.ResidentId;
+        return resident.Id;
     }
 
     /*
