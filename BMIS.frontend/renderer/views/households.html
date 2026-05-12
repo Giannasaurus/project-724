@@ -1,3 +1,46 @@
 <div id="householdsView">
-    <h2>Households</h2>
+    <div class="households-header">
+        <div>
+            <h2>Households</h2>
+            <p>Grouped resident addresses and manually added household records.</p>
+        </div>
+        <button id="addHouseholdBtn" class="households-primary-btn" type="button">Add household</button>
+    </div>
+
+    <div class="households-toolbar">
+        <input id="householdSearch" type="text" placeholder="Search household name or address">
+    </div>
+
+    <div class="households-list-header">
+        <span>Household</span>
+        <span>Head</span>
+        <span>Members</span>
+    </div>
+    <div id="householdsList" class="households-list" aria-live="polite"></div>
+
+    <dialog id="householdDialog" class="household-dialog">
+        <div class="household-dialog-header">
+            <h3>Add Household</h3>
+            <button id="householdDialogCloseBtn" class="delete-dialog-x" type="button" aria-label="Close household form">✖</button>
+        </div>
+        <form id="householdForm" class="household-form" novalidate>
+            <div class="household-form-group">
+                <label for="householdNameInput">Household name <span class="required">*</span></label>
+                <input id="householdNameInput" type="text" placeholder="e.g. 122A-Clara">
+            </div>
+            <div class="household-form-group">
+                <label for="householdHeadInput">Household head</label>
+                <input id="householdHeadInput" type="text" placeholder="Optional">
+            </div>
+            <div class="household-form-group">
+                <label for="householdAddressInput">Address <span class="required">*</span></label>
+                <input id="householdAddressInput" type="text" placeholder="House number, street, barangay">
+            </div>
+            <p id="householdFormError" class="household-form-error" aria-live="polite"></p>
+            <div class="household-dialog-actions">
+                <button id="householdCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
+                <button class="households-primary-btn" type="submit">Save</button>
+            </div>
+        </form>
+    </dialog>
 </div>

@@ -111,7 +111,8 @@ tbody tr,
 .sub-main-nav-li,
 .sub-main-nav-a,
 .filterOption,
-.dr-resident-result {
+.dr-resident-result,
+.household-row {
     transition-delay: var(--hover-transition-delay);
     transition-duration: var(--hover-transition-duration);
     transition-property: background-color, border-color, box-shadow, color, opacity, transform;
@@ -886,6 +887,168 @@ td {
 
 .history-empty {
     color: var(--color-text-muted);
+}
+
+/* ============================================================
+   HOUSEHOLDS
+   ============================================================ */
+
+#householdsView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+.households-header {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-xl);
+}
+
+.households-header h2 {
+    margin-bottom: var(--gap-xs);
+}
+
+.households-header p,
+.households-empty {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.households-toolbar {
+    display: flex;
+    max-width: 640px;
+}
+
+.households-toolbar input {
+    width: 100%;
+}
+
+.households-primary-btn {
+    align-items: center;
+    background-color: var(--color-accent);
+    border-radius: var(--radius-md);
+    color: var(--color-white);
+    display: inline-flex;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    justify-content: center;
+    min-height: 42px;
+    padding: var(--gap-md) var(--gap-lg);
+    white-space: nowrap;
+}
+
+.households-primary-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.households-list-header,
+.household-row {
+    display: grid;
+    grid-template-columns: minmax(260px, 1.4fr) minmax(180px, 0.8fr) minmax(100px, 0.4fr);
+    gap: var(--gap-xl);
+}
+
+.households-list-header {
+    border-bottom: 2px solid var(--color-text);
+    color: var(--color-text);
+    font-weight: 600;
+    padding: 0 16px 12px;
+}
+
+.households-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.household-row {
+    align-items: center;
+    border-bottom: 1px solid #d3d3d3;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-height: 64px;
+    padding: 12px 16px;
+    text-align: left;
+    width: 100%;
+}
+
+.household-row:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.household-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.household-row-main strong,
+.household-row-main small,
+.household-row span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.household-row-main small,
+.household-row span {
+    color: var(--color-text-muted);
+}
+
+.household-row-main strong {
+    color: var(--color-text);
+}
+
+.household-dialog {
+    width: min(620px, calc(100vw - 40px));
+}
+
+.household-dialog-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--gap-xl);
+}
+
+.household-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg);
+}
+
+.household-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+}
+
+.household-form-error {
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    min-height: 1rem;
+}
+
+.household-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-md);
+}
+
+@media (max-width: 860px) {
+    .households-header {
+        flex-direction: column;
+    }
+
+    .households-list-header {
+        display: none;
+    }
+
+    .household-row {
+        grid-template-columns: 1fr;
+        gap: var(--gap-sm);
+    }
 }
 
 /* ============================================================

@@ -3,6 +3,7 @@ import { loadView } from './core/viewLoader.js'
 import { loadHistory, addResidentHistoryLog } from './features/activityLog/activityLogPage.js'
 import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
 import { renderHomeSummary } from './features/home/homePage.js'
+import { initHouseholdsPage } from './features/households/householdsPage.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
 import { handleSearchInput, loadData } from './features/residents/residentsPage.js'
 import { renderPagination } from './features/residents/residentsPagination.js'
@@ -23,7 +24,8 @@ const views = {
         afterRender: showResidentsView
     },
     household: {
-        file: 'views/households.html'
+        file: 'views/households.html',
+        afterRender: initHouseholdsPage
     },
     templates: {
         file: 'views/document-requests.html',
