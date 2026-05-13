@@ -9,5 +9,6 @@ public record ResidentCreateDto (
     Sector sector,
     Sex sex,
     CivilStatus civilStatus,
-    string address
+    string address,
+    string contact
 );

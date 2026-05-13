@@ -9,5 +9,6 @@ public record ResidentUpdateDto (
     Sector? sector,
     Sex? sex,
     CivilStatus? civilStatus,
-    string? address
+    string? address,
+    string? contact
 );
