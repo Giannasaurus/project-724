@@ -17,40 +17,37 @@ public class TransactionService : ITransactionService {
     }
 
 
-    /*
-     *  TODO:
-     *      refactor this
-     *
-     */
     public async Task<Result<List<Transaction>>> GetFiltered(TransactionFilterCriteria criteria) {
         var transactions = _db.Transactions.AsNoTracking();
-
-        if(criteria.type != null && criteria.type.Length > 0) {
-            var selected = criteria.type
-                .Select(t => Enum.TryParse<DocumentType>(t, true, out DocumentType parsed) ? parsed : (DocumentType?)null)
-                .Where(t => t.HasValue)
-                .Select(t => t!.Value)
-                .ToList();
-            
-            transactions = transactions.Where(t => selected.Contains(t.DocumentType));
-        }
         
-        if(criteria.status != null && criteria.status.Length > 0) {
-            var selected = criteria.status
-                .Select(t => Enum.TryParse<TransactionStatus>(t, true, out TransactionStatus parsed) ? parsed : (TransactionStatus?)null)
-                .Where(t => t.HasValue)
-                .Select(t => t!.Value)
-                .ToList();
-            
-            transactions = transactions.Where(t => selected.Contains(t.Status));
-        }
-
         if(criteria.from != null) {
             transactions = transactions.Where(t => t.Date <= criteria.from);
         }
         
         if(criteria.to != null) {
             transactions = transactions.Where(t => t.Date >= criteria.to);
+        }
+
+        if(criteria.type != null && criteria.type.Length > 0) {
+            HashSet<DocumentType> filter = new HashSet<DocumentType>();
+            foreach(string entry in criteria.type) {
+                if(Enum.TryParse<DocumentType>(entry, true, out DocumentType parsed)) {
+                    filter.Add(parsed);
+                }
+            }
+            
+            transactions = transactions.Where(t => filter.Contains(t.DocumentType));
+        }
+        
+        if(criteria.status != null && criteria.status.Length > 0) {
+            HashSet<TransactionStatus> filter = new HashSet<TransactionStatus>();
+            foreach(string entry in criteria.status) {
+                if(Enum.TryParse<TransactionStatus>(entry, true, out TransactionStatus parsed)) {
+                    filter.Add(parsed);
+                }
+            }
+            
+            transactions = transactions.Where(t => filter.Contains(t.Status));
         }
 
         switch(criteria.order) {
