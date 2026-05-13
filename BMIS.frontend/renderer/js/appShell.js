@@ -11,6 +11,7 @@ import { getResidentQueryParams, searchResidentsByName } from './features/reside
 
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 const DEFAULT_PAGE_SIZE = 50
+const DEFAULT_VIEW = 'home'
 
 const views = {
     home: {
@@ -64,7 +65,7 @@ export async function loadApp(app) {
     await loadView('views/app.html', app)
 
     const state = {
-        currentView: 'inhabitantList',
+        currentView: DEFAULT_VIEW,
         currentPage: 1,
         totalPages: 1,
         residentFilters: {},
@@ -74,7 +75,7 @@ export async function loadApp(app) {
 
     bindNav(state, app)
     bindSettingsDialog()
-    await renderView(state, 'inhabitantList')
+    await renderView(state, DEFAULT_VIEW)
 }
 
 function bindNav(state, app) {
