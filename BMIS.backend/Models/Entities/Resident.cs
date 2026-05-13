@@ -65,6 +65,17 @@ public class Resident {
     }
 
     public override string ToString(){
-        return $"{LastName}, {FirstName} {MiddleName[0]}., {Suffix}";
+        string name = $"{LastName}, {FirstName}";
+        
+        if(!string.IsNullOrEmpty(MiddleName)) {
+            name += $" {MiddleName[0]}.";
+        }
+
+        if(!string.IsNullOrEmpty(Suffix)) {
+            name += $", {Suffix}";
+        }
+
+
+        return name;
     }
 }
