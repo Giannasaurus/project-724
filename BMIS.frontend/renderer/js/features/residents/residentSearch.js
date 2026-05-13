@@ -1,4 +1,4 @@
-import { getData, postData } from '../../core/api.js'
+import { getData } from '../../core/api.js'
 
 export async function searchResidentsByName(query, options = {}) {
     const trimmedQuery = query?.trim() ?? ''
@@ -13,15 +13,6 @@ export async function searchResidentsByName(query, options = {}) {
         }
     }
 
-    const searchResult = await postData(`/residents/search?${getResidentQueryParams({ from, limit, filters }).toString()}`, {
-        name: trimmedQuery
-    })
-
-    if (searchResult?.success && Array.isArray(searchResult.data)) {
-        return searchResult
-    }
-
-    console.error(searchResult?.message ?? 'Resident search endpoint failed.')
     return searchResidentsByNameFields(trimmedQuery, { from, limit, filters })
 }
 
