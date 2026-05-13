@@ -635,6 +635,22 @@ dialog::backdrop {
     justify-content: space-between;
 }
 
+#filterDialogCloseBtn {
+    aspect-ratio: 1;
+    flex: 0 0 36px;
+    height: 36px;
+    max-height: 36px;
+    max-width: 36px;
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0;
+    width: 36px;
+}
+
+#filterDialogCloseBtn:hover {
+    border-radius: var(--radius-sm);
+}
+
 #iLView .filterMenuOptions {
     display: grid;
     gap: var(--gap-xl);
@@ -702,6 +718,57 @@ dialog::backdrop {
     display: flex;
     gap: var(--gap-sm);
     height: auto;
+}
+
+#iLView .filterSection label {
+    cursor: pointer;
+}
+
+#iLView .filterSection input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--color-bg-input);
+    border: var(--input-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: grid;
+    flex: 0 0 auto;
+    height: 22px;
+    margin: 0;
+    max-height: 22px;
+    max-width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    padding: 0;
+    place-content: center;
+    transition: background-color var(--hover-transition-duration) var(--hover-transition-timing),
+        border-color var(--hover-transition-duration) var(--hover-transition-timing);
+    width: 22px;
+}
+
+#iLView .filterSection input[type="checkbox"]::before {
+    background-color: var(--color-white);
+    clip-path: polygon(14% 44%, 0 58%, 38% 96%, 100% 20%, 86% 8%, 36% 68%);
+    content: "";
+    height: 12px;
+    transform: scale(0);
+    transform-origin: center;
+    transition: transform var(--hover-transition-duration) var(--hover-transition-timing);
+    width: 14px;
+}
+
+#iLView .filterSection input[type="checkbox"]:checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+#iLView .filterSection input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+#iLView .filterSection input[type="checkbox"]:hover {
+    border-color: var(--color-accent);
 }
 
 .filter-range-row {
