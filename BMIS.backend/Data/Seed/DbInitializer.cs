@@ -32,7 +32,7 @@ public static class DbInitializer {
                 .RuleFor(t => t.Id, f => transId++)
                 .RuleFor(t => t.RequesterId, f => f.Random.Number(1, 2000))
                 .RuleFor(t => t.HandlerId, f => f.Random.Number(1, 9))
-                .RuleFor(t => t.TypeOfDocument, f => f.PickRandom<DocumentType>())
+                .RuleFor(t => t.DocumentType, f => f.PickRandom<DocumentType>())
                 .RuleFor(t => t.Status, f => f.PickRandom<TransactionStatus>())
                 .RuleFor(t => t.Date, f => f.Date.Past(20));
 

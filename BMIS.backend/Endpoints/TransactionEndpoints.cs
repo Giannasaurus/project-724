@@ -29,14 +29,13 @@ public static class TransactionEndpoints {
         return TypedResults.Ok(results.value);
     }
 
-    public static async Task<IResult> Create(Transaction transaction, ITransactionService transactionService) {
-        var results = await transactionService.Create(transaction);
+    public static async Task<IResult> Create(TransactionCreateDto details, ITransactionService transactionService) {
+        var results = await transactionService.Create(details);
 
         return TypedResults.Created($"transactions/{results.value}");
-    
     }
     
-    public static async Task<IResult> Update(int id, Transaction changes, ITransactionService transactionService) {
+    public static async Task<IResult> Update(int id, TransactionUpdateDto changes, ITransactionService transactionService) {
         var results = await transactionService.Update(id, changes);
         
         if(results.code == ResultStatus.NotFound) {

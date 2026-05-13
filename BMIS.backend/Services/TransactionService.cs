@@ -32,7 +32,7 @@ public class TransactionService : ITransactionService {
                 .Select(t => t!.Value)
                 .ToList();
             
-            transactions = transactions.Where(t => selected.Contains(t.TypeOfDocument));
+            transactions = transactions.Where(t => selected.Contains(t.DocumentType));
         }
         
         if(criteria.status != null && criteria.status.Length > 0) {
@@ -73,32 +73,28 @@ public class TransactionService : ITransactionService {
         return results;
     }
 
-    public async Task<Result<int>> Create(Transaction transaction) {
-    
+    public async Task<Result<int>> Create(TransactionCreateDto details) {
+       Transaction transaction = new Transaction(details);    
+
         _db.Transactions.Add(transaction);
-        await _db.SaveChangesAsync();
+        
+        try {
+            await _db.SaveChangesAsync();
+            Console.WriteLine("[~] save successful");
+        } catch (DbUpdateException e) {
+            Console.WriteLine($"[!] problem saving {string.Join(" ", e.Entries)}");
+            return ResultStatus.Conflict; 
+        }
 
         return transaction.Id;
     }
    
-
-    /*
-     * TODO: 
-     *  refactor this and create a TransactionUpdateDto
-     *
-     */
-    public async Task<Result<Transaction>> Update(int id, Transaction changes) {
+    public async Task<Result<Transaction>> Update(int id, TransactionUpdateDto changes) {
         var transaction = await _db.Transactions.FindAsync(id);
 
         if(transaction is null) {
             return ResultStatus.NotFound;
         }
-
-        transaction.RequesterId = changes.RequesterId;
-        transaction.HandlerId = changes.HandlerId;
-        transaction.TypeOfDocument = changes.TypeOfDocument;
-        transaction.Status = changes.Status;
-        transaction.Date = changes.Date;
 
         return transaction;
     }
