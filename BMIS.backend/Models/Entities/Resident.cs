@@ -19,6 +19,7 @@ public class Resident {
     public string Address { get; set; }
     public string Contact { get; set; }
 
+    [SetsRequiredMembers]
     public Resident(
         string firstName,
         string? middleName,
