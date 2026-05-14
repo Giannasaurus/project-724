@@ -1,42 +1,98 @@
 <div id="homeView">
-    <h2>Home</h2>
+    <section class="home-hero">
+        <p class="home-eyebrow">Barangay overview</p>
+        <h1>Home</h1>
+        <p class="home-subtitle">Quick resident, sector, and document activity summary for Barangay 724.</p>
+    </section>
+
     <div id="summaryWrapper">
-        <div id="chartContainer">
-            <p>SOME CHART HERE</p>
-        </div>
+        <section id="chartContainer" class="home-panel" aria-label="Resident summary">
+            <div class="panel-header">
+                <div>
+                    <p class="panel-kicker">Residents</p>
+                    <h3>Population Summary</h3>
+                </div>
+                <span id="homePopulationHealth" class="panel-pill">Loading</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong id="totalInhabitants" class="hero-stat__value">0</strong>
+                <span class="hero-stat__label">Total residents</span>
+            </div>
+
+            <div class="home-chart">
+                <div class="chart-row">
+                    <div class="chart-row__meta">
+                        <strong>Males</strong>
+                        <span id="totalMales">0</span>
+                    </div>
+                    <div class="chart-track" aria-hidden="true">
+                        <span id="maleChartBar" class="chart-bar chart-bar--male"></span>
+                    </div>
+                </div>
+
+                <div class="chart-row">
+                    <div class="chart-row__meta">
+                        <strong>Females</strong>
+                        <span id="totalFemales">0</span>
+                    </div>
+                    <div class="chart-track" aria-hidden="true">
+                        <span id="femaleChartBar" class="chart-bar chart-bar--female"></span>
+                    </div>
+                </div>
+
+                <div class="chart-row">
+                    <div class="chart-row__meta">
+                        <strong>PWDs and Seniors</strong>
+                        <span id="totalSectorsSecondary">0</span>
+                    </div>
+                    <div class="chart-track" aria-hidden="true">
+                        <span id="sectorChartBar" class="chart-bar chart-bar--sector"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div id="tallyContainer">
             <div id="tally-1" class="tally-box">
-                <p id="totalSectors">0</p>
-                <p>PWDs and Seniors</p>
+                <strong id="totalSectors">0</strong>
+                <span class="tally-box__label">PWDs and Seniors</span>
             </div>
             <div id="tally-2" class="tally-box">
-                <p id="totalMales">0</p>
-                <p>Males</p>
+                <strong id="totalMalesCard">0</strong>
+                <span class="tally-box__label">Males</span>
             </div>
             <div id="tally-3" class="tally-box">
-                <p id="totalFemales">0</p>
-                <p>Females</p>
+                <strong id="totalFemalesCard">0</strong>
+                <span class="tally-box__label">Females</span>
             </div>
             <div id="tally-4" class="tally-box">
-                <p id="totalRegisteredVoters">0</p>
-                <p>Registered Voters</p>
+                <strong id="totalRegisteredVoters">0</strong>
+                <span class="tally-box__label">Registered Voters</span>
             </div>
         </div>
+
         <div id="dailyReportContainer">
             <div class="daily-report" id="newInhabitantsContainer">
                 <img class="daily-report-icon" src="../assets/icons/home/population.svg" alt="Total population icon">
-                <p>New inhabitants today</p>
-                <p class="daily-report-p" id="newInhabitants">0</p>
+                <div>
+                    <span class="daily-report__label">New inhabitants today</span>
+                    <strong class="daily-report__value" id="newInhabitants">0</strong>
+                </div>
             </div>
             <div class="daily-report" id="newRequestedContainer">
                 <img class="daily-report-icon" src="../assets/icons/home/legal-document.svg" alt="Legal document icon">
-                <p>New requested today</p>
-                <p class="daily-report-p" id="newRequested">0</p>
+                <div>
+                    <span class="daily-report__label">New requested today</span>
+                    <strong class="daily-report__value" id="newRequested">0</strong>
+                </div>
             </div>
             <div class="daily-report" id="totalHouseholdsContainer">
                 <img class="daily-report-icon" src="../assets/icons/home/household.svg" alt="Household icon">
-                <p>New idk</p>
-                <p class="daily-report-p" id="totalHouseholds">0</p>
+                <div>
+                    <span class="daily-report__label">Estimated households</span>
+                    <strong class="daily-report__value" id="totalHouseholds">0</strong>
+                </div>
             </div>
         </div>
     </div>
