@@ -10,6 +10,7 @@ function getResidentId(resident) {
 function getHistoryActivity(type) {
     const activities = {
         'resident-added': 'Added resident',
+        'resident-updated': 'Updated resident',
         'resident-deleted': 'Deleted resident'
     }
 
@@ -53,6 +54,22 @@ export function addResidentDeletedHistoryLog(key, resident) {
     const log = {
         id: `${Date.now()}-${residentId}`,
         type: 'resident-deleted',
+        residentId,
+        residentName: getResidentFullName(resident),
+        address: resident.address,
+        createdAt: new Date().toISOString()
+    }
+
+    history.unshift(log)
+    writeResidentHistory(key, history.slice(0, 100))
+}
+
+export function addResidentUpdatedHistoryLog(key, resident) {
+    const history = readResidentHistory(key)
+    const residentId = getResidentId(resident)
+    const log = {
+        id: `${Date.now()}-${residentId}`,
+        type: 'resident-updated',
         residentId,
         residentName: getResidentFullName(resident),
         address: resident.address,

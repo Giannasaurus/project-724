@@ -205,7 +205,7 @@ function setSubmitState(button, isSaving) {
 export async function openEditResidentPage(resident, options = {}) {
     if (!resident) return
 
-    const { ilView = document.getElementById('iLView'), showResidentsView } = options
+    const { ilView = document.getElementById('iLView'), addUpdatedHistoryLog, showResidentsView } = options
     if (!ilView) return
 
     const editResidentForm = await renderResidentForm(ilView, EDIT_RESIDENT_FORM_VIEW)
@@ -213,12 +213,12 @@ export async function openEditResidentPage(resident, options = {}) {
 
     fillResidentForm(resident)
     attachEnterToSubmit(editResidentForm)
-    attachEditSubmitHandler(editResidentForm, resident, { showResidentsView })
+    attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
 
 function attachEditSubmitHandler(form, resident, options) {
-    const { showResidentsView } = options
+    const { addUpdatedHistoryLog, showResidentsView } = options
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
@@ -247,6 +247,7 @@ function attachEditSubmitHandler(form, resident, options) {
             const result = await updateData(`/residents/${residentId}`, payload)
 
             if (result.success) {
+                addUpdatedHistoryLog?.({ ...resident, ...payload })
                 await showResidentsView?.(1)
             } else {
                 errorEl.textContent = 'Failed to update resident. Please try again.'

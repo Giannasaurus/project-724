@@ -1,6 +1,11 @@
 import { checkLogin, getData } from './core/api.js'
 import { loadView } from './core/viewLoader.js'
-import { loadHistory, addResidentHistoryLog } from './features/activityLog/activityLogPage.js'
+import {
+    loadHistory,
+    addResidentDeletedHistoryLog,
+    addResidentHistoryLog,
+    addResidentUpdatedHistoryLog
+} from './features/activityLog/activityLogPage.js'
 import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
 import { renderHomeSummary } from './features/home/homePage.js'
 import { initHouseholdsPage } from './features/households/householdsPage.js'
@@ -183,6 +188,8 @@ async function goToResidentsPage(state, page) {
     }
 
     await loadData(data, {
+        addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident),
+        addUpdatedHistoryLog: resident => addResidentUpdatedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
         showResidentsView: () => returnToResidentsView(state, state.currentPage)
     })

@@ -310,7 +310,7 @@ function openDeleteDialog(resident, options = {}) {
         }
 
         if (result?.success) {
-            // options.addDeletedHistoryLog?.(resident)
+            options.addDeletedHistoryLog?.(resident)
             closeDialog()
             await options.onDeleted?.()
             return
@@ -469,6 +469,7 @@ function createResidentActions(resident, options, actionOptions = {}) {
         createActionButton('Document Request', 'entity-action-btn', () => options.onDocumentRequest?.(resident)),
         createActionButton('Delete', 'entity-action-btn entity-action-btn--danger', () => {
             openDeleteDialog(resident, {
+                addDeletedHistoryLog: options.addDeletedHistoryLog,
                 onDeleted: options.showResidentsView
             })
         })
