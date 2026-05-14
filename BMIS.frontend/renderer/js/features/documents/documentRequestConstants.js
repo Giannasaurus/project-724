@@ -16,7 +16,7 @@ export const REASON_OPTIONS = {
     },
     financial: {
         label: 'Financial Assistance',
-        checkboxIds: ['option-finance-asst']
+        checkboxIds: ['option-medical-asst']
     },
     food: {
         label: 'Food Assistance',

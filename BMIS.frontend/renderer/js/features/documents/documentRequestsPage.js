@@ -58,7 +58,18 @@ async function handleDocumentSubmit(event) {
     const isReady = pageState.currentDocumentHtml || await previewDocument()
     if (!isReady) return
 
-    downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName())
+    try {
+        await downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName(), {
+            documentType: getDocumentType(),
+            resident: pageState.selectedResident,
+            reasonType: getReasonType(),
+            otherReason: getOtherReason()
+        })
+    }
+    catch (error) {
+        console.error(error)
+        setPageError('Failed to save document. Please try again.')
+    }
 }
 
 function clearResidentSearch() {

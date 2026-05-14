@@ -52,7 +52,7 @@ public static class DocumentEndpoints {
                            .Replace("{{civilStatus}}", data.CivilStatus.ToString())
                            .Replace("{{address}}", data.Address)
                            .Replace("{{pronoun}}", data.Sex == Sex.Male ? "he" : "she")
-                           .Replace("{{pronoun2}}", data.Sex == Sex.Male ? "his" : "she")
+                           .Replace("{{pronoun2}}", data.Sex == Sex.Male ? "his" : "her")
                            .Replace("{{signDay}}", Utils.RankNum(current.Day))
                            .Replace("{{signMonth}}", current.ToString("MMM"))
                            .Replace("{{signYear}}", current.ToString("yyyy"))

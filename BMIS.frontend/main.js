@@ -1,6 +1,8 @@
 require('dotenv').config()
 const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
 const path = require('node:path')
+const fs = require('node:fs/promises')
+const { createWordDocumentBuffer } = require('./documentExport.js')
 
 async function getFreePort() {
     const net = require('net')
@@ -272,6 +274,41 @@ app.whenReady().then(async () => {
                 success: false,
                 message: `[!] failed to read spreadsheet: ${err.message}`,
                 rows: []
+            }
+        }
+    })
+
+    ipcMain.handle('save-word-document', async (e, html, fileName, context) => {
+        const result = await dialog.showSaveDialog({
+            title: 'Save Word document',
+            defaultPath: fileName,
+            filters: [
+                { name: 'Word document', extensions: ['docx'] }
+            ]
+        })
+
+        if (result.canceled || !result.filePath) {
+            return { success: true, canceled: true }
+        }
+
+        try {
+            const outputPath = result.filePath.toLowerCase().endsWith('.docx')
+                ? result.filePath
+                : `${result.filePath}.docx`
+            const buffer = await createWordDocumentBuffer({ html, context })
+
+            await fs.writeFile(outputPath, buffer)
+
+            return {
+                success: true,
+                canceled: false,
+                filePath: outputPath
+            }
+        }
+        catch (err) {
+            return {
+                success: false,
+                message: `[!] failed to save Word document: ${err.message}`
             }
         }
     })

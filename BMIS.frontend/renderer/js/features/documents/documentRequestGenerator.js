@@ -20,33 +20,39 @@ export function applyRequestReason(html, { reasonType, otherReason }) {
 
     reason?.checkboxIds.forEach((checkboxId) => {
         const checkbox = doc.getElementById(checkboxId)
-        if (checkbox) checkbox.setAttribute('checked', 'checked')
+        if (!checkbox) return
+
+        if (checkbox.tagName === 'INPUT') {
+            checkbox.setAttribute('checked', 'checked')
+            return
+        }
+
+        checkbox.textContent = 'X'
+        checkbox.classList.add('is-checked')
     })
 
     if (othersReason && reasonType === OTHER_REASON_VALUE) {
-        othersReason.setAttribute('value', otherReason)
+        if (othersReason.tagName === 'INPUT') {
+            othersReason.setAttribute('value', otherReason)
+        }
+        else {
+            othersReason.textContent = otherReason
+        }
     }
 
     return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`
 }
 
-export function downloadWordDocument(html, fileName) {
-    const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-
-    link.href = url
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-
-    URL.revokeObjectURL(url)
+export async function downloadWordDocument(html, fileName, context = {}) {
+    const result = await window.electronAPI.saveWordDocument(html, fileName, context)
+    if (!result?.success && !result?.canceled) {
+        throw new Error(result?.message ?? 'Failed to save Word document.')
+    }
 }
 
 export function getDocumentFileName({ resident, documentLabel }) {
     const residentName = slugify(getResidentFullName(resident))
     const documentName = slugify(documentLabel)
 
-    return `${documentName}-${residentName}.doc`
+    return `${documentName}-${residentName}.docx`
 }
