@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using BMIS.Models;
-using BMIS.Models.Entities;
-using BMIS.Models.DTOs;
 using BMIS.Services;
 
 namespace BMIS.Endpoints;
