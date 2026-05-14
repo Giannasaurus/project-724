@@ -178,7 +178,7 @@ app.whenReady().then(async () => {
                 return {
                     success: true,
                     message: `[~] request ${response.status}: PUT ${url}`,
-                    data: await response.json()
+                    data: response.status === 204 ? null : await response.json()
                 }
             }
             else {
