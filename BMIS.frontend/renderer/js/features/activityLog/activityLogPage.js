@@ -1,6 +1,6 @@
 import { getResidentFullName, getResidentId } from '../../shared/residentUtils.js'
+import { getActivityLogSettings } from '../settings/activityLogSettings.js'
 
-const HISTORY_LIMIT = 100
 const HISTORY_TYPES = {
     RESIDENT_ADDED: 'resident-added',
     RESIDENT_UPDATED: 'resident-updated',
@@ -47,6 +47,9 @@ export function addResidentUpdatedHistoryLog(key, resident) {
 }
 
 function addResidentLog(key, resident, type) {
+    const settings = getActivityLogSettings()
+    if (!settings.enabled) return
+
     const history = readResidentHistory(key)
     const residentId = getResidentId(resident)
     const log = {
@@ -59,7 +62,7 @@ function addResidentLog(key, resident, type) {
     }
 
     history.unshift(log)
-    writeResidentHistory(key, history.slice(0, HISTORY_LIMIT))
+    writeResidentHistory(key, history.slice(0, settings.maxEntries))
 }
 
 export function loadHistory(key) {

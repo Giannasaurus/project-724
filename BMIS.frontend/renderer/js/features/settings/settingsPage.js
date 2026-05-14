@@ -1,6 +1,31 @@
+import { getActivityLogSettings, resetActivityLogSettings, saveActivityLogSettings } from './activityLogSettings.js'
 import { getDocumentDefaults, resetDocumentDefaults, saveDocumentDefaults } from './documentDefaults.js'
 
+const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
+
 export function initSettingsPage() {
+    bindSettingsTabs()
+    initDocumentDefaultsSettings()
+    initActivityLogSettings()
+}
+
+function bindSettingsTabs() {
+    const tabs = document.querySelectorAll('[data-settings-panel]')
+    const panels = document.querySelectorAll('[data-settings-panel-id]')
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const panelId = tab.dataset.settingsPanel
+
+            tabs.forEach(item => item.classList.toggle('active', item === tab))
+            panels.forEach(panel => {
+                panel.hidden = panel.dataset.settingsPanelId !== panelId
+            })
+        })
+    })
+}
+
+function initDocumentDefaultsSettings() {
     const form = document.getElementById('documentDefaultsForm')
     const resetBtn = document.getElementById('settingsResetBtn')
     const status = document.getElementById('settingsStatus')
@@ -20,10 +45,47 @@ export function initSettingsPage() {
     })
 }
 
+function initActivityLogSettings() {
+    const form = document.getElementById('activityLogSettingsForm')
+    const resetBtn = document.getElementById('activityLogSettingsResetBtn')
+    const clearBtn = document.getElementById('activityLogClearBtn')
+    const status = document.getElementById('activityLogSettingsStatus')
+    if (!form) return
+
+    fillForm(form, getActivityLogSettings())
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        saveActivityLogSettings(getActivityLogFormValues(form))
+        trimResidentHistoryToLimit()
+        setStatus(status, 'Activity log settings saved.')
+    })
+
+    resetBtn?.addEventListener('click', () => {
+        fillForm(form, resetActivityLogSettings())
+        trimResidentHistoryToLimit()
+        setStatus(status, 'Activity log settings reset.')
+    })
+
+    clearBtn?.addEventListener('click', () => {
+        if (!window.confirm('Clear all recorded activity on this device?')) return
+
+        localStorage.removeItem(RESIDENT_HISTORY_KEY)
+        setStatus(status, 'Activity log cleared.')
+    })
+}
+
 function fillForm(form, defaults) {
     Object.entries(defaults).forEach(([key, value]) => {
         const input = form.elements[key]
-        if (input) input.value = value ?? ''
+        if (!input) return
+
+        if (input.type === 'checkbox') {
+            input.checked = Boolean(value)
+            return
+        }
+
+        input.value = value ?? ''
     })
 }
 
@@ -36,6 +98,27 @@ function getFormValues(form) {
         chairTitle: form.elements.chairTitle.value.trim(),
         email: form.elements.email.value.trim(),
         facebook: form.elements.facebook.value.trim()
+    }
+}
+
+function getActivityLogFormValues(form) {
+    return {
+        enabled: form.elements.enabled.checked,
+        maxEntries: form.elements.maxEntries.value
+    }
+}
+
+function trimResidentHistoryToLimit() {
+    const settings = getActivityLogSettings()
+
+    try {
+        const history = JSON.parse(localStorage.getItem(RESIDENT_HISTORY_KEY) ?? '[]')
+        if (!Array.isArray(history)) return
+
+        localStorage.setItem(RESIDENT_HISTORY_KEY, JSON.stringify(history.slice(0, settings.maxEntries)))
+    }
+    catch {
+        localStorage.removeItem(RESIDENT_HISTORY_KEY)
     }
 }
 

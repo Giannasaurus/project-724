@@ -2,16 +2,17 @@
     <div class="settings-heading">
         <div>
             <h2>Settings</h2>
-            <p>Control the defaults used across generated barangay documents.</p>
+            <p>Control local defaults and system behavior for this device.</p>
         </div>
     </div>
 
     <div class="settings-layout">
         <aside class="settings-sidebar" aria-label="Settings sections">
-            <button class="settings-tab active" type="button">Document Defaults</button>
+            <button class="settings-tab active" type="button" data-settings-panel="documentDefaultsPanel">Document Defaults</button>
+            <button class="settings-tab" type="button" data-settings-panel="activityLogPanel">Activity Log</button>
         </aside>
 
-        <form id="documentDefaultsForm" class="settings-panel">
+        <form id="documentDefaultsForm" class="settings-panel" data-settings-panel-id="documentDefaultsPanel">
             <div class="settings-panel-header">
                 <div>
                     <h3>Document Defaults</h3>
@@ -56,5 +57,43 @@
                 <button class="settings-primary-btn" type="submit">Save defaults</button>
             </div>
         </form>
+
+        <section id="activityLogPanel" class="settings-panel" data-settings-panel-id="activityLogPanel" hidden>
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Activity Log</h3>
+                    <p>Manage resident activity logging and local log retention.</p>
+                </div>
+                <button id="activityLogSettingsResetBtn" class="settings-secondary-btn" type="button">Reset</button>
+            </div>
+
+            <form id="activityLogSettingsForm" class="settings-grid">
+                <label class="settings-check-field settings-field--full">
+                    <input id="activityLogEnabled" type="checkbox" name="enabled">
+                    <span>
+                        <strong>Record resident activity</strong>
+                        <small>When off, add, edit, and delete actions stop creating new Activity Log entries.</small>
+                    </span>
+                </label>
+
+                <label class="settings-field">
+                    <span>Maximum saved entries</span>
+                    <input id="activityLogMaxEntries" type="number" name="maxEntries" min="10" max="500" step="10" required>
+                </label>
+
+                <div class="settings-actions settings-field--full">
+                    <p id="activityLogSettingsStatus" class="settings-status" aria-live="polite"></p>
+                    <button class="settings-primary-btn" type="submit">Save activity settings</button>
+                </div>
+            </form>
+
+            <div class="settings-danger-zone">
+                <div>
+                    <h4>Clear local activity log</h4>
+                    <p>This removes the Activity Log records saved on this device.</p>
+                </div>
+                <button id="activityLogClearBtn" class="settings-danger-btn" type="button">Clear log</button>
+            </div>
+        </section>
     </div>
 </section>
