@@ -59,6 +59,23 @@ public static class DbInitializer {
             var hhs = hhFaker.Generate(300);
             context.HouseHolds.AddRange(hhs);
         }
+        
+        if(!context.Deaths.Any()) {
+            HashSet<int> rId = new HashSet<int>();
+            var faker = new Faker<Deceased>()
+                .RuleFor(x => x.ResidentId, f => {
+                            int val;
+                            do {
+                                val = f.Random.Number(1, 2000);
+                            } while(rId.Contains(val));
+                            rId.Add(val);
+                            return val;
+                        })
+                .RuleFor(x => x.DateOfDeath, f => f.Date.Past(100));
+
+            var gen = faker.Generate(200);
+            context.Deaths.AddRange(gen);
+        }
 
         context.SaveChanges();
     }
