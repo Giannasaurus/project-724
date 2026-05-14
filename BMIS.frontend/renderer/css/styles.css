@@ -371,6 +371,10 @@ dialog::backdrop {
     border-radius: var(--radius-sm);
 }
 
+.settings-dialog-compat {
+    display: none;
+}
+
 /* ============================================================
    HOME (home.html)
    ============================================================ */
