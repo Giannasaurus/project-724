@@ -922,6 +922,12 @@ dialog::backdrop {
     justify-content: end;
 }
 
+.resident-import-status {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    min-height: 1rem;
+}
+
 .il-nav-btn {
     display: inline-flex;
     align-items: center;

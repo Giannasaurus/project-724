@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { app, BrowserWindow, Menu, ipcMain } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
 const path = require('node:path')
 
 async function getFreePort() {
@@ -231,6 +231,46 @@ app.whenReady().then(async () => {
         // return username === process.env.UN && password === process.env.PW
 
         return username === 'user' && password === 'password'
+    })
+
+    ipcMain.handle('read-residents-excel', async () => {
+        const result = await dialog.showOpenDialog({
+            title: 'Import residents from Excel',
+            properties: ['openFile'],
+            filters: [
+                { name: 'Spreadsheet files', extensions: ['xlsx', 'xls', 'csv'] }
+            ]
+        })
+
+        if (result.canceled || result.filePaths.length === 0) {
+            return { success: true, canceled: true, rows: [] }
+        }
+
+        try {
+            const XLSX = require('xlsx')
+            const filePath = result.filePaths[0]
+            const workbook = XLSX.readFile(filePath, { cellDates: true })
+            const sheetName = workbook.SheetNames[0]
+            const worksheet = workbook.Sheets[sheetName]
+            const rows = XLSX.utils.sheet_to_json(worksheet, {
+                defval: '',
+                raw: false
+            })
+
+            return {
+                success: true,
+                canceled: false,
+                fileName: path.basename(filePath),
+                rows
+            }
+        }
+        catch (err) {
+            return {
+                success: false,
+                message: `[!] failed to read spreadsheet: ${err.message}`,
+                rows: []
+            }
+        }
     })
     createWindow()
 

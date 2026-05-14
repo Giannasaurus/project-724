@@ -5,6 +5,7 @@ import { initDocumentRequestsPage } from './features/documents/documentRequestsP
 import { renderHomeSummary } from './features/home/homePage.js'
 import { initHouseholdsPage } from './features/households/householdsPage.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
+import { bindResidentImportControls } from './features/residents/residentImport.js'
 import { bindResidentFilterControls, handleSearchInput, loadData, renderFilterIndicators } from './features/residents/residentsPage.js'
 import { renderPagination } from './features/residents/residentsPagination.js'
 import { getResidentQueryParams, searchResidentsByName } from './features/residents/residentSearch.js'
@@ -145,6 +146,10 @@ async function showResidentsView(state) {
         onClearFilters: () => clearResidentFilters(state)
     })
     attachAddResidentButton(state)
+    bindResidentImportControls({
+        addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
+        showResidentsView: page => returnToResidentsView(state, page)
+    })
 }
 
 async function goToResidentsPage(state, page) {

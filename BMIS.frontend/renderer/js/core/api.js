@@ -17,3 +17,7 @@ export async function updateData(endpoint, body) {
 export async function deleteData(endpoint, id) {
     return window.electronAPI.deleteData(endpoint, id)
 }
+
+export async function readResidentsExcel() {
+    return window.electronAPI.readResidentsExcel()
+}
