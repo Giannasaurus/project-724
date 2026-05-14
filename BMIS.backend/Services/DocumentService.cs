@@ -25,7 +25,7 @@ public class DocumentService : IDocumentService {
             );
     }
 
-    public async Task<Result<string>> GetDocument(DocumentType type) { 
+    public async Task<Result<string>> GetTemplate(DocumentType type) { 
         if(!documentLocations.ContainsKey(type)) {
             return ResultStatus.NotFound;
         }
