@@ -10,6 +10,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IResidentService, ResidentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
 /* 
  * [!] WARNING
