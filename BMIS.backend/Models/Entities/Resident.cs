@@ -18,6 +18,7 @@ public class Resident {
     public CivilStatus CivilStatus { get; set; }
     public string Address { get; set; }
     public string Contact { get; set; }
+    public int HouseHoldId { get; set; }
 
     [SetsRequiredMembers]
     public Resident(
@@ -30,7 +31,8 @@ public class Resident {
         Sex sex,
         CivilStatus civilStatus,
         string address,
-        string contact) {
+        string contact,
+        int houseHoldId) {
     
         this.FirstName = firstName; 
         this.MiddleName = middleName;
@@ -42,6 +44,7 @@ public class Resident {
         this.CivilStatus = civilStatus;
         this.Address = address;
         this.Contact = contact;
+        this.HouseHoldId = houseHoldId;
     }
 
     [SetsRequiredMembers]
@@ -56,6 +59,7 @@ public class Resident {
         this.CivilStatus = details.civilStatus;
         this.Address = details.address;
         this.Contact = details.contact;
+        this.HouseHoldId = details.houseHoldId;
     }
 
     protected int GetAge() {

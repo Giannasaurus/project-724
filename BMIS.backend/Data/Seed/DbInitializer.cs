@@ -19,12 +19,12 @@ public static class DbInitializer {
                         f.PickRandom<Sex>(),
                         f.PickRandom<CivilStatus>(),
                         $"BLOCK {f.Random.Number(1, 9)}",
-                        f.PickRandom(phPrefixes) + f.Random.Replace(" ### ####")
+                        f.PickRandom(phPrefixes) + f.Random.Replace(" ### ####"),
+                        f.Random.Number(1, 300)
                     ));
 
             var residents = residentFaker.Generate(2000);
             context.Residents.AddRange(residents);
-        
         }
         
 
@@ -41,7 +41,23 @@ public static class DbInitializer {
 
             var transactions = transactionFaker.Generate(1000);
             context.Transactions.AddRange(transactions);
+        }
+        
+        if(!context.HouseHolds.Any()) {
+            HashSet<int> headIds = new HashSet<int>();
+            var hhFaker = new Faker<HouseHold>()
+                .RuleFor(h => h.Population, f => f.Random.Number(1, 5))
+                .RuleFor(h => h.HeadId, f => {
+                            int val;
+                            do {
+                                val = f.Random.Number(1, 2000);
+                            } while(headIds.Contains(val));
+                            headIds.Add(val);
+                            return val;
+                        });
 
+            var hhs = hhFaker.Generate(300);
+            context.HouseHolds.AddRange(hhs);
         }
 
         context.SaveChanges();

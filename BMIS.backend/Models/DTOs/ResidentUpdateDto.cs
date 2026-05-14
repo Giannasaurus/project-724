@@ -10,5 +10,6 @@ public record ResidentUpdateDto (
     Sex? sex,
     CivilStatus? civilStatus,
     string? address,
-    string? contact
+    string? contact,
+    int? houseHoldId
 );
