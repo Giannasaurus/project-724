@@ -1514,19 +1514,29 @@ tbody tr:hover .ellipsis-btn,
 }
 
 .dr-search-row {
+    align-items: stretch;
     display: flex;
     gap: var(--gap-md);
 }
 
 .dr-search-input-wrap {
+    display: flex;
     flex: 1;
     min-width: 0;
     position: relative;
 }
 
 .dr-search-input-wrap input {
+    min-height: 42px;
     padding-right: 44px;
     width: 100%;
+}
+
+.dr-search-row .dr-secondary-btn {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 42px;
 }
 
 .dr-clear-search-btn {
