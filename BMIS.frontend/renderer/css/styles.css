@@ -663,18 +663,22 @@ dialog::backdrop {
 
 .resident-clear-search-btn {
     align-items: center;
+    aspect-ratio: 1;
     border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     display: none;
-    height: 28px;
+    height: 32px;
     justify-content: center;
-    min-height: 28px;
+    max-height: 32px;
+    max-width: 32px;
+    min-height: 32px;
+    min-width: 32px;
     padding: 0;
     position: absolute;
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    width: 28px;
+    width: 32px;
 }
 
 .resident-clear-search-btn::before,
