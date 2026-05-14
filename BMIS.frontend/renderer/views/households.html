@@ -1,0 +1,101 @@
+<div id="householdsView">
+    <section id="householdsListView">
+        <div class="households-header">
+            <div>
+                <h2>Households</h2>
+                <p>Grouped resident addresses and manually added household records.</p>
+            </div>
+        </div>
+
+        <div class="households-toolbar">
+            <input id="householdSearch" type="text" placeholder="Search household name or address">
+            <button id="addHouseholdBtn" class="households-primary-btn" type="button">Add household</button>
+        </div>
+
+        <div id="householdActionBar" class="entity-selection-bar" hidden></div>
+
+        <div class="households-list-header">
+            <span>Household</span>
+            <span>Head</span>
+            <span>Members</span>
+        </div>
+        <div id="householdsList" class="households-list" aria-live="polite"></div>
+    </section>
+
+    <section id="householdDetailsView" hidden>
+        <div class="subview-heading">
+            <button id="householdDetailsBackBtn" class="back-btn" type="button">&lt; Back</button>
+            <h2>Household Details</h2>
+        </div>
+        <div id="householdDetailsContent" class="entity-detail-panel"></div>
+    </section>
+
+    <section id="addHouseholdView" hidden>
+        <div class="subview-heading">
+            <button id="householdBackBtn" class="back-btn" type="button">&lt; Back</button>
+            <h2 id="householdFormTitle">Add Household</h2>
+        </div>
+
+        <form id="householdForm" class="household-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="householdNameInput">Household Name <span class="required">*</span></label>
+                    <input id="householdNameInput" type="text" placeholder="200-Lim">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="householdMemberSearch">Household Members</label>
+                <input id="householdMemberSearch" type="text" placeholder="Search resident name">
+            </div>
+            <div class="household-members-table-wrap">
+                <table id="householdMembersTable">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Birthdate</th>
+                            <th>Sex</th>
+                            <th>Civil Status</th>
+                            <th>Sector</th>
+                        </tr>
+                    </thead>
+                    <tbody id="householdMembersBody"></tbody>
+                </table>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="householdHeadSelect">Household Head <span class="required">*</span></label>
+                    <select id="householdHeadSelect">
+                        <option value="">Select household head</option>
+                    </select>
+                </div>
+            </div>
+
+            <p id="householdFormError" class="ar-error" aria-live="polite"></p>
+            <div class="form-actions">
+                <button id="householdCancelBtn" class="ar-cancel-btn" type="button">Cancel</button>
+                <button class="form-save-btn" type="submit">Save</button>
+            </div>
+        </form>
+    </section>
+
+    <dialog id="householdDeleteDialog" class="delete-confirm-dialog">
+        <div class="delete-dialog-header">
+            <h3>Delete Household?</h3>
+            <button id="householdDeleteCloseBtn" class="delete-dialog-x" type="button"
+                aria-label="Cancel delete">✖</button>
+        </div>
+        <div class="delete-dialog-body">
+            <h2>Are you sure?</h2>
+            <div class="delete-dialog-copy">
+                <p id="householdDeleteCopy">This household record will be removed.</p>
+            </div>
+            <p id="householdDeleteError" class="delete-dialog-error"></p>
+            <div class="delete-dialog-actions">
+                <button id="householdDeleteCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
+                <button id="householdDeleteConfirmBtn" class="delete-dialog-confirm" type="button">Delete</button>
+            </div>
+        </div>
+    </dialog>
+</div>

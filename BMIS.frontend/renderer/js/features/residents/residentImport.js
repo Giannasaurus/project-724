@@ -1,0 +1,277 @@
+import { postData, readResidentsExcel } from '../../core/api.js'
+
+const HEADER_ALIASES = {
+    firstName: ['first name', 'firstname', 'given name'],
+    middleName: ['middle name', 'middlename', 'middle initial', 'mi'],
+    lastName: ['last name', 'lastname', 'surname', 'family name'],
+    suffix: ['suffix', 'extension'],
+    fullName: ['full name', 'name', 'resident name'],
+    birthDate: ['birthdate', 'birth date', 'date of birth', 'dob'],
+    sex: ['sex', 'gender'],
+    sector: ['sector', 'pwd/senior', 'pwd senior', 'classification'],
+    civilStatus: ['civil status', 'civilstatus', 'marital status'],
+    address: ['address', 'full address', 'residence', 'residential address']
+}
+
+const SEX_VALUES = {
+    male: 0,
+    m: 0,
+    female: 1,
+    f: 1
+}
+
+const SECTOR_VALUES = {
+    general: 0,
+    no: 0,
+    none: 0,
+    pwd: 1,
+    senior: 2,
+    'senior citizen': 2
+}
+
+const CIVIL_STATUS_VALUES = {
+    single: 0,
+    married: 1,
+    widowed: 2,
+    divorced: 3,
+    annulled: 4,
+    anulled: 4,
+    'legally separated': 5,
+    legallyseparated: 5
+}
+
+export function bindResidentImportControls(options = {}) {
+    const importBtn = document.getElementById('importResidentsBtn')
+    const statusEl = document.getElementById('residentImportStatus')
+    if (!importBtn) return
+
+    importBtn.addEventListener('click', async () => {
+        setImportState(importBtn, statusEl, true, 'Choose an Excel file to import.')
+
+        try {
+            const fileResult = await readResidentsExcel()
+            if (fileResult.canceled) {
+                setImportState(importBtn, statusEl, false, '')
+                return
+            }
+
+            if (!fileResult.success) {
+                setImportState(importBtn, statusEl, false, 'Failed to read the selected file.')
+                console.error(fileResult.message)
+                return
+            }
+
+            const importResult = await importResidentRows(fileResult.rows, options)
+            const statusMessage = getImportStatusMessage(importResult, fileResult.fileName)
+            await options.showResidentsView?.(1)
+            setImportState(importBtn, statusEl, false, '')
+            setImportStatus(statusMessage)
+        }
+        catch (error) {
+            setImportState(importBtn, statusEl, false, 'Failed to import residents.')
+            console.error(error)
+        }
+    })
+}
+
+async function importResidentRows(rows = [], options = {}) {
+    const summary = {
+        imported: 0,
+        failed: 0,
+        skipped: 0,
+        errors: []
+    }
+
+    for (const [index, row] of rows.entries()) {
+        const rowNumber = index + 2
+        const resident = parseResidentRow(row)
+
+        if (!hasRowContent(row)) {
+            summary.skipped += 1
+            continue
+        }
+
+        const validationError = getResidentValidationError(resident)
+        if (validationError) {
+            summary.failed += 1
+            summary.errors.push(`Row ${rowNumber}: ${validationError}`)
+            continue
+        }
+
+        const result = await postData('/residents', resident)
+        if (result.success) {
+            summary.imported += 1
+            options.addResidentHistoryLog?.(result.data)
+        }
+        else {
+            summary.failed += 1
+            summary.errors.push(`Row ${rowNumber}: save failed`)
+            console.error(result.message)
+        }
+    }
+
+    if (summary.errors.length > 0) {
+        console.warn('Resident import issues:', summary.errors)
+    }
+
+    return summary
+}
+
+function parseResidentRow(row) {
+    const normalizedRow = getNormalizedRow(row)
+    const nameParts = parseFullName(normalizedRow.fullName)
+
+    return {
+        firstName: normalizedRow.firstName || nameParts.firstName,
+        middleName: normalizedRow.middleName || nameParts.middleName,
+        lastName: normalizedRow.lastName || nameParts.lastName,
+        suffix: normalizedRow.suffix || nameParts.suffix,
+        birthDate: normalizeBirthdate(normalizedRow.birthDate),
+        sex: mapValue(normalizedRow.sex, SEX_VALUES),
+        sector: mapValue(normalizedRow.sector, SECTOR_VALUES, 0),
+        civilStatus: mapValue(normalizedRow.civilStatus, CIVIL_STATUS_VALUES),
+        address: normalizedRow.address
+    }
+}
+
+function getNormalizedRow(row) {
+    const normalizedEntries = Object.entries(row).map(([key, value]) => [
+        normalizeKey(key),
+        normalizeCell(value)
+    ])
+
+    return Object.fromEntries(
+        Object.entries(HEADER_ALIASES).map(([field, aliases]) => [
+            field,
+            getAliasedValue(normalizedEntries, aliases)
+        ])
+    )
+}
+
+function getAliasedValue(entries, aliases) {
+    const normalizedAliases = aliases.map(normalizeKey)
+    const match = entries.find(([key]) => normalizedAliases.includes(key))
+    return match?.[1] ?? ''
+}
+
+function parseFullName(value) {
+    const name = normalizeCell(value)
+    if (!name) return {}
+
+    if (name.includes(',')) {
+        const [lastName, rest = ''] = name.split(',')
+        const restParts = rest.trim().split(/\s+/).filter(Boolean)
+        return {
+            lastName: lastName.trim(),
+            firstName: restParts.shift() ?? '',
+            suffix: getSuffix(restParts.at(-1)) ? restParts.pop() : '',
+            middleName: restParts.join(' ')
+        }
+    }
+
+    const parts = name.split(/\s+/).filter(Boolean)
+    return {
+        firstName: parts.shift() ?? '',
+        suffix: getSuffix(parts.at(-1)) ? parts.pop() : '',
+        lastName: parts.pop() ?? '',
+        middleName: parts.join(' ')
+    }
+}
+
+function normalizeBirthdate(value) {
+    const text = normalizeCell(value)
+    if (!text) return ''
+
+    const directDate = new Date(text)
+    if (!Number.isNaN(directDate.getTime())) return formatDate(directDate)
+
+    const numericParts = text.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/)
+    if (numericParts) {
+        const [, first, second, year] = numericParts
+        const firstNumber = Number(first)
+        const secondNumber = Number(second)
+        const month = firstNumber > 12 ? secondNumber : firstNumber
+        const day = firstNumber > 12 ? firstNumber : secondNumber
+        const date = new Date(Number(year), month - 1, day)
+        if (!Number.isNaN(date.getTime())) return formatDate(date)
+    }
+
+    return text
+}
+
+function formatDate(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+function getResidentValidationError(resident) {
+    if (!resident.firstName || !resident.lastName) return 'missing resident name'
+    if (!resident.birthDate) return 'missing birthdate'
+    if (!isValidBirthdate(resident.birthDate)) return 'invalid birthdate'
+    if (resident.sex === undefined) return 'invalid sex'
+    if (resident.sector === undefined) return 'invalid sector'
+    if (resident.civilStatus === undefined) return 'invalid civil status'
+    if (!resident.address) return 'missing address'
+    return ''
+}
+
+function isValidBirthdate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+
+    const [year, month, day] = value.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+
+    return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+    )
+}
+
+function mapValue(value, map, fallback) {
+    const key = normalizeKey(value)
+    if (!key) return fallback
+    return map[key] ?? fallback
+}
+
+function getSuffix(value = '') {
+    return ['jr', 'sr', 'ii', 'iii', 'iv', 'v'].includes(normalizeKey(value))
+}
+
+function hasRowContent(row) {
+    return Object.values(row).some(value => normalizeCell(value))
+}
+
+function normalizeCell(value) {
+    return String(value ?? '').trim()
+}
+
+function normalizeKey(value) {
+    return normalizeCell(value)
+        .toLowerCase()
+        .replace(/\./g, '')
+        .replace(/\s+/g, ' ')
+}
+
+function getImportStatusMessage(result, fileName) {
+    const source = fileName ? ` from ${fileName}` : ''
+    const parts = [`Imported ${result.imported} resident${result.imported === 1 ? '' : 's'}${source}.`]
+
+    if (result.failed > 0) parts.push(`${result.failed} failed.`)
+    if (result.skipped > 0) parts.push(`${result.skipped} blank row${result.skipped === 1 ? '' : 's'} skipped.`)
+
+    return parts.join(' ')
+}
+
+function setImportState(button, statusEl, isImporting, message) {
+    button.disabled = isImporting
+    button.textContent = isImporting ? 'Importing...' : 'Import from Excel'
+    if (statusEl) statusEl.textContent = message
+}
+
+function setImportStatus(message) {
+    const statusEl = document.getElementById('residentImportStatus')
+    if (statusEl) statusEl.textContent = message
+}

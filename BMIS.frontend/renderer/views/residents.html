@@ -1,0 +1,152 @@
+<!-- TODO ---------------------------------------------------
+1. Fix views structure: only render one div
+2. Subview for Residents: Add Resident and Edit Resident
+3. Rename everything from Inhabitants (List) to Residents
+4. Wire Edit logic first then fix action button in table
+5. Stop fryin me
+6. Rename variables
+-->
+<div id="iLView">
+    <h2>Residents</h2>
+    <div id="iLNav">
+        <div id="searchSection">
+            <div id="searchOptions">
+                <div class="resident-search-input-wrap">
+                    <input id="searchBar" type="text" placeholder="Search resident name">
+                    <button id="clearResidentSearchBtn" class="resident-clear-search-btn" type="button"
+                        aria-label="Clear resident search"></button>
+                </div>
+                <button id="btn_filter" class="btn_sub" type="button">Filter</button>
+                <dialog id="filterMenu">
+                    <div class="filter-dialog-header">
+                        <h3>Filter Residents</h3>
+                        <button id="filterDialogCloseBtn" class="delete-dialog-x" type="button"
+                            aria-label="Close filters">✖</button>
+                    </div>
+                    <div class="filterMenuOptions">
+                        <fieldset>
+                            <h3>Age</h3>
+                            <div class="filter-range-row">
+                                <label for="filterMinAge">Minimum age</label>
+                                <input type="number" id="filterMinAge" class="filterAgeConst" min="0" max="150">
+                                <label for="filterMaxAge">Maximum age</label>
+                                <input type="number" id="filterMaxAge" class="filterAgeConst" min="0" max="150">
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Sex</h3>
+                            <div class="filterSection">
+                                <label>
+                                    <input type="checkbox" id="filterSexMale" name="filterSex" value="Male">
+                                    Male
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSexFemale" name="filterSex" value="Female">
+                                    Female
+                                </label>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Sector</h3>
+                            <div class="filterSection">
+                                <label>
+                                    <input type="checkbox" id="filterSectorGeneral" name="filterSector" value="General">
+                                    General
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSectorPwd" name="filterSector" value="PWD">
+                                    PWD
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterSectorSenior" name="filterSector" value="Senior">
+                                    Senior
+                                </label>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Civil Status</h3>
+                            <div class="filterSection">
+                                <label>
+                                    <input type="checkbox" id="filterCivilSingle" name="filterCivil" value="Single">
+                                    Single
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilMarried" name="filterCivil" value="Married">
+                                    Married
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilWidowed" name="filterCivil" value="Widowed">
+                                    Widowed
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilDivorced" name="filterCivil" value="Divorced">
+                                    Divorced
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilAnulled" name="filterCivil" value="Anulled">
+                                    Annulled
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCivilLS" name="filterCivil" value="LegallySeparated">
+                                    Legally Separated
+                                </label>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>Sort</h3>
+                            <select id="filterOrder">
+                                <option value="">Default: last name A-Z</option>
+                                <option value="ByLastName">Last name A-Z</option>
+                                <option value="ByLastNameDesc">Last name Z-A</option>
+                                <option value="ByFirstName">First name A-Z</option>
+                                <option value="ByFirstNameDesc">First name Z-A</option>
+                                <option value="ByAgeDesc">Oldest first</option>
+                                <option value="ByAge">Youngest first</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="filter-dialog-actions">
+                        <button id="clearFilter" class="btn_sub" type="button">Clear</button>
+                        <button id="cancelFilter" class="btn_sub" type="button">Cancel</button>
+                        <button id="saveFilter" class="btn_main" type="button">Apply</button>
+                    </div>
+                </dialog>
+            </div>
+            <div id="filterIndicators"></div>
+        </div>
+        <div id="addSection">
+            <div>
+                <button id="addResidentBtn" class="il-nav-btn" type="button">
+                    <img src="../assets/icons/inhabitantList/add-thick-16.png" alt="Add icon">
+                    Add resident
+                </button>
+            </div>
+            <div>
+                <button id="importResidentsBtn" class="il-nav-btn" type="button">Import from Excel</button>
+            </div>
+        </div>
+    </div>
+    <p id="residentImportStatus" class="resident-import-status" aria-live="polite"></p>
+    <div id="paginationContainer">
+    </div>
+    <!-- R.I.P: addResidentDialog-->
+    <dialog id="deleteConfirmDialog">
+        <div class="delete-dialog-header">
+            <h3>Delete Confirmation</h3>
+            <button id="deleteDialogCloseBtn" class="delete-dialog-x" type="button"
+                aria-label="Cancel delete">✖</button>
+        </div>
+        <div class="delete-dialog-body">
+            <h2>Are you sure?</h2>
+            <div class="delete-dialog-copy">
+                <p>Once deleted, there would be no way to retrieve lost information regarding this inhabitant.</p>
+                <p>Be advised.</p>
+            </div>
+            <p id="deleteDialogError" class="delete-dialog-error"></p>
+            <div class="delete-dialog-actions">
+                <button id="deleteDialogCancelBtn" class="delete-dialog-cancel" type="button">Cancel</button>
+                <button id="deleteDialogConfirmBtn" class="delete-dialog-confirm" type="button">Delete</button>
+            </div>
+        </div>
+    </dialog>
+</div>

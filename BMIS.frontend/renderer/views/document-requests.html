@@ -1,0 +1,63 @@
+<div id="drView">
+    <h2>Document Requests</h2>
+    <div class="dr-layout">
+        <section class="dr-request-panel" aria-label="Document request form">
+            <form id="documentRequestForm" class="dr-form" novalidate>
+                <div class="dr-field-group">
+                    <label for="dr-documentType">Document <span class="required">*</span></label>
+                    <select id="dr-documentType" required>
+                        <option value="0">Barangay Clearance</option>
+                        <option value="1">Certificate of Residency</option>
+                        <option value="2">Certificate of Indigency</option>
+                    </select>
+                </div>
+
+                <div class="dr-field-group">
+                    <label for="dr-residentSearch">Resident <span class="required">*</span></label>
+                    <div class="dr-search-row">
+                        <div class="dr-search-input-wrap">
+                            <input id="dr-residentSearch" type="text" placeholder="Search resident name">
+                            <button id="dr-clearSearchBtn" class="dr-clear-search-btn" type="button" aria-label="Clear resident search">✖</button>
+                        </div>
+                        <button id="dr-searchBtn" class="dr-secondary-btn" type="button">Search</button>
+                    </div>
+                    <div id="dr-selectedResident" class="dr-selected-resident" aria-live="polite"></div>
+                    <div id="dr-searchResults" class="dr-search-results"></div>
+                </div>
+
+                <div class="dr-field-group">
+                    <label for="dr-reasonType">Reason <span class="required">*</span></label>
+                    <select id="dr-reasonType" required>
+                        <option value="">Select a reason</option>
+                        <option value="medical">Medical Assistance</option>
+                        <option value="financial">Financial Assistance</option>
+                        <option value="food">Food Assistance</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="education">Educational Assistance</option>
+                        <option value="funeral">Funeral/Burial Assistance</option>
+                        <option value="soloParentPwd">Solo Parent/PWD Assistance</option>
+                        <option value="residency">Proof of Residency</option>
+                        <option value="orangeCard">Orange Card</option>
+                        <option value="other">Others, please specify</option>
+                    </select>
+                    <input id="dr-otherReason" type="text" placeholder="Specify reason" aria-disabled="true" disabled>
+                </div>
+
+                <p id="dr-error" class="dr-error" aria-live="polite"></p>
+
+                <div class="dr-actions">
+                    <button id="dr-previewBtn" class="dr-secondary-btn" type="button">Preview</button>
+                    <button id="dr-generateBtn" class="dr-primary-btn" type="submit">Generate Word Document</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="dr-preview-panel" aria-label="Document preview">
+            <div class="dr-preview-header">
+                <h3>Preview</h3>
+                <span id="dr-previewStatus">No document generated yet</span>
+            </div>
+            <iframe id="dr-previewFrame" title="Generated document preview"></iframe>
+        </section>
+    </div>
+</div>
