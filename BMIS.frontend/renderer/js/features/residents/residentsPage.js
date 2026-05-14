@@ -1,16 +1,12 @@
 import { deleteData, getData } from '../../core/api.js'
+import {
+    getCivilStatusLabel,
+    getResidentFullName,
+    getResidentId,
+    getSectorLabel,
+    getSexLabel
+} from '../../shared/residentUtils.js'
 import { openEditResidentPage } from './residentForm.js'
-
-const SEX_LABELS = { 0: 'Male', 1: 'Female' }
-const SECTOR_LABELS = { 0: 'General', 1: 'Senior', 2: 'PWD' }
-const CIVIL_STATUS_LABELS = {
-    0: 'Single',
-    1: 'Married',
-    2: 'Widowed',
-    3: 'Divorced',
-    4: 'Annulled',
-    5: 'Legally Separated'
-}
 
 const RESIDENT_SEARCH_DEBOUNCE_MS = 250
 
@@ -340,15 +336,11 @@ function getCells(resident) {
         { value: getResidentFullName(resident), class: 'col-name' },
         // { value: resident.suffix, class: 'col-suffix' },
         { value: resident.birthDate, class: 'col-birthdate' },
-        { value: SEX_LABELS[resident.sex], class: 'col-sex' },
-        { value: SECTOR_LABELS[resident.sector], class: 'col-sector' },
-        { value: CIVIL_STATUS_LABELS[resident.civilStatus], class: 'col-civilstatus' },
+        { value: getSexLabel(resident.sex), class: 'col-sex' },
+        { value: getSectorLabel(resident.sector), class: 'col-sector' },
+        { value: getCivilStatusLabel(resident.civilStatus), class: 'col-civilstatus' },
         { value: resident.address, class: 'col-address' }
     ]
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
 }
 
 export async function loadData(result, options = {}) {
@@ -523,9 +515,9 @@ function openResidentDetails(resident, options = {}) {
             </div>
             <dl class="entity-detail-grid">
                 <div><dt>Birthdate</dt><dd>${escapeHtml(resident.birthDate ?? 'Not specified')}</dd></div>
-                <div><dt>Sex</dt><dd>${escapeHtml(SEX_LABELS[resident.sex] ?? 'Unknown')}</dd></div>
-                <div><dt>Sector</dt><dd>${escapeHtml(SECTOR_LABELS[resident.sector] ?? 'Unknown')}</dd></div>
-                <div><dt>Civil Status</dt><dd>${escapeHtml(CIVIL_STATUS_LABELS[resident.civilStatus] ?? 'Unknown')}</dd></div>
+                <div><dt>Sex</dt><dd>${escapeHtml(getSexLabel(resident.sex))}</dd></div>
+                <div><dt>Sector</dt><dd>${escapeHtml(getSectorLabel(resident.sector))}</dd></div>
+                <div><dt>Civil Status</dt><dd>${escapeHtml(getCivilStatusLabel(resident.civilStatus))}</dd></div>
                 <div><dt>Resident ID</dt><dd>${escapeHtml(String(getResidentId(resident) ?? 'Not available'))}</dd></div>
             </dl>
         </div>
@@ -537,11 +529,6 @@ function openResidentDetails(resident, options = {}) {
     }))
     iLView.appendChild(detailsView)
     if (deleteDialog) iLView.appendChild(deleteDialog)
-}
-
-function getResidentFullName(resident) {
-    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    return `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix ?? ''}`.trim()
 }
 
 function escapeHtml(value) {

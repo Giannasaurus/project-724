@@ -1,4 +1,5 @@
 import { postData, updateData } from '../../core/api.js'
+import { getResidentId } from '../../shared/residentUtils.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
@@ -291,8 +292,4 @@ function parseBirthdate(value) {
         month: String(Number(month) || 1),
         year
     }
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
 }

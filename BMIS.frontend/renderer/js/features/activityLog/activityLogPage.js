@@ -1,11 +1,4 @@
-function getResidentFullName(resident) {
-    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    return `${resident.lastName}, ${resident.firstName} ${middleInitial}`.trim()
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
-}
+import { getResidentFullName, getResidentId } from '../../shared/residentUtils.js'
 
 function getHistoryActivity(type) {
     const activities = {
@@ -39,7 +32,7 @@ export function addResidentHistoryLog(key, resident) {
         id: `${Date.now()}-${residentId}`,
         type: 'resident-added',
         residentId,
-        residentName: getResidentFullName(resident),
+        residentName: getResidentFullName(resident, { includeSuffix: false }),
         address: resident.address,
         createdAt: new Date().toISOString()
     }
@@ -55,7 +48,7 @@ export function addResidentDeletedHistoryLog(key, resident) {
         id: `${Date.now()}-${residentId}`,
         type: 'resident-deleted',
         residentId,
-        residentName: getResidentFullName(resident),
+        residentName: getResidentFullName(resident, { includeSuffix: false }),
         address: resident.address,
         createdAt: new Date().toISOString()
     }
@@ -71,7 +64,7 @@ export function addResidentUpdatedHistoryLog(key, resident) {
         id: `${Date.now()}-${residentId}`,
         type: 'resident-updated',
         residentId,
-        residentName: getResidentFullName(resident),
+        residentName: getResidentFullName(resident, { includeSuffix: false }),
         address: resident.address,
         createdAt: new Date().toISOString()
     }

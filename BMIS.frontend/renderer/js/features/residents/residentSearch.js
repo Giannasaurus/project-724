@@ -1,4 +1,5 @@
 import { getData } from '../../core/api.js'
+import { getResidentId } from '../../shared/residentUtils.js'
 
 export async function searchResidentsByName(query, options = {}) {
     const trimmedQuery = query?.trim() ?? ''
@@ -75,8 +76,4 @@ function appendRepeatedParams(params, key, values) {
             params.append(key, String(value))
         }
     })
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
 }
