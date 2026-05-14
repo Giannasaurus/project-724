@@ -9,4 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     checkLogin: (username, password) => ipcRenderer.invoke('check-login', username, password),
     readResidentsExcel: () => ipcRenderer.invoke('read-residents-excel'),
     saveWordDocument: (html, fileName, context) => ipcRenderer.invoke('save-word-document', html, fileName, context),
+    exportAppBackup: (localData) => ipcRenderer.invoke('export-app-backup', localData),
+    readAppBackup: () => ipcRenderer.invoke('read-app-backup'),
+    restoreBackupDatabase: (database) => ipcRenderer.invoke('restore-backup-database', database),
 })

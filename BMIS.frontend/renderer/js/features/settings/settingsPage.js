@@ -1,4 +1,5 @@
 import { getActivityLogSettings, resetActivityLogSettings, saveActivityLogSettings } from './activityLogSettings.js'
+import { createLocalBackupData, getBackupSummary, restoreLocalBackupData, rollbackLocalBackupData } from './backupSettings.js'
 import { getDocumentDefaults, resetDocumentDefaults, saveDocumentDefaults } from './documentDefaults.js'
 import { openConfirmDialog } from '../../shared/confirmDialog.js'
 
@@ -8,6 +9,7 @@ export function initSettingsPage() {
     bindSettingsTabs()
     initDocumentDefaultsSettings()
     initActivityLogSettings()
+    initBackupRestoreSettings()
 }
 
 function bindSettingsTabs() {
@@ -79,6 +81,66 @@ function initActivityLogSettings() {
 
         localStorage.removeItem(RESIDENT_HISTORY_KEY)
         setStatus(status, 'Activity log cleared.')
+    })
+}
+
+function initBackupRestoreSettings() {
+    const createBtn = document.getElementById('backupCreateBtn')
+    const restoreBtn = document.getElementById('backupRestoreBtn')
+    const status = document.getElementById('backupRestoreStatus')
+    if (!createBtn || !restoreBtn) return
+
+    createBtn.addEventListener('click', async () => {
+        setStatus(status, 'Preparing backup...')
+
+        const result = await window.electronAPI.exportAppBackup(createLocalBackupData())
+        if (result?.canceled) {
+            setStatus(status, 'Backup canceled.')
+            return
+        }
+
+        if (result?.success) {
+            setStatus(status, `Backup saved to ${result.filePath}.`)
+            return
+        }
+
+        setStatus(status, result?.message ?? 'Unable to create backup.')
+    })
+
+    restoreBtn.addEventListener('click', async () => {
+        const result = await window.electronAPI.readAppBackup()
+        if (result?.canceled) {
+            setStatus(status, 'Restore canceled.')
+            return
+        }
+
+        if (!result?.success) {
+            setStatus(status, result?.message ?? 'Unable to read backup.')
+            return
+        }
+
+        const shouldRestore = await openConfirmDialog({
+            title: 'Restore backup?',
+            heading: 'Replace current data?',
+            message: `${getBackupSummary(result.backup)} Current resident records and local settings will be replaced.`,
+            confirmLabel: 'Restore'
+        })
+        if (!shouldRestore) {
+            setStatus(status, 'Restore canceled.')
+            return
+        }
+
+        setStatus(status, 'Restoring backup...')
+        const previousLocalData = restoreLocalBackupData(result.backup.localData)
+        const restoreResult = await window.electronAPI.restoreBackupDatabase(result.backup.database)
+
+        if (restoreResult?.success) {
+            setStatus(status, 'Backup restored. Restarting app...')
+            return
+        }
+
+        rollbackLocalBackupData(previousLocalData)
+        setStatus(status, restoreResult?.message ?? 'Unable to restore backup.')
     })
 }
 
