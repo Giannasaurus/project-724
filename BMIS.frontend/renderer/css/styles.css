@@ -590,11 +590,16 @@ dialog::backdrop {
     gap: var(--gap-lg);
 }
 
-#searchBar {
+.resident-search-input-wrap {
     flex: 8;
+    position: relative;
 }
 
-#btn_search,
+#searchBar {
+    padding-right: 44px;
+    width: 100%;
+}
+
 #btn_filter {
     flex: 1;
 }
@@ -603,6 +608,32 @@ dialog::backdrop {
 #searchOptions button,
 .il-nav-btn {
     min-height: 42px;
+}
+
+.resident-clear-search-btn {
+    align-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    display: none;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    height: 28px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+}
+
+.resident-clear-search-btn:not([hidden]) {
+    display: inline-flex;
+}
+
+.resident-clear-search-btn:hover {
+    background-color: var(--color-bg-hover);
 }
 
 #filterIndicators {

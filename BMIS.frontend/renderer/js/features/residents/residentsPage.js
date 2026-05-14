@@ -12,17 +12,27 @@ const CIVIL_STATUS_LABELS = {
     5: 'Legally Separated'
 }
 
+const RESIDENT_SEARCH_DEBOUNCE_MS = 250
+
 /* ============================================================
    SEARCH INPUT
    ============================================================ */
 export function handleSearchInput({ onSearch, goToPage }) {
     const searchBar = document.getElementById('searchBar')
-    const searchBtn = document.getElementById('btn_search')
+    const clearSearchBtn = document.getElementById('clearResidentSearchBtn')
+    let searchTimer = null
+
+    function updateClearSearchButton() {
+        if (!searchBar || !clearSearchBtn) return
+
+        clearSearchBtn.hidden = searchBar.value.trim().length === 0
+    }
 
     async function displayResidents() {
         if (!searchBar) return
 
         const query = searchBar.value.trim()
+        updateClearSearchButton()
 
         if (!query) {
             await onSearch?.('')
@@ -32,18 +42,33 @@ export function handleSearchInput({ onSearch, goToPage }) {
         await onSearch?.(query)
     }
 
-    if (searchBtn) {
-        searchBtn.addEventListener('click', displayResidents)
+    function scheduleSearch() {
+        window.clearTimeout(searchTimer)
+        searchTimer = window.setTimeout(displayResidents, RESIDENT_SEARCH_DEBOUNCE_MS)
+        updateClearSearchButton()
     }
 
     if (searchBar) {
-        searchBar.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault()
+        searchBar.addEventListener('input', scheduleSearch)
+        searchBar.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault()
+                window.clearTimeout(searchTimer)
                 displayResidents()
             }
         })
     }
+
+    clearSearchBtn?.addEventListener('click', () => {
+        if (!searchBar) return
+
+        window.clearTimeout(searchTimer)
+        searchBar.value = ''
+        displayResidents()
+        searchBar.focus()
+    })
+
+    updateClearSearchButton()
 }
 
 export function bindResidentFilterControls({ getFilters, onApplyFilters, onClearFilters }) {
