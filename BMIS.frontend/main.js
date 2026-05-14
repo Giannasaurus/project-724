@@ -150,6 +150,7 @@ app.whenReady().then(async () => {
             else {
                 return {
                     success: false,
+                    status: response.status,
                     message: `[!] request ${response.status}: POST ${url}`,
                     data: null
                 }
@@ -235,10 +236,12 @@ app.whenReady().then(async () => {
 
     ipcMain.handle('read-residents-excel', async () => {
         const result = await dialog.showOpenDialog({
-            title: 'Import residents from Excel',
+            title: 'Import residents from spreadsheet',
             properties: ['openFile'],
             filters: [
-                { name: 'Spreadsheet files', extensions: ['xlsx', 'xls', 'csv'] }
+                { name: 'Spreadsheet files (.xlsx, .xls, .csv)', extensions: ['xlsx', 'xls', 'csv'] },
+                { name: 'CSV files (.csv)', extensions: ['csv'] },
+                { name: 'Excel workbooks (.xlsx, .xls)', extensions: ['xlsx', 'xls'] }
             ]
         })
 

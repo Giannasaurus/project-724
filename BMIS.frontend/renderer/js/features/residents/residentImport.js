@@ -1,4 +1,4 @@
-import { postData, readResidentsExcel } from '../../core/api.js'
+import { getData, postData, readResidentsExcel } from '../../core/api.js'
 
 const HEADER_ALIASES = {
     firstName: ['first name', 'firstname', 'given name'],
@@ -46,7 +46,7 @@ export function bindResidentImportControls(options = {}) {
     if (!importBtn) return
 
     importBtn.addEventListener('click', async () => {
-        setImportState(importBtn, statusEl, true, 'Choose an Excel file to import.')
+        setImportState(importBtn, statusEl, true, 'Choose a spreadsheet file to import.')
 
         try {
             const fileResult = await readResidentsExcel()
@@ -79,8 +79,10 @@ async function importResidentRows(rows = [], options = {}) {
         imported: 0,
         failed: 0,
         skipped: 0,
+        duplicates: 0,
         errors: []
     }
+    const knownResidentKeys = await getExistingResidentKeys()
 
     for (const [index, row] of rows.entries()) {
         const rowNumber = index + 2
@@ -98,10 +100,21 @@ async function importResidentRows(rows = [], options = {}) {
             continue
         }
 
+        const residentKey = getResidentDuplicateKey(resident)
+        if (knownResidentKeys.has(residentKey)) {
+            summary.duplicates += 1
+            continue
+        }
+
         const result = await postData('/residents', resident)
         if (result.success) {
             summary.imported += 1
+            knownResidentKeys.add(residentKey)
             options.addResidentHistoryLog?.(result.data)
+        }
+        else if (result.status === 409) {
+            summary.duplicates += 1
+            knownResidentKeys.add(residentKey)
         }
         else {
             summary.failed += 1
@@ -117,6 +130,28 @@ async function importResidentRows(rows = [], options = {}) {
     return summary
 }
 
+async function getExistingResidentKeys() {
+    const result = await getData('/residents')
+    if (!result.success || !Array.isArray(result.data)) return new Set()
+
+    return new Set(result.data.map(getResidentDuplicateKey))
+}
+
+function getResidentDuplicateKey(resident) {
+    const firstName = getResidentValue(resident, 'firstName')
+    const middleName = getResidentValue(resident, 'middleName')
+    const lastName = getResidentValue(resident, 'lastName')
+    const suffix = getResidentValue(resident, 'suffix')
+    const middleInitial = middleName ? `${middleName[0]}.` : ''
+
+    return normalizeKey(`${lastName}, ${firstName} ${middleInitial} ${suffix}`)
+}
+
+function getResidentValue(resident, field) {
+    const pascalField = `${field[0].toUpperCase()}${field.slice(1)}`
+    return normalizeCell(resident?.[field] ?? resident?.[pascalField])
+}
+
 function parseResidentRow(row) {
     const normalizedRow = getNormalizedRow(row)
     const nameParts = parseFullName(normalizedRow.fullName)
@@ -125,7 +160,7 @@ function parseResidentRow(row) {
         firstName: normalizedRow.firstName || nameParts.firstName,
         middleName: normalizedRow.middleName || nameParts.middleName,
         lastName: normalizedRow.lastName || nameParts.lastName,
-        suffix: normalizedRow.suffix || nameParts.suffix,
+        suffix: normalizedRow.suffix || nameParts.suffix || '',
         birthDate: normalizeBirthdate(normalizedRow.birthDate),
         sex: mapValue(normalizedRow.sex, SEX_VALUES),
         sector: mapValue(normalizedRow.sector, SECTOR_VALUES, 0),
@@ -261,13 +296,14 @@ function getImportStatusMessage(result, fileName) {
 
     if (result.failed > 0) parts.push(`${result.failed} failed.`)
     if (result.skipped > 0) parts.push(`${result.skipped} blank row${result.skipped === 1 ? '' : 's'} skipped.`)
+    if (result.duplicates > 0) parts.push(`${result.duplicates} duplicate resident${result.duplicates === 1 ? '' : 's'} skipped.`)
 
     return parts.join(' ')
 }
 
 function setImportState(button, statusEl, isImporting, message) {
     button.disabled = isImporting
-    button.textContent = isImporting ? 'Importing...' : 'Import from Excel'
+    button.textContent = isImporting ? 'Importing...' : 'Import spreadsheet'
     if (statusEl) statusEl.textContent = message
 }
 

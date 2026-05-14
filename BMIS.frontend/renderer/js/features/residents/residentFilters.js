@@ -2,7 +2,7 @@ import { getData } from '../../core/api.js'
 import { getResidentQueryParams, searchResidentsByName } from './residentSearch.js'
 
 const SEX_FILTER_VALUES = { Male: 0, Female: 1 }
-const SECTOR_FILTER_VALUES = { General: 0, Senior: 1, PWD: 2 }
+const SECTOR_FILTER_VALUES = { General: 0, PWD: 1, Senior: 2 }
 const CIVIL_STATUS_FILTER_VALUES = {
     Single: 0,
     Married: 1,

@@ -1,5 +1,5 @@
 export const SEX_LABELS = { 0: 'Male', 1: 'Female' }
-export const SECTOR_LABELS = { 0: 'General', 1: 'Senior', 2: 'PWD' }
+export const SECTOR_LABELS = { 0: 'General', 1: 'PWD', 2: 'Senior' }
 export const CIVIL_STATUS_LABELS = {
     0: 'Single',
     1: 'Married',
