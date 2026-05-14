@@ -1086,8 +1086,86 @@ td {
    HISTORY (history.html)
    ============================================================ */
 
+#historyView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+}
+
+.history-header {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--gap-xl);
+    justify-content: space-between;
+}
+
+.history-header h2 {
+    margin-bottom: var(--gap-xs);
+}
+
+.history-header p,
+.history-summary-card span,
+.history-empty {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.history-secondary-btn {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-height: 42px;
+    padding: var(--gap-md) var(--gap-lg);
+    white-space: nowrap;
+}
+
+.history-secondary-btn:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.history-summary {
+    display: grid;
+    gap: var(--gap-lg);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.history-summary-card {
+    border: 1px solid #e5e5e2;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    min-height: 92px;
+    justify-content: center;
+    padding: var(--gap-lg);
+}
+
+.history-summary-card strong {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.history-toolbar {
+    align-items: stretch;
+    display: grid;
+    gap: var(--gap-lg);
+    grid-template-columns: minmax(0, 1fr) 220px;
+}
+
+.history-toolbar input,
+.history-toolbar select {
+    min-height: 42px;
+    width: 100%;
+}
+
 #historyContainer {
     width: 100%;
+}
+
+.history-table-wrap {
+    overflow-x: auto;
 }
 
 #historyTable {
@@ -1133,8 +1211,41 @@ td {
     color: var(--color-text-muted);
 }
 
-.history-empty {
-    color: var(--color-text-muted);
+.history-badge {
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    padding: 5px 10px;
+}
+
+.history-badge--resident-added {
+    background-color: #e9f8ef;
+    color: #166534;
+}
+
+.history-badge--resident-updated {
+    background-color: #eef4ff;
+    color: #1d4ed8;
+}
+
+.history-badge--resident-deleted {
+    background-color: #fff1f2;
+    color: #be123c;
+}
+
+@media (max-width: 860px) {
+    .history-header {
+        flex-direction: column;
+    }
+
+    .history-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .history-toolbar {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ============================================================
