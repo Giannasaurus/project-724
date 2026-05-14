@@ -17,36 +17,42 @@
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
 
-    --color-text: #000;
-    --color-text-muted: #555;
-    --color-required: red;
-    --color-error: red;
-    --color-dangerous: red;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-required: #dc2626;
+    --color-error: #dc2626;
+    --color-dangerous: #dc2626;
     --color-white: #fff;
-    --color-bg-nav: #f8f8f7;
-    --color-nav-outline: #e5e5e2;
+    --color-surface: #fff;
+    --color-surface-muted: #f8fafc;
+    --color-surface-soft: #f3f4f6;
+    --color-bg-nav: #ffffff;
+    --color-nav-outline: #e5e7eb;
     --color-focus: #2563EB;
     --color-accent: #2563EB;
     --color-accent-hover: #1E40AF;
-    --color-border: #C0C0C0;
+    --color-border: #d1d5db;
+    --color-border-subtle: #e5e7eb;
     --color-bg-input: #fff;
-    --color-bg-hover: rgba(211, 211, 211, 0.5);
-    --color-bg-btn-save: red;
-    --color-bg-btn-save-hover: darkred;
-    --color-bg-btn-save-active: #6e0000;
-    --color-bg-btn-cancel: #e0e0e0;
-    --color-bg-btn-cancel-hover: #c8c8c8;
-    --color-deactivated: lightgray;
-    --color-bg-btn-primary: #222;
-    --color-bg-btn-primary-hover: #444;
-    --color-bg-btn-disabled: #888;
+    --color-bg-hover: #f3f4f6;
+    --color-bg-btn-save: #2563EB;
+    --color-bg-btn-save-hover: #1E40AF;
+    --color-bg-btn-save-active: #1e3a8a;
+    --color-bg-btn-cancel: #f3f4f6;
+    --color-bg-btn-cancel-hover: #e5e7eb;
+    --color-deactivated: #d1d5db;
+    --color-bg-btn-primary: #111827;
+    --color-bg-btn-primary-hover: #374151;
+    --color-bg-btn-disabled: #9ca3af;
 
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 24px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
 
-    --input-border: 2px solid var(--color-border);
-    --input-padding: 8px 12px;
+    --input-border: 1px solid var(--color-border);
+    --input-padding: 9px 12px;
+    --shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-popover: 0 18px 48px rgba(15, 23, 42, 0.16);
 
     --hover-transition-delay: 45ms;
     --hover-transition-duration: 140ms;
@@ -80,6 +86,7 @@ html {
     padding: 0;
     height: 100%;
     overflow: hidden;
+    background-color: var(--color-surface-muted);
 }
 
 body,
@@ -88,8 +95,21 @@ body,
     overflow: hidden;
 }
 
+body {
+    background-color: var(--color-surface-muted);
+    color: var(--color-text);
+}
+
 h2 {
     margin-bottom: var(--gap-xl);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--color-text);
+    letter-spacing: 0;
 }
 
 a {
@@ -150,6 +170,21 @@ select {
     border: var(--input-border);
     border-radius: var(--radius-md);
     padding: var(--input-padding);
+}
+
+input[type="text"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+select:hover {
+    border-color: #9ca3af;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -229,11 +264,11 @@ label {
 }
 
 #loginButton:hover {
-    background-color: gray;
+    background-color: var(--color-accent-hover);
 }
 
 #loginButton:active {
-    background-color: blue;
+    background-color: var(--color-bg-btn-save-active);
 }
 
 
@@ -255,6 +290,7 @@ label {
     background-color: var(--color-bg-nav);
     border-bottom: 1px solid var(--color-nav-outline);
     border-radius: 0;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -336,7 +372,7 @@ li,
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 24px 24px 24px;
+    padding: 24px;
 }
 
 
@@ -352,7 +388,7 @@ dialog {
 }
 
 dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(15, 23, 42, 0.18);
 }
 
 .closeBtn:not(.ar-cancel-btn) {
@@ -1635,7 +1671,7 @@ tbody tr:hover .ellipsis-btn,
 
 .context-menu button {
     font-family: inherit;
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-base);
     min-width: 84px;
     text-align: left;
     padding: 8px;
@@ -2372,7 +2408,7 @@ tbody tr:hover .ellipsis-btn,
 .page-numbers button.active {
     font-weight: bold;
     text-decoration: underline;
-    color: red;
+    color: var(--color-accent);
 }
 
 #paginationContainer>button {
@@ -2422,4 +2458,204 @@ tbody tr:hover .ellipsis-btn,
 
 .back-btn:hover {
     text-decoration: underline;
+}
+
+/* ============================================================
+   COHESION PASS
+   Keep feature-specific markup, but make the shared UI language win.
+   ============================================================ */
+
+#loginView,
+#homeView,
+#iLView,
+#historyView,
+#householdsView,
+#drView,
+#settingsView,
+#addResidentView,
+#editResidentView {
+    color: var(--color-text);
+}
+
+#loginView {
+    background-color: var(--color-surface);
+}
+
+#loginButton,
+.households-primary-btn,
+.settings-primary-btn,
+.dr-primary-btn,
+#iLView .btn_main,
+#addResidentBtn,
+#ar-saveBtn,
+.form-save-btn {
+    background-color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    color: var(--color-white);
+    font-weight: 600;
+    min-height: 42px;
+    padding: 9px 16px;
+}
+
+#loginButton:hover,
+.households-primary-btn:hover,
+.settings-primary-btn:hover,
+.dr-primary-btn:hover,
+#iLView .btn_main:hover,
+#addResidentBtn:hover,
+#ar-saveBtn:hover,
+.form-save-btn:hover {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+}
+
+#loginButton:active,
+#iLView .btn_main:active,
+#ar-saveBtn:active,
+.form-save-btn:active {
+    background-color: var(--color-bg-btn-save-active);
+    border-color: var(--color-bg-btn-save-active);
+}
+
+.history-secondary-btn,
+.settings-secondary-btn,
+.dr-secondary-btn,
+#iLView .btn_sub,
+.il-nav-btn,
+.entity-action-btn,
+.ar-cancel-btn,
+.delete-dialog-cancel,
+#paginationContainer>button,
+.page-numbers button {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-weight: 500;
+    min-height: 42px;
+    padding: 9px 16px;
+    text-decoration: none;
+}
+
+.history-secondary-btn:hover,
+.settings-secondary-btn:hover,
+.dr-secondary-btn:hover,
+#iLView .btn_sub:hover,
+.il-nav-btn:hover,
+.entity-action-btn:hover,
+.entity-action-btn:focus-visible,
+.ar-cancel-btn:hover,
+.delete-dialog-cancel:hover,
+#paginationContainer>button:hover:not(:disabled),
+.page-numbers button:hover {
+    background-color: var(--color-bg-hover);
+    border-color: #9ca3af;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.settings-danger-btn,
+.entity-action-btn--danger {
+    border: 1px solid rgba(220, 38, 38, 0.45);
+    color: var(--color-dangerous);
+}
+
+.settings-danger-btn:hover,
+.entity-action-btn--danger:hover,
+.entity-action-btn--danger:focus-visible {
+    background-color: #fef2f2;
+    border-color: var(--color-dangerous);
+}
+
+.home-panel,
+.tally-box,
+.daily-report,
+.history-summary-card,
+.settings-check-field,
+.dr-resident-result,
+.context-menu,
+.household-members-table-wrap {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-panel);
+}
+
+.entity-selection-bar {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+#filterMenu,
+.delete-confirm-dialog,
+.context-menu {
+    box-shadow: var(--shadow-popover);
+}
+
+.settings-sidebar,
+.settings-panel-header,
+.settings-danger-zone,
+.dr-request-panel,
+#dr-previewFrame,
+.entity-detail-panel,
+.entity-detail-grid div,
+.households-list-header,
+.household-row,
+#householdMembersTable th,
+#householdMembersTable td,
+table td,
+#historyTable tbody tr {
+    border-color: var(--color-border-subtle);
+}
+
+th,
+#householdMembersTable th,
+#historyTable th {
+    border-bottom-color: var(--color-border-subtle);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    text-transform: none;
+}
+
+td,
+#historyTable td,
+#householdMembersTable td,
+.household-row span,
+.household-row-main small,
+.entity-detail-grid dd,
+.entity-detail-list {
+    color: var(--color-text-muted);
+}
+
+#dataTable .col-name,
+.household-row-main strong,
+.household-member-check span {
+    color: var(--color-text);
+}
+
+tbody tr:hover,
+.household-row:hover,
+.dr-resident-result:hover,
+.settings-tab.active,
+.settings-tab:hover,
+.sub-main-nav-a.active,
+.sub-main-nav-li:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.page-numbers button.active {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: var(--color-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+#paginationContainer>button:disabled,
+.entity-action-btn:disabled,
+#ar-saveBtn:disabled,
+.form-save-btn:disabled {
+    opacity: 0.65;
+    text-decoration: none;
 }
