@@ -3,6 +3,7 @@ import { clearElement, getDocumentRequestElements, renderPreview, setError, setP
 import { getResidentFullName } from './documentRequestFormatters.js'
 import { applyRequestReason, downloadWordDocument, fetchDocumentHtml, getDocumentFileName } from './documentRequestGenerator.js'
 import { findResidents, renderSearchMessage, renderSearchResults } from './documentRequestResidents.js'
+import { getDocumentDefaults } from '../settings/documentDefaults.js'
 
 const pageState = {
     selectedResident: null,
@@ -63,7 +64,8 @@ async function handleDocumentSubmit(event) {
             documentType: getDocumentType(),
             resident: pageState.selectedResident,
             reasonType: getReasonType(),
-            otherReason: getOtherReason()
+            otherReason: getOtherReason(),
+            documentDefaults: getDocumentDefaults()
         })
     }
     catch (error) {

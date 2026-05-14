@@ -1,5 +1,6 @@
 import { OTHER_REASON_VALUE, REASON_OPTIONS } from './documentRequestConstants.js'
 import { getResidentFullName, getResidentId, slugify } from './documentRequestFormatters.js'
+import { getDocumentDefaults } from '../settings/documentDefaults.js'
 
 export async function fetchDocumentHtml({ documentType, resident }) {
     const port = await window.electronAPI.getApiPort()
@@ -40,7 +41,30 @@ export function applyRequestReason(html, { reasonType, otherReason }) {
         }
     }
 
+    applyDocumentDefaults(doc, getDocumentDefaults())
+
     return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`
+}
+
+function applyDocumentDefaults(doc, defaults) {
+    replaceText(doc.body, 'Barangay 724 Zone 79, District V', `${defaults.barangayName} ${defaults.barangayZone}`)
+    replaceText(doc.body, 'ROLANDO V. NAVARRO', defaults.chairName)
+    replaceText(doc.body, 'Punong Barangay', defaults.chairTitle)
+    replaceText(doc.body, 'barangay724zone79@gmail.com', defaults.email)
+    replaceText(doc.body, '2207 Singalong Street, Malate Manila', defaults.barangayAddress)
+    replaceText(doc.body, 'Barangay 724 Zone 79', defaults.facebook)
+}
+
+function replaceText(root, from, to) {
+    if (!root || !from || to === undefined) return
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    const nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+
+    nodes.forEach((node) => {
+        node.textContent = node.textContent.replaceAll(from, to)
+    })
 }
 
 export async function downloadWordDocument(html, fileName, context = {}) {

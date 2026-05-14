@@ -39,6 +39,16 @@ const REASON_LABELS = {
     residency: 'Proof of Residency'
 }
 
+const DEFAULT_DOCUMENT_DEFAULTS = {
+    barangayName: 'Barangay 724',
+    barangayZone: 'Zone 79, District V',
+    barangayAddress: '2207 Singalong Street, Malate Manila',
+    chairName: 'ROLANDO V. NAVARRO',
+    chairTitle: 'Punong Barangay',
+    email: 'barangay724zone79@gmail.com',
+    facebook: 'Barangay 724 Zone 79'
+}
+
 function getResidentValue(resident, field) {
     const pascalField = `${field[0].toUpperCase()}${field.slice(1)}`
     return resident?.[field] ?? resident?.[pascalField] ?? ''
@@ -169,6 +179,10 @@ function signatureCell(lines) {
 
 function createIndigencyDoc(context = {}) {
     const resident = context.resident ?? {}
+    const defaults = {
+        ...DEFAULT_DOCUMENT_DEFAULTS,
+        ...(context.documentDefaults ?? {})
+    }
     const selectedReasons = getSelectedReasons(context.reasonType)
     const isOther = context.reasonType === 'other'
     const date = getCurrentDateParts()
@@ -206,7 +220,7 @@ function createIndigencyDoc(context = {}) {
                         text(`${getCivilStatus(resident)} Filipino`, { underline: true }),
                         text(' is a bonafide resident of '),
                         text(address, { bold: true, underline: true }),
-                        text(` Barangay 724 Zone 79, District V, Manila and that ${getPronoun(resident)} belongs to a low-income family and does not have the financial capacity to support personal and medical needs without assistance.`)
+                        text(` ${defaults.barangayName} ${defaults.barangayZone}, Manila and that ${getPronoun(resident)} belongs to a low-income family and does not have the financial capacity to support personal and medical needs without assistance.`)
                     ], { after: 220 }),
                     paragraph([
                         text('This Indigent certification issued upon his/her request for:')
@@ -262,8 +276,8 @@ function createIndigencyDoc(context = {}) {
                                     ]),
                                     signatureCell([
                                         paragraph([text('____________________________')], { alignment: AlignmentType.CENTER, after: 40 }),
-                                        paragraph([text('ROLANDO V. NAVARRO', { bold: true })], { alignment: AlignmentType.CENTER, after: 0 }),
-                                        paragraph([text('Punong Barangay')], { alignment: AlignmentType.CENTER, after: 0 })
+                                        paragraph([text(defaults.chairName, { bold: true })], { alignment: AlignmentType.CENTER, after: 0 }),
+                                        paragraph([text(defaults.chairTitle)], { alignment: AlignmentType.CENTER, after: 0 })
                                     ])
                                 ]
                             })
@@ -276,9 +290,9 @@ function createIndigencyDoc(context = {}) {
                         rows: [
                             new TableRow({
                                 children: [
-                                    signatureCell([paragraph([text('barangay724zone79@gmail.com', { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })]),
-                                    signatureCell([paragraph([text('2207 Singalong Street, Malate Manila', { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })]),
-                                    signatureCell([paragraph([text('Barangay 724 Zone 79', { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })])
+                                    signatureCell([paragraph([text(defaults.email, { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })]),
+                                    signatureCell([paragraph([text(defaults.barangayAddress, { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })]),
+                                    signatureCell([paragraph([text(defaults.facebook, { bold: true, size: 18 })], { alignment: AlignmentType.CENTER, after: 0 })])
                                 ]
                             })
                         ]

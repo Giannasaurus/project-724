@@ -371,17 +371,6 @@ dialog::backdrop {
     border-radius: var(--radius-sm);
 }
 
-#settingsDialog {
-    width: 800px;
-    height: 500px;
-}
-
-#settingsHeader {
-    display: flex;
-    justify-content: space-between;
-}
-
-
 /* ============================================================
    HOME (home.html)
    ============================================================ */
@@ -1766,6 +1755,164 @@ tbody tr:hover .ellipsis-btn,
         border-right: 0;
         border-bottom: 1px solid #e5e5e2;
         padding: 0 0 24px;
+    }
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+
+#settingsView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+    min-height: 100%;
+}
+
+.settings-heading {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-xl);
+}
+
+.settings-heading h2 {
+    margin-bottom: var(--gap-xs);
+}
+
+.settings-heading p,
+.settings-panel-header p,
+.settings-status {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--gap-xl);
+}
+
+.settings-sidebar {
+    border-right: 1px solid #e5e5e2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    padding-right: var(--gap-xl);
+}
+
+.settings-tab {
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-height: 40px;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.settings-tab.active,
+.settings-tab:hover {
+    background-color: var(--color-bg-hover);
+    font-weight: 600;
+}
+
+.settings-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+    max-width: 880px;
+}
+
+.settings-panel-header {
+    align-items: flex-start;
+    border-bottom: 1px solid #e5e5e2;
+    display: flex;
+    gap: var(--gap-xl);
+    justify-content: space-between;
+    padding-bottom: var(--gap-xl);
+}
+
+.settings-panel-header h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--gap-xs);
+}
+
+.settings-grid {
+    display: grid;
+    gap: var(--gap-xl);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    height: auto;
+}
+
+.settings-field span {
+    font-weight: 600;
+}
+
+.settings-field input {
+    width: 100%;
+}
+
+.settings-field--full {
+    grid-column: 1 / -1;
+}
+
+.settings-actions {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-xl);
+}
+
+.settings-primary-btn,
+.settings-secondary-btn {
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    min-height: 42px;
+    padding: var(--gap-md) var(--gap-lg);
+}
+
+.settings-primary-btn {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.settings-primary-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.settings-secondary-btn {
+    border: 2px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.settings-secondary-btn:hover {
+    background-color: var(--color-bg-hover);
+}
+
+@media (max-width: 860px) {
+    .settings-layout,
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-sidebar {
+        border-right: 0;
+        border-bottom: 1px solid #e5e5e2;
+        padding: 0 0 var(--gap-lg);
+    }
+
+    .settings-panel-header,
+    .settings-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 

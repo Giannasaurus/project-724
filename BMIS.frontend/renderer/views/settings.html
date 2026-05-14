@@ -1,0 +1,60 @@
+<section id="settingsView">
+    <div class="settings-heading">
+        <div>
+            <h2>Settings</h2>
+            <p>Control the defaults used across generated barangay documents.</p>
+        </div>
+    </div>
+
+    <div class="settings-layout">
+        <aside class="settings-sidebar" aria-label="Settings sections">
+            <button class="settings-tab active" type="button">Document Defaults</button>
+        </aside>
+
+        <form id="documentDefaultsForm" class="settings-panel">
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Document Defaults</h3>
+                    <p>These values appear in certificate previews and exported Word documents.</p>
+                </div>
+                <button id="settingsResetBtn" class="settings-secondary-btn" type="button">Reset</button>
+            </div>
+
+            <div class="settings-grid">
+                <label class="settings-field">
+                    <span>Barangay name</span>
+                    <input id="settingsBarangayName" type="text" name="barangayName" required>
+                </label>
+                <label class="settings-field">
+                    <span>Zone / district</span>
+                    <input id="settingsBarangayZone" type="text" name="barangayZone" required>
+                </label>
+                <label class="settings-field settings-field--full">
+                    <span>Barangay address</span>
+                    <input id="settingsBarangayAddress" type="text" name="barangayAddress" required>
+                </label>
+                <label class="settings-field">
+                    <span>Punong Barangay</span>
+                    <input id="settingsChairName" type="text" name="chairName" required>
+                </label>
+                <label class="settings-field">
+                    <span>Signatory title</span>
+                    <input id="settingsChairTitle" type="text" name="chairTitle" required>
+                </label>
+                <label class="settings-field">
+                    <span>Email</span>
+                    <input id="settingsEmail" type="text" name="email">
+                </label>
+                <label class="settings-field">
+                    <span>Facebook / page label</span>
+                    <input id="settingsFacebook" type="text" name="facebook">
+                </label>
+            </div>
+
+            <div class="settings-actions">
+                <p id="settingsStatus" class="settings-status" aria-live="polite"></p>
+                <button class="settings-primary-btn" type="submit">Save defaults</button>
+            </div>
+        </form>
+    </div>
+</section>

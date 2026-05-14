@@ -15,6 +15,7 @@ import { bindResidentImportControls } from './features/residents/residentImport.
 import { bindResidentFilterControls, handleSearchInput, loadData, renderFilterIndicators } from './features/residents/residentsPage.js'
 import { renderPagination } from './features/residents/residentsPagination.js'
 import { getResidentQueryParams, searchResidentsByName } from './features/residents/residentSearch.js'
+import { initSettingsPage } from './features/settings/settingsPage.js'
 
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 const DEFAULT_PAGE_SIZE = 50
@@ -43,6 +44,10 @@ const views = {
     history: {
         file: 'views/activity-log.html',
         afterRender: () => loadHistory(RESIDENT_HISTORY_KEY)
+    },
+    settings: {
+        file: 'views/settings.html',
+        afterRender: initSettingsPage
     }
 }
 
@@ -81,7 +86,6 @@ export async function loadApp(app) {
     }
 
     bindNav(state, app)
-    bindSettingsDialog()
     await renderView(state, DEFAULT_VIEW)
 }
 
@@ -93,11 +97,6 @@ function bindNav(state, app) {
         if (!navLink) return
 
         event.preventDefault()
-
-        if (navLink.id === 'settings') {
-            document.getElementById('settingsDialog')?.showModal()
-            return
-        }
 
         if (navLink.id === 'logout') {
             localStorage.removeItem('isLoggedIn')
@@ -260,32 +259,6 @@ function setActiveNav(id) {
     const mainNav = document.getElementById('mainNav')
     mainNav.querySelectorAll('.sub-main-nav-a.active').forEach(link => link.classList.remove('active'))
     mainNav.querySelector(`#${id}`)?.classList.add('active')
-}
-
-function bindSettingsDialog() {
-    const settingsDialog = document.getElementById('settingsDialog')
-    const closeBtns = document.querySelectorAll('.closeBtn')
-
-    settingsDialog.addEventListener('click', closeDialogOnBackdrop)
-
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('dialog')?.close()
-        })
-    })
-}
-
-function closeDialogOnBackdrop(event) {
-    const dialog = event.currentTarget
-    const rect = dialog.getBoundingClientRect()
-    const clickedInDialog = (
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width
-    )
-
-    if (!clickedInDialog) dialog.close()
 }
 
 export function closeOpenRowActions() {
