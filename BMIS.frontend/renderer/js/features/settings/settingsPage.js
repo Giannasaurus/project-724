@@ -1,5 +1,6 @@
 import { getActivityLogSettings, resetActivityLogSettings, saveActivityLogSettings } from './activityLogSettings.js'
 import { getDocumentDefaults, resetDocumentDefaults, saveDocumentDefaults } from './documentDefaults.js'
+import { openConfirmDialog } from '../../shared/confirmDialog.js'
 
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
 
@@ -67,8 +68,14 @@ function initActivityLogSettings() {
         setStatus(status, 'Activity log settings reset.')
     })
 
-    clearBtn?.addEventListener('click', () => {
-        if (!window.confirm('Clear all recorded activity on this device?')) return
+    clearBtn?.addEventListener('click', async () => {
+        const shouldClear = await openConfirmDialog({
+            title: 'Clear activity log?',
+            heading: 'Clear local activity?',
+            message: 'This removes the Activity Log records saved on this device. This cannot be undone.',
+            confirmLabel: 'Clear log'
+        })
+        if (!shouldClear) return
 
         localStorage.removeItem(RESIDENT_HISTORY_KEY)
         setStatus(status, 'Activity log cleared.')
