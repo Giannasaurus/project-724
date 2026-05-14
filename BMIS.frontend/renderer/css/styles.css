@@ -666,17 +666,33 @@ dialog::backdrop {
     border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     display: none;
-    font-family: inherit;
-    font-size: var(--font-size-base);
     height: 28px;
     justify-content: center;
-    line-height: 1;
+    min-height: 28px;
     padding: 0;
     position: absolute;
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
     width: 28px;
+}
+
+.resident-clear-search-btn::before,
+.resident-clear-search-btn::after {
+    background-color: currentColor;
+    border-radius: 999px;
+    content: "";
+    height: 14px;
+    position: absolute;
+    width: 2px;
+}
+
+.resident-clear-search-btn::before {
+    transform: rotate(45deg);
+}
+
+.resident-clear-search-btn::after {
+    transform: rotate(-45deg);
 }
 
 .resident-clear-search-btn:not([hidden]) {
