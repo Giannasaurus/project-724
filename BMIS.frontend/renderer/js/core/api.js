@@ -1,7 +1,3 @@
-export async function checkLogin(username, password) {
-    return window.electronAPI.checkLogin(username, password)
-}
-
 export async function getData(endpoint) {
     return window.electronAPI.getData(endpoint)
 }

@@ -452,7 +452,7 @@ dialog::backdrop {
 #summaryWrapper {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: var(--gap-xl);
     width: 100%;
 }
@@ -490,6 +490,11 @@ dialog::backdrop {
 #chartContainer {
     grid-column: 1;
     grid-row: 1;
+}
+
+#seniorChartContainer {
+    grid-column: 1;
+    grid-row: 2;
 }
 
 .hero-stat {
@@ -561,6 +566,22 @@ dialog::backdrop {
     background: #F59E0B;
 }
 
+.chart-bar--senior-1 {
+    background: #2563EB;
+}
+
+.chart-bar--senior-2 {
+    background: #14B8A6;
+}
+
+.chart-bar--senior-3 {
+    background: #F59E0B;
+}
+
+.chart-bar--senior-4 {
+    background: #DC2626;
+}
+
 .tally-box__label,
 .daily-report__label {
     color: var(--color-text-muted);
@@ -578,7 +599,7 @@ dialog::backdrop {
     flex-direction: column;
     gap: var(--gap-xl);
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1 / span 3;
 }
 
 .tally-box,
@@ -602,7 +623,7 @@ dialog::backdrop {
     flex-direction: row;
     gap: var(--gap-xl);
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
 }
 
 .daily-report {
@@ -630,6 +651,7 @@ dialog::backdrop {
     }
 
     #chartContainer,
+    #seniorChartContainer,
     #dailyReportContainer,
     #tallyContainer {
         grid-column: auto;
@@ -1728,6 +1750,10 @@ tbody tr:hover .ellipsis-btn,
     display: flex;
     flex-direction: column;
     gap: var(--gap-sm);
+}
+
+.dr-field-group[hidden] {
+    display: none;
 }
 
 .dr-search-row {

@@ -1,4 +1,4 @@
-import { checkLogin, getData } from './core/api.js'
+import { getData } from './core/api.js'
 import { loadView } from './core/viewLoader.js'
 import {
     loadHistory,
@@ -18,6 +18,12 @@ import { getResidentQueryParams, searchResidentsByName } from './features/reside
 import { initSettingsPage } from './features/settings/settingsPage.js'
 
 const RESIDENT_HISTORY_KEY = 'bmisResidentHistory'
+const AUTH_SESSION_KEY = 'bmisAuthSession'
+const AUTH_CREDENTIALS_KEY = 'bmis'
+const DEFAULT_AUTH_CREDENTIALS = {
+    username: 'user',
+    password: 'password'
+}
 const DEFAULT_PAGE_SIZE = 50
 const DEFAULT_VIEW = 'home'
 
@@ -51,6 +57,17 @@ const views = {
     }
 }
 
+export async function loadInitialView(app) {
+    ensureStoredCredentials()
+
+    if (isLoggedIn()) {
+        await loadApp(app)
+        return
+    }
+
+    await loadLogin(app)
+}
+
 export async function loadLogin(app) {
     await loadView('views/login.html', app)
 
@@ -61,10 +78,9 @@ export async function loadLogin(app) {
         const username = document.getElementById('usernameInput')
         const password = document.getElementById('passwordInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
-        const result = await checkLogin(username.value, password.value)
 
-        if (result) {
-            localStorage.setItem('isLoggedIn', result)
+        if (isValidLogin(username.value, password.value)) {
+            saveLoginSession(username.value)
             await loadApp(app)
             return
         }
@@ -99,7 +115,7 @@ function bindNav(state, app) {
         event.preventDefault()
 
         if (navLink.id === 'logout') {
-            localStorage.removeItem('isLoggedIn')
+            clearLoginSession()
             await loadLogin(app)
             return
         }
@@ -263,4 +279,52 @@ function setActiveNav(id) {
 
 export function closeOpenRowActions() {
     document.querySelectorAll('.row-action.open').forEach(element => element.classList.remove('open'))
+}
+
+function isLoggedIn() {
+    try {
+        const session = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) ?? '{}')
+        return session?.isLoggedIn === true
+    }
+    catch {
+        return false
+    }
+}
+
+function isValidLogin(username, password) {
+    const credentials = getStoredCredentials()
+
+    return username.trim() === credentials.username && password === credentials.password
+}
+
+function getStoredCredentials() {
+    return ensureStoredCredentials()
+}
+
+function ensureStoredCredentials() {
+    try {
+        const storedCredentials = JSON.parse(localStorage.getItem(AUTH_CREDENTIALS_KEY) ?? '{}')
+        if (storedCredentials?.username && storedCredentials?.password) {
+            return storedCredentials
+        }
+    }
+    catch {
+        localStorage.removeItem(AUTH_CREDENTIALS_KEY)
+    }
+
+    localStorage.setItem(AUTH_CREDENTIALS_KEY, JSON.stringify(DEFAULT_AUTH_CREDENTIALS))
+    return DEFAULT_AUTH_CREDENTIALS
+}
+
+function saveLoginSession(username) {
+    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({
+        isLoggedIn: true,
+        username: username.trim(),
+        loggedInAt: new Date().toISOString()
+    }))
+}
+
+function clearLoginSession() {
+    localStorage.removeItem(AUTH_SESSION_KEY)
+    localStorage.removeItem('isLoggedIn')
 }

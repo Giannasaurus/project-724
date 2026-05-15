@@ -81,10 +81,11 @@ public class ResidentService : IResidentService, ISearchable {
 
     public async Task<Result<int>> Create(ResidentCreateDto details) {
         Resident resident = new Resident(details);
-
+/*
         if(HasDuplicate(resident)) {
             return ResultStatus.Conflict;
         }
+*/
 
         _db.Add(resident);
         
@@ -155,6 +156,18 @@ public class ResidentService : IResidentService, ISearchable {
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
         var residents = _db.Residents.AsNoTracking();
 
+        if(!string.IsNullOrWhiteSpace(criteria.firstName)) {
+            residents = residents.Where(r => EF.Functions.Like(r.FirstName, $"%{criteria.firstName}%"));
+        }
+
+        if(!string.IsNullOrWhiteSpace(criteria.middleName)) {
+            residents = residents.Where(r => r.MiddleName != null && EF.Functions.Like(r.MiddleName, $"%{criteria.middleName}%"));
+        }
+
+        if(!string.IsNullOrWhiteSpace(criteria.lastName)) {
+            residents = residents.Where(r => EF.Functions.Like(r.LastName, $"%{criteria.lastName}%"));
+        }
+
         DateOnly minCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.minAge);
         DateOnly maxCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.maxAge);
         residents = residents.Where(r => maxCutoff <= r.BirthDate && r.BirthDate <= minCutoff);
@@ -221,10 +234,14 @@ public class ResidentService : IResidentService, ISearchable {
     }
     
     private bool HasDuplicate(Resident resident) {
-        string reference = resident.ToString();
-        var similar = _db.Residents.AsNoTracking()
-                            .Where(r => reference == r.ToString()); 
+        string middleName = resident.MiddleName ?? "";
+        string suffix = resident.Suffix ?? "";
 
-        return similar.Any();    
+        return _db.Residents.AsNoTracking().Any(r =>
+            r.FirstName == resident.FirstName &&
+            r.LastName == resident.LastName &&
+            (r.MiddleName ?? "") == middleName &&
+            (r.Suffix ?? "") == suffix
+        );
     }
 }

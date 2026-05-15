@@ -33,6 +33,18 @@ async function fileExists(filePath) {
     }
 }
 
+async function readJsonOrNull(response) {
+    const body = await response.text()
+    if (!body) return null
+
+    try {
+        return JSON.parse(body)
+    }
+    catch {
+        return body
+    }
+}
+
 function ensureBackupExtension(filePath) {
     return filePath.toLowerCase().endsWith('.bmis-backup')
         ? filePath
@@ -208,7 +220,7 @@ app.whenReady().then(async () => {
                 return {
                     success: true,
                     message: `[~] request ${response.status}: POST ${url}`,
-                    data: await response.json()
+                    data: await readJsonOrNull(response)
                 }
             }
             else {
@@ -289,13 +301,6 @@ app.whenReady().then(async () => {
                 message: `[!] request failed: DELETE ${url} -> ${err.message}`
             }
         }
-    })
-
-    ipcMain.handle('check-login', (e, username, password) => {
-        // commented out for faster development
-        // return username === process.env.UN && password === process.env.PW
-
-        return username === 'user' && password === 'password'
     })
 
     ipcMain.handle('read-residents-excel', async () => {

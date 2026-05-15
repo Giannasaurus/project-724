@@ -5,6 +5,10 @@ View the Wiki! YIPEE
 ## TO RUN
 
 > [!NOTE]
+> For the Electron app:
+> `npm run dev`
+>> Run this from the project root. Use the project script instead of `npx electronmon .`; the cached electronmon package is not compatible with this project's Electron version.
+>
 > For Development:  
 > `dotnet run --environment Development`  
 >> automatically creates a sample data in `BMIS.backend/Sample/LocalDatabase.db`  
