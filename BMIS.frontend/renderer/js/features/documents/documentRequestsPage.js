@@ -1,229 +1,133 @@
-import { searchResidentsByName } from '../residents/residentSearch.js'
+import { DEFAULT_DOCUMENT_TYPE, DOCUMENT_TYPES, OTHER_REASON_VALUE, PREVIEW_EMPTY_STATUS } from './documentRequestConstants.js'
+import { clearElement, getDocumentRequestElements, renderPreview, setError, setPreviewStatus } from './documentRequestDom.js'
+import { getResidentFullName } from './documentRequestFormatters.js'
+import { applyRequestReason, downloadWordDocument, fetchDocumentHtml, getDocumentFileName } from './documentRequestGenerator.js'
+import { findResidents, renderSearchMessage, renderSearchResults } from './documentRequestResidents.js'
+import { getDocumentDefaults } from '../settings/documentDefaults.js'
 
-const DOCUMENT_TYPES = {
-    0: 'Barangay Clearance',
-    1: 'Certificate of Residency',
-    2: 'Certificate of Indigency'
+const pageState = {
+    selectedResident: null,
+    currentDocumentHtml: ''
 }
 
-const OTHER_REASON_VALUE = 'other'
-
-const REASON_OPTIONS = {
-    medical: {
-        label: 'Medical Assistance',
-        checkboxIds: ['option-medical-asst']
-    },
-    financial: {
-        label: 'Financial Assistance',
-        checkboxIds: ['option-finance-asst']
-    },
-    food: {
-        label: 'Food Assistance',
-        checkboxIds: ['option-food-asst']
-    },
-    scholarship: {
-        label: 'Scholarship',
-        checkboxIds: ['option-scholarship']
-    },
-    education: {
-        label: 'Educational Assistance',
-        checkboxIds: ['option-educ-asst']
-    },
-    funeral: {
-        label: 'Funeral/Burial Assistance',
-        checkboxIds: ['option-funeral-asst']
-    },
-    soloParentPwd: {
-        label: 'Solo Parent/PWD Assistance',
-        checkboxIds: ['option-solo-parent-pwd']
-    },
-    residency: {
-        label: 'Proof of Residency',
-        checkboxIds: ['option-proof-residency']
-    },
-    orangeCard: {
-        label: 'Orange Card',
-        checkboxIds: ['option-orange-car']
-    },
-    other: {
-        label: 'Others, please specify',
-        checkboxIds: ['option-others']
-    }
-}
-
-let selectedResident = null
-let currentDocumentHtml = ''
+let elements = {}
 
 export function initDocumentRequestsPage(options = {}) {
-    selectedResident = options.selectedResident ?? null
-    currentDocumentHtml = ''
+    pageState.selectedResident = options.selectedResident ?? null
+    pageState.currentDocumentHtml = ''
+    elements = getDocumentRequestElements()
 
     bindSearchControls()
     bindDocumentControls()
-    setSelectedResident(selectedResident)
+    setSelectedResident(pageState.selectedResident)
 }
 
 function bindSearchControls() {
-    const searchInput = document.getElementById('dr-residentSearch')
-    const searchBtn = document.getElementById('dr-searchBtn')
-    const clearSearchBtn = document.getElementById('dr-clearSearchBtn')
-
-    if (selectedResident && searchInput) {
-        searchInput.value = getResidentFullName(selectedResident)
-    }
+    elements.searchBtn?.addEventListener('click', searchResidents)
+    elements.clearSearchBtn?.addEventListener('click', clearResidentSearch)
+    elements.searchInput?.addEventListener('input', updateClearSearchButton)
+    elements.searchInput?.addEventListener('keydown', handleSearchKeydown)
 
     updateClearSearchButton()
+}
 
-    searchBtn?.addEventListener('click', searchResidents)
-    clearSearchBtn?.addEventListener('click', clearResidentSearch)
-    searchInput?.addEventListener('input', updateClearSearchButton)
-    searchInput?.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return
+function bindDocumentControls() {
+    elements.previewBtn?.addEventListener('click', previewDocument)
+    elements.documentType?.addEventListener('change', handleDocumentTypeChange)
+    elements.reasonType?.addEventListener('change', handleReasonChange)
+    elements.otherReason?.addEventListener('input', clearPreview)
+    elements.form?.addEventListener('submit', handleDocumentSubmit)
 
-        event.preventDefault()
-        searchResidents()
-    })
+    updateReasonControls()
+}
+
+function handleSearchKeydown(event) {
+    if (event.key !== 'Enter') return
+
+    event.preventDefault()
+    searchResidents()
+}
+
+function handleReasonChange() {
+    updateReasonControls()
+    clearPreview()
+}
+
+function handleDocumentTypeChange() {
+    updateReasonControls()
+    clearPreview()
+}
+
+async function handleDocumentSubmit(event) {
+    event.preventDefault()
+
+    const isReady = pageState.currentDocumentHtml || await previewDocument()
+    if (!isReady) return
+
+    try {
+        await downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName(), getDocumentExportContext())
+    }
+    catch (error) {
+        console.error(error)
+        setPageError('Failed to save document. Please try again.')
+    }
 }
 
 function clearResidentSearch() {
-    const searchInput = document.getElementById('dr-residentSearch')
-    const selectedContainer = document.getElementById('dr-selectedResident')
-    const resultsContainer = document.getElementById('dr-searchResults')
-
-    selectedResident = null
-    if (searchInput) searchInput.value = ''
-    if (selectedContainer) selectedContainer.textContent = ''
-    if (resultsContainer) resultsContainer.innerHTML = ''
+    pageState.selectedResident = null
+    if (elements.searchInput) elements.searchInput.value = ''
+    clearElement(elements.selectedContainer)
+    clearElement(elements.resultsContainer)
 
     clearError()
     clearPreview()
     updateClearSearchButton()
-    searchInput?.focus()
+    elements.searchInput?.focus()
 }
 
 function updateClearSearchButton() {
-    const searchInput = document.getElementById('dr-residentSearch')
-    const clearSearchBtn = document.getElementById('dr-clearSearchBtn')
-    if (!searchInput || !clearSearchBtn) return
+    if (!elements.searchInput || !elements.clearSearchBtn) return
 
-    clearSearchBtn.hidden = searchInput.value.trim().length === 0
-}
-
-function bindDocumentControls() {
-    const form = document.getElementById('documentRequestForm')
-    const previewBtn = document.getElementById('dr-previewBtn')
-    const documentType = document.getElementById('dr-documentType')
-    const reasonType = document.getElementById('dr-reasonType')
-    const otherReason = document.getElementById('dr-otherReason')
-
-    previewBtn?.addEventListener('click', previewDocument)
-    documentType?.addEventListener('change', clearPreview)
-    reasonType?.addEventListener('change', () => {
-        updateOtherReasonState()
-        clearPreview()
-    })
-    otherReason?.addEventListener('input', clearPreview)
-
-    form?.addEventListener('submit', async (event) => {
-        event.preventDefault()
-
-        const isReady = currentDocumentHtml || await previewDocument()
-        if (!isReady) return
-
-        downloadWordDocument(currentDocumentHtml)
-    })
-
-    updateOtherReasonState()
+    elements.clearSearchBtn.hidden = elements.searchInput.value.trim().length === 0
 }
 
 async function searchResidents() {
-    const query = document.getElementById('dr-residentSearch')?.value.trim()
-    const resultsContainer = document.getElementById('dr-searchResults')
+    const query = elements.searchInput?.value.trim() ?? ''
 
     clearError()
     clearPreview()
 
     if (!query) {
-        renderSearchMessage('Enter a resident name to search.')
+        renderSearchMessage(elements, 'Enter a resident name to search.')
         return
     }
 
-    renderSearchMessage('Searching...')
+    renderSearchMessage(elements, 'Searching...')
 
     const residents = await findResidents(query)
-    renderSearchResults(residents)
-}
-
-async function findResidents(query) {
-    const result = await searchResidentsByName(query, {
-        from: 0,
-        limit: 8
+    renderSearchResults(elements, residents, (resident) => {
+        setSelectedResident(resident)
+        clearElement(elements.resultsContainer)
     })
-
-    return result?.success && Array.isArray(result.data) ? result.data : []
-}
-
-function renderSearchResults(residents) {
-    const resultsContainer = document.getElementById('dr-searchResults')
-    if (!resultsContainer) return
-
-    resultsContainer.innerHTML = ''
-
-    if (residents.length === 0) {
-        renderSearchMessage('No residents found.')
-        return
-    }
-
-    residents.forEach((resident) => {
-        const button = document.createElement('button')
-        const name = document.createElement('span')
-        const address = document.createElement('small')
-
-        button.className = 'dr-resident-result'
-        button.type = 'button'
-        name.textContent = getResidentFullName(resident)
-        address.textContent = resident.address ?? ''
-        button.append(name, address)
-        button.addEventListener('click', () => {
-            setSelectedResident(resident)
-            resultsContainer.innerHTML = ''
-        })
-
-        resultsContainer.appendChild(button)
-    })
-}
-
-function renderSearchMessage(message) {
-    const resultsContainer = document.getElementById('dr-searchResults')
-    if (!resultsContainer) return
-
-    const messageElement = document.createElement('p')
-    messageElement.className = 'dr-search-empty'
-    messageElement.textContent = message
-
-    resultsContainer.innerHTML = ''
-    resultsContainer.appendChild(messageElement)
 }
 
 function setSelectedResident(resident) {
-    selectedResident = resident
-    const selectedContainer = document.getElementById('dr-selectedResident')
-    const searchInput = document.getElementById('dr-residentSearch')
-
-    if (!selectedContainer) return
+    pageState.selectedResident = resident
+    if (!elements.selectedContainer) return
 
     if (!resident) {
-        selectedContainer.textContent = ''
+        elements.selectedContainer.textContent = ''
+        updateClearSearchButton()
         return
     }
 
-    if (searchInput) {
-        searchInput.value = getResidentFullName(resident)
+    if (elements.searchInput) {
+        elements.searchInput.value = getResidentFullName(resident)
         updateClearSearchButton()
     }
 
     clearPreview()
-    selectedContainer.textContent = `Selected: ${getResidentFullName(resident)}`
+    elements.selectedContainer.textContent = `Selected: ${getResidentFullName(resident)}`
 }
 
 async function previewDocument() {
@@ -231,144 +135,131 @@ async function previewDocument() {
 
     const validationError = getDocumentRequestError()
     if (validationError) {
-        setError(validationError)
+        setPageError(validationError)
         return false
     }
 
-    setPreviewStatus('Generating preview...')
+    setPagePreviewStatus('Generating preview...')
 
     try {
-        const html = await getDocumentHtml()
-        currentDocumentHtml = applyRequestReason(html)
-        renderPreview(currentDocumentHtml)
-        setPreviewStatus(`${getSelectedDocumentLabel()} ready`)
+        const html = await fetchDocumentHtml({
+            documentType: getDocumentType(),
+            resident: pageState.selectedResident
+        })
+        pageState.currentDocumentHtml = applyRequestReason(html, {
+            reasonType: getReasonType(),
+            otherReason: getOtherReason(),
+            shouldApplyReason: documentUsesReason()
+        })
+        renderPreview(elements, pageState.currentDocumentHtml)
+        setPagePreviewStatus(`${getSelectedDocumentLabel()} ready`)
         return true
     }
     catch (error) {
         console.error(error)
-        currentDocumentHtml = ''
-        setPreviewStatus('Preview failed')
-        setError('Failed to generate document preview. Please try again.')
+        pageState.currentDocumentHtml = ''
+        setPagePreviewStatus('Preview failed')
+        setPageError('Failed to generate document preview. Please try again.')
         return false
     }
 }
 
 function getDocumentRequestError() {
-    if (!selectedResident) return 'Select a resident before generating a document.'
-    if (!getReasonType()) return 'Select a reason for the document request.'
-    if (getReasonType() === OTHER_REASON_VALUE && !getOtherReason()) return 'Specify the reason for the document request.'
+    const reasonType = getReasonType()
+
+    if (!pageState.selectedResident) return 'Select a resident before generating a document.'
+    if (!documentUsesReason()) return ''
+    if (!reasonType) return 'Select a reason for the document request.'
+    if (reasonType === OTHER_REASON_VALUE && !getOtherReason()) return 'Specify the reason for the document request.'
 
     return ''
 }
 
-async function getDocumentHtml() {
-    const port = await window.electronAPI.getApiPort()
-    const documentType = document.getElementById('dr-documentType').value
-    const residentId = getResidentId(selectedResident)
-    const url = `http://localhost:${port}/docs/${documentType}/${residentId}`
-    const response = await fetch(url)
-
-    if (!response.ok) throw new Error(`Document request failed with ${response.status}`)
-
-    return response.text()
-}
-
-function applyRequestReason(html) {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(html, 'text/html')
-    const reason = REASON_OPTIONS[getReasonType()]
-    const othersReason = doc.getElementById('option-others-reason')
-
-    reason?.checkboxIds.forEach((checkboxId) => {
-        const checkbox = doc.getElementById(checkboxId)
-        if (checkbox) checkbox.setAttribute('checked', 'checked')
-    })
-
-    if (othersReason && getReasonType() === OTHER_REASON_VALUE) {
-        othersReason.setAttribute('value', getOtherReason())
-    }
-
-    return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`
-}
-
-function renderPreview(html) {
-    const frame = document.getElementById('dr-previewFrame')
-    if (frame) frame.srcdoc = html
-}
-
-function downloadWordDocument(html) {
-    const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-
-    link.href = url
-    link.download = getDocumentFileName()
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-
-    URL.revokeObjectURL(url)
-}
-
-function getDocumentFileName() {
-    const residentName = getResidentFullName(selectedResident).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')
-    const documentName = getSelectedDocumentLabel().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')
-
-    return `${documentName}-${residentName}.doc`
-}
-
 function clearPreview() {
-    currentDocumentHtml = ''
-    renderPreview('')
-    setPreviewStatus('No document generated yet')
+    pageState.currentDocumentHtml = ''
+    renderPreview(elements, '')
+    setPagePreviewStatus(PREVIEW_EMPTY_STATUS)
 }
 
 function clearError() {
-    setError('')
+    setPageError('')
 }
 
-function setError(message) {
-    const error = document.getElementById('dr-error')
-    if (error) error.textContent = message
+function setPageError(message) {
+    setError(elements, message)
 }
 
-function setPreviewStatus(message) {
-    const status = document.getElementById('dr-previewStatus')
-    if (status) status.textContent = message
+function setPagePreviewStatus(message) {
+    setPreviewStatus(elements, message)
+}
+
+function getDocumentType() {
+    return elements.documentType?.value ?? DEFAULT_DOCUMENT_TYPE
 }
 
 function getReasonType() {
-    return document.getElementById('dr-reasonType')?.value ?? ''
+    return documentUsesReason() ? elements.reasonType?.value ?? '' : ''
 }
 
 function getOtherReason() {
-    return document.getElementById('dr-otherReason')?.value.trim() ?? ''
+    return elements.otherReason?.value.trim() ?? ''
 }
 
-function updateOtherReasonState() {
-    const otherReason = document.getElementById('dr-otherReason')
-    if (!otherReason) return
+function getDocumentExportContext() {
+    const documentType = getDocumentType()
+    const context = {
+        resident: pageState.selectedResident,
+        documentDefaults: getDocumentDefaults()
+    }
 
-    const needsOtherReason = getReasonType() === OTHER_REASON_VALUE
-    otherReason.disabled = !needsOtherReason
-    otherReason.required = needsOtherReason
-    otherReason.setAttribute('aria-disabled', String(!needsOtherReason))
+    if (documentType === '1') {
+        context.documentType = documentType
+    }
+
+    if (documentUsesReason()) {
+        context.documentType = documentType
+        context.reasonType = getReasonType()
+        context.otherReason = getOtherReason()
+    }
+
+    return context
+}
+
+function documentUsesReason() {
+    return getDocumentType() === '2'
+}
+
+function updateReasonControls() {
+    const usesReason = documentUsesReason()
+
+    if (elements.reasonGroup) elements.reasonGroup.hidden = !usesReason
+    if (elements.reasonType) {
+        elements.reasonType.disabled = !usesReason
+        elements.reasonType.required = usesReason
+        elements.reasonType.setAttribute('aria-disabled', String(!usesReason))
+
+        if (!usesReason) elements.reasonType.value = ''
+    }
+
+    if (!elements.otherReason) return
+
+    const needsOtherReason = usesReason && getReasonType() === OTHER_REASON_VALUE
+    elements.otherReason.disabled = !needsOtherReason
+    elements.otherReason.required = needsOtherReason
+    elements.otherReason.setAttribute('aria-disabled', String(!needsOtherReason))
 
     if (!needsOtherReason) {
-        otherReason.value = ''
+        elements.otherReason.value = ''
     }
 }
 
 function getSelectedDocumentLabel() {
-    const documentType = document.getElementById('dr-documentType')?.value ?? '0'
-    return DOCUMENT_TYPES[documentType] ?? 'Document'
+    return DOCUMENT_TYPES[getDocumentType()] ?? 'Document'
 }
 
-function getResidentFullName(resident) {
-    const middleInitial = resident.middleName ? `${resident.middleName[0]}.` : ''
-    return `${resident.lastName}, ${resident.firstName} ${middleInitial} ${resident.suffix ?? ''}`.trim()
-}
-
-function getResidentId(resident) {
-    return resident?.residentId ?? resident?.ResidentId ?? resident?.id
+function getCurrentDocumentFileName() {
+    return getDocumentFileName({
+        resident: pageState.selectedResident,
+        documentLabel: getSelectedDocumentLabel()
+    })
 }

@@ -1,9 +1,42 @@
-<!-- TODO 
-1. Rename variables
--->
 <div id="historyView">
-    <h2>Activity Log</h2>
-    <div id="historyContainer">
+    <div class="history-header">
+        <div>
+            <h2>Activity Log</h2>
+            <p>Review resident changes recorded on this device.</p>
+        </div>
+        <button id="historyClearBtn" class="history-secondary-btn" type="button">Clear log</button>
+    </div>
+
+    <section class="history-summary" aria-label="Activity summary">
+        <div class="history-summary-card">
+            <span>Total events</span>
+            <strong id="historyTotalCount">0</strong>
+        </div>
+        <div class="history-summary-card">
+            <span>Added</span>
+            <strong id="historyAddedCount">0</strong>
+        </div>
+        <div class="history-summary-card">
+            <span>Updated</span>
+            <strong id="historyUpdatedCount">0</strong>
+        </div>
+        <div class="history-summary-card">
+            <span>Deleted</span>
+            <strong id="historyDeletedCount">0</strong>
+        </div>
+    </section>
+
+    <section class="history-toolbar" aria-label="Activity filters">
+        <input id="historySearchInput" type="text" placeholder="Search resident or address">
+        <select id="historyTypeFilter" aria-label="Filter activity type">
+            <option value="">All activity</option>
+            <option value="resident-added">Added resident</option>
+            <option value="resident-updated">Updated resident</option>
+            <option value="resident-deleted">Deleted resident</option>
+        </select>
+    </section>
+
+    <div id="historyContainer" class="history-table-wrap">
         <!-- history logs are rendered here -->
     </div>
 </div>

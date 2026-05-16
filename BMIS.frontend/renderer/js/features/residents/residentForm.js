@@ -1,4 +1,5 @@
 import { postData, updateData } from '../../core/api.js'
+import { getResidentId } from '../../shared/residentUtils.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
@@ -205,7 +206,7 @@ function setSubmitState(button, isSaving) {
 export async function openEditResidentPage(resident, options = {}) {
     if (!resident) return
 
-    const { ilView = document.getElementById('iLView'), showResidentsView } = options
+    const { ilView = document.getElementById('iLView'), addUpdatedHistoryLog, showResidentsView } = options
     if (!ilView) return
 
     const editResidentForm = await renderResidentForm(ilView, EDIT_RESIDENT_FORM_VIEW)
@@ -213,12 +214,12 @@ export async function openEditResidentPage(resident, options = {}) {
 
     fillResidentForm(resident)
     attachEnterToSubmit(editResidentForm)
-    attachEditSubmitHandler(editResidentForm, resident, { showResidentsView })
+    attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
 
 function attachEditSubmitHandler(form, resident, options) {
-    const { showResidentsView } = options
+    const { addUpdatedHistoryLog, showResidentsView } = options
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
@@ -247,6 +248,7 @@ function attachEditSubmitHandler(form, resident, options) {
             const result = await updateData(`/residents/${residentId}`, payload)
 
             if (result.success) {
+                addUpdatedHistoryLog?.({ ...resident, ...payload })
                 await showResidentsView?.(1)
             } else {
                 errorEl.textContent = 'Failed to update resident. Please try again.'
@@ -290,8 +292,4 @@ function parseBirthdate(value) {
         month: String(Number(month) || 1),
         year
     }
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
 }

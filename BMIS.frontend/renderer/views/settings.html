@@ -1,0 +1,129 @@
+<section id="settingsView">
+    <div class="settings-heading">
+        <div>
+            <h2>Settings</h2>
+            <p>Control local defaults and system behavior for this device.</p>
+        </div>
+    </div>
+
+    <div class="settings-layout">
+        <aside class="settings-sidebar" aria-label="Settings sections">
+            <button class="settings-tab active" type="button" data-settings-panel="documentDefaultsPanel">Document Defaults</button>
+            <button class="settings-tab" type="button" data-settings-panel="activityLogPanel">Activity Log</button>
+            <button class="settings-tab" type="button" data-settings-panel="backupRestorePanel">Backup & Restore</button>
+        </aside>
+
+        <form id="documentDefaultsForm" class="settings-panel" data-settings-panel-id="documentDefaultsPanel">
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Document Defaults</h3>
+                    <p>These values appear in certificate previews and exported Word documents.</p>
+                </div>
+                <button id="settingsResetBtn" class="settings-secondary-btn" type="button">Reset</button>
+            </div>
+
+            <div class="settings-grid">
+                <label class="settings-field">
+                    <span>Barangay name</span>
+                    <input id="settingsBarangayName" type="text" name="barangayName" required>
+                </label>
+                <label class="settings-field">
+                    <span>Zone / district</span>
+                    <input id="settingsBarangayZone" type="text" name="barangayZone" required>
+                </label>
+                <label class="settings-field settings-field--full">
+                    <span>Barangay address</span>
+                    <input id="settingsBarangayAddress" type="text" name="barangayAddress" required>
+                </label>
+                <label class="settings-field">
+                    <span>Punong Barangay</span>
+                    <input id="settingsChairName" type="text" name="chairName" required>
+                </label>
+                <label class="settings-field">
+                    <span>Signatory title</span>
+                    <input id="settingsChairTitle" type="text" name="chairTitle" required>
+                </label>
+                <label class="settings-field">
+                    <span>Email</span>
+                    <input id="settingsEmail" type="text" name="email">
+                </label>
+                <label class="settings-field">
+                    <span>Facebook / page label</span>
+                    <input id="settingsFacebook" type="text" name="facebook">
+                </label>
+            </div>
+
+            <div class="settings-actions">
+                <p id="settingsStatus" class="settings-status" aria-live="polite"></p>
+                <button class="settings-primary-btn" type="submit">Save defaults</button>
+            </div>
+        </form>
+
+        <section id="activityLogPanel" class="settings-panel" data-settings-panel-id="activityLogPanel" hidden>
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Activity Log</h3>
+                    <p>Manage resident activity logging and local log retention.</p>
+                </div>
+                <button id="activityLogSettingsResetBtn" class="settings-secondary-btn" type="button">Reset</button>
+            </div>
+
+            <form id="activityLogSettingsForm" class="settings-grid">
+                <label class="settings-check-field settings-field--full">
+                    <input id="activityLogEnabled" type="checkbox" name="enabled">
+                    <span>
+                        <strong>Record resident activity</strong>
+                        <small>When off, add, edit, and delete actions stop creating new Activity Log entries.</small>
+                    </span>
+                </label>
+
+                <label class="settings-field">
+                    <span>Maximum saved entries</span>
+                    <input id="activityLogMaxEntries" type="number" name="maxEntries" min="10" max="500" step="10" required>
+                </label>
+
+                <div class="settings-actions settings-field--full">
+                    <p id="activityLogSettingsStatus" class="settings-status" aria-live="polite"></p>
+                    <button class="settings-primary-btn" type="submit">Save activity settings</button>
+                </div>
+            </form>
+
+            <div class="settings-danger-zone">
+                <div>
+                    <h4>Clear local activity log</h4>
+                    <p>This removes the Activity Log records saved on this device.</p>
+                </div>
+                <button id="activityLogClearBtn" class="settings-danger-btn" type="button">Clear log</button>
+            </div>
+        </section>
+
+        <section id="backupRestorePanel" class="settings-panel" data-settings-panel-id="backupRestorePanel" hidden>
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Backup & Restore</h3>
+                    <p>Create a restorable file containing resident records, households, document defaults, and activity settings.</p>
+                </div>
+            </div>
+
+            <div class="settings-backup-list">
+                <div class="settings-backup-item">
+                    <div>
+                        <h4>Create backup</h4>
+                        <p>Save a complete BMIS backup file to this device or external storage.</p>
+                    </div>
+                    <button id="backupCreateBtn" class="settings-primary-btn" type="button">Create backup</button>
+                </div>
+
+                <div class="settings-backup-item settings-backup-item--restore">
+                    <div>
+                        <h4>Restore backup</h4>
+                        <p>Replace the current database and local settings with a selected BMIS backup file.</p>
+                    </div>
+                    <button id="backupRestoreBtn" class="settings-danger-btn" type="button">Restore backup</button>
+                </div>
+            </div>
+
+            <p id="backupRestoreStatus" class="settings-status" aria-live="polite"></p>
+        </section>
+    </div>
+</section>

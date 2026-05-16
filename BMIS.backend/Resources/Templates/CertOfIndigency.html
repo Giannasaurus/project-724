@@ -1,91 +1,245 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
-    html {
-        font-family: "Times New Roman";
-        font-size: 16px;
+    body {
+        margin: 0;
+        color: #263238;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
     }
-    @media screen {
-        body {
-            width: 8.5in;
-            height: 11in;
-            padding: 1in;
-            margin: 0;
-            border: 2px solid;
-        }
+
+    .page {
+        width: 720px;
+        margin: 0 auto;
+        border: 1px solid #b7c6ca;
+        padding: 18px 34px;
     }
-    @media print {
-        body {
-            width: auto;
-            height: auto;
-            padding: 0;
-            border: 0;
-        }
+
+    .rule {
+        height: 8px;
+        border-top: 3px solid #1e9dcc;
+        border-bottom: 1px solid #74bdd6;
+        background: #ffffff;
     }
-    @page {
-        margin: 1in;
+
+    .rule-fill {
+        display: inline-block;
+        width: 130px;
+        height: 5px;
+        background: #f0c33c;
+        border-right: 18px solid #1e9dcc;
     }
-    .section-request-type {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+
+    .title {
+        margin: 42px 0 32px;
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-decoration: underline;
+    }
+
+    .body {
+        width: 610px;
+        margin: 0 auto;
+    }
+
+    p {
+        margin: 0 0 12px;
+        line-height: 1.75;
+        text-align: justify;
+    }
+
+    .salutation {
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .fill {
+        display: inline-block;
+        min-width: 120px;
+        padding: 0 4px;
+        border-bottom: 1px solid #263238;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .fill-wide {
+        min-width: 230px;
+    }
+
+    .request-intro {
+        margin: 23px 0 14px;
+        text-align: center;
+    }
+
+    .request-table {
+        width: 540px;
+        margin: 0 auto 22px;
+        border-collapse: collapse;
+    }
+
+    .request-table td {
+        width: 50%;
+        padding: 3px 16px 4px 0;
+        vertical-align: bottom;
+        white-space: nowrap;
+    }
+
+    .checkmark {
+        display: inline-block;
+        width: 34px;
+        margin-right: 8px;
+        border-bottom: 1px solid #263238;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.1;
+    }
+
+    .others {
+        width: 540px;
+        margin: 0 auto 10px;
+        font-weight: bold;
+    }
+
+    .others-line {
+        margin-top: 8px;
+        font-weight: normal;
+    }
+
+    .other-reason {
+        display: inline-block;
+        width: 465px;
+        min-height: 16px;
+        margin-left: 8px;
+        border-bottom: 1px solid #263238;
+        vertical-align: bottom;
+    }
+
+    .issued {
+        margin: 0 0 38px 45px;
+        text-align: left;
+    }
+
+    .signature-table {
+        width: 590px;
+        margin: 15px auto 72px;
+        border-collapse: collapse;
+    }
+
+    .signature-table td {
+        width: 50%;
+        padding: 0 35px;
+        text-align: center;
+        vertical-align: bottom;
+    }
+
+    .signature-blank {
+        display: block;
+        height: 34px;
+        border-bottom: 1px solid #263238;
+    }
+
+    .signature-name {
+        display: block;
+        margin-top: 4px;
+        font-weight: bold;
+    }
+
+    .footer-details {
         width: 100%;
+        margin-top: 8px;
+        border-collapse: collapse;
+        font-size: 10px;
+        color: #3f5359;
+        font-weight: bold;
     }
-    label {
-        font-size: 18px;
+
+    .footer-details td {
+        width: 33.33%;
+        padding: 0;
+        text-align: center;
+    }
+
+    body.preview {
+        background: #f4f6f8;
     }
 </style>
 </head>
 <body>
-    <div>
+    <div class="page">
+        <div class="rule"><span class="rule-fill"></span></div>
 
-    <h1>CERTIFICATE OF INDIGENCY</h1>
-    <p style="font-size: 1.25rem">TO WHOM IT MAY CONCERN</p>
-    <p style="text-align: justify;">This is to certify that <strong><u>{{fullName}}</u></strong> of legal age born {{birthDate}}, {{civilStatus}} Filipino is a bonafide resident of {{address}} Barangay 724 Zone 79, District V. Manila and that {{pronoun}} belongs to an indigent family in our barangay.</p>
-    <br>
-    <p>This certification issued upon {{pronoun}} request for:</p>
-    <div class="section-request-type">
-        <div>
-            <input type="checkbox" id="option-medical-asst"\>
-            <label for="option-medical-asst">Medical Assitance</label>
-        </div>
-        <div>
-            <input type="checkbox" id="option-finance-asst">
-            <label for="option-finance-asst">Finacial Assitance</label>
-        </div>
-        <div>
-            <input type="checkbox" id="option-scholarship"\>
-            <label for="option-scholarship">Scholarship</label>
-        </div>
-        <div>
-            <input type="checkbox" id="option-educ-asst"\>
-            <label for="option-educ-asst">Education Assistance</label>
-        </div>
-        <div>
-            <input type="checkbox" id="option-funeral-asst"\>
-            <label for="option-funeral-asst">Funeral/Burial Assitance</label>
-        </div>
-        <div>
-            <input type="checkbox" id="option-orange-car"\>
-            <label for="option-orange-car">Orange Card</label>
-        </div>
-        <div style="grid-column: 1/-1; display: flex">
-            <input type="checkbox" id="option-others"\>
-            <label for="option-others">Others pls. specify:</label>
-            <input type="text" id="option-others-reason" style="border: none; margin-left: 0.5rem; border-bottom: 2px solid; flex-grow: 1;"\>
-        </div>
-    </div>
-    <br>
-    <p style="font-size: 1.25rem;"> Issued and signed this {{signDay}} day of {{signMonth}}, {{signYear}}.</p>
-    <br><br><br><br>
-    <div style="display: inline-block; min-width: 30%; border-bottom: 2px solid; margin-bottom: 0.5rem; padding-right: 2rem;">
-        <span id="signee-underline" style="font-family: Times New Roman; font-weight: bold; font-size: 1.25rem;">{{chairName}}</span>
-    </div>
-    <br>
-    <label for="signee-underline">Punong Barangay</label>
+        <h1 class="title">BARANGAY INDIGENCY</h1>
 
+        <div class="body">
+            <p class="salutation">TO WHOM IT MAY CONCERN:</p>
 
+            <p>
+                This is to certify that <span class="fill fill-wide">{{fullName}}</span> of legal age,
+                {{civilStatus}} Filipino is a bonafide resident of
+                <span class="fill fill-wide">{{address}}</span> Barangay 724 Zone 79, District V,
+                Manila and that {{pronoun}} belongs to a low-income family and does not have the
+                financial capacity to support personal and medical needs without assistance.
+            </p>
+
+            <p class="request-intro">This Indigent certification issued upon his/her request for:</p>
+
+            <table class="request-table">
+                <tr>
+                    <td><span class="checkmark" id="option-medical-asst">&nbsp;&nbsp;&nbsp;</span>Medical/Financial Assistance</td>
+                    <td><span class="checkmark" id="option-educ-asst">&nbsp;&nbsp;&nbsp;</span>Educational Assistance</td>
+                </tr>
+                <tr>
+                    <td><span class="checkmark" id="option-food-asst">&nbsp;&nbsp;&nbsp;</span>Food Assistance</td>
+                    <td><span class="checkmark" id="option-funeral-asst">&nbsp;&nbsp;&nbsp;</span>Funeral/Burial Assistance</td>
+                </tr>
+                <tr>
+                    <td><span class="checkmark" id="option-scholarship">&nbsp;&nbsp;&nbsp;</span>Scholarship</td>
+                    <td><span class="checkmark" id="option-solo-parent-pwd">&nbsp;&nbsp;&nbsp;</span>Solo Parent/PWD Assistance</td>
+                </tr>
+                <tr>
+                    <td><span class="checkmark" id="option-proof-residency">&nbsp;&nbsp;&nbsp;</span>Proof of Residency</td>
+                    <td></td>
+                </tr>
+            </table>
+
+            <div class="others">
+                Others pls Specify:
+                <div class="others-line">
+                    <span class="checkmark" id="option-others">&nbsp;&nbsp;&nbsp;</span>
+                    <span class="other-reason" id="option-others-reason">&nbsp;</span>
+                </div>
+            </div>
+
+            <p class="issued">Issued and signed this {{signDay}} day of {{signMonth}} {{signYear}}.</p>
+
+            <table class="signature-table">
+                <tr>
+                    <td>
+                        <span class="signature-blank">&nbsp;</span>
+                        <span>Signature over printed name</span>
+                    </td>
+                    <td>
+                        <span class="signature-blank">&nbsp;</span>
+                        <span class="signature-name">{{chairName}}</span>
+                        <span>Punong Barangay</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="rule"><span class="rule-fill"></span></div>
+        <table class="footer-details">
+            <tr>
+                <td>barangay724zone79@gmail.com</td>
+                <td>2207 Singalong Street, Malate Manila</td>
+                <td>Barangay 724 Zone 79</td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

@@ -24,6 +24,7 @@ public static class DocumentEndpoints {
          * NOTE: the following placeholders need to be replaced on the template before returning to api requester
          *
          * fullName     <= name format that would appear on certificate
+         * age          <= age of resident
          * birthDate    <= birthdate of resident
          * civilStatus  <= civil status of resident
          * address      <= where does the resident reside within the barangay
@@ -48,11 +49,12 @@ public static class DocumentEndpoints {
         DateOnly current = DateOnly.FromDateTime(DateTime.Now);
 
         template = template.Replace("{{fullName}}", $"{data.LastName}, {data.FirstName}, {data.MiddleName} {data.Suffix}".Trim())
+                           .Replace("{{age}}", data.Age.ToString())
                            .Replace("{{birthDate}}", data.BirthDate.ToString("MMM dd, yyyy"))
                            .Replace("{{civilStatus}}", data.CivilStatus.ToString())
                            .Replace("{{address}}", data.Address)
                            .Replace("{{pronoun}}", data.Sex == Sex.Male ? "he" : "she")
-                           .Replace("{{pronoun2}}", data.Sex == Sex.Male ? "his" : "she")
+                           .Replace("{{pronoun2}}", data.Sex == Sex.Male ? "his" : "her")
                            .Replace("{{signDay}}", Utils.RankNum(current.Day))
                            .Replace("{{signMonth}}", current.ToString("MMM"))
                            .Replace("{{signYear}}", current.ToString("yyyy"))

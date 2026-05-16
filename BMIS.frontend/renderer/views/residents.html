@@ -11,14 +11,17 @@
     <div id="iLNav">
         <div id="searchSection">
             <div id="searchOptions">
-                <input id="searchBar" type="text" placeholder="Search resident name">
-                <button id="btn_search" class="btn_main" type="button">Search</button>
+                <div class="resident-search-input-wrap">
+                    <input id="searchBar" type="text" placeholder="Search resident name">
+                    <button id="clearResidentSearchBtn" class="resident-clear-search-btn" type="button"
+                        aria-label="Clear resident search"></button>
+                </div>
                 <button id="btn_filter" class="btn_sub" type="button">Filter</button>
                 <dialog id="filterMenu">
                     <div class="filter-dialog-header">
                         <h3>Filter Residents</h3>
                         <button id="filterDialogCloseBtn" class="delete-dialog-x" type="button"
-                            aria-label="Close filters">✖</button>
+                            aria-label="Close filters">&times;</button>
                     </div>
                     <div class="filterMenuOptions">
                         <fieldset>
@@ -119,10 +122,11 @@
                 </button>
             </div>
             <div>
-                <button class="il-nav-btn" type="button">Import from Excel</button>
+                <button id="importResidentsBtn" class="il-nav-btn" type="button">Import spreadsheet</button>
             </div>
         </div>
     </div>
+    <p id="residentImportStatus" class="resident-import-status" aria-live="polite"></p>
     <div id="paginationContainer">
     </div>
     <!-- R.I.P: addResidentDialog-->
@@ -130,7 +134,7 @@
         <div class="delete-dialog-header">
             <h3>Delete Confirmation</h3>
             <button id="deleteDialogCloseBtn" class="delete-dialog-x" type="button"
-                aria-label="Cancel delete">✖</button>
+                aria-label="Cancel delete">&times;</button>
         </div>
         <div class="delete-dialog-body">
             <h2>Are you sure?</h2>

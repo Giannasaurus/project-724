@@ -8,7 +8,7 @@ public static class DbInitializer {
             
             int resId = 1;
             var residentFaker = new Faker<Resident>()
-                .RuleFor(r => r.ResidentId, f => resId++) 
+                .RuleFor(r => r.Id, f => resId++) 
                 .RuleFor(r => r.FirstName, f => f.Name.FirstName())
                 .RuleFor(r => r.MiddleName, f => f.Name.LastName())
                 .RuleFor(r => r.LastName, f => f.Name.LastName())
@@ -32,7 +32,7 @@ public static class DbInitializer {
                 .RuleFor(t => t.Id, f => transId++)
                 .RuleFor(t => t.RequesterId, f => f.Random.Number(1, 2000))
                 .RuleFor(t => t.HandlerId, f => f.Random.Number(1, 9))
-                .RuleFor(t => t.TypeOfDocument, f => f.PickRandom<DocumentType>())
+                .RuleFor(t => t.DocumentType, f => f.PickRandom<DocumentType>())
                 .RuleFor(t => t.Status, f => f.PickRandom<TransactionStatus>())
                 .RuleFor(t => t.Date, f => f.Date.Past(20));
 

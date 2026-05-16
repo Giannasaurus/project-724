@@ -1,4 +1,5 @@
-import { getData, postData } from '../../core/api.js'
+import { getData } from '../../core/api.js'
+import { getResidentId } from '../../shared/residentUtils.js'
 
 export async function searchResidentsByName(query, options = {}) {
     const trimmedQuery = query?.trim() ?? ''
@@ -13,15 +14,6 @@ export async function searchResidentsByName(query, options = {}) {
         }
     }
 
-    const searchResult = await postData(`/residents/search?${getResidentQueryParams({ from, limit, filters }).toString()}`, {
-        name: trimmedQuery
-    })
-
-    if (searchResult?.success && Array.isArray(searchResult.data)) {
-        return searchResult
-    }
-
-    console.error(searchResult?.message ?? 'Resident search endpoint failed.')
     return searchResidentsByNameFields(trimmedQuery, { from, limit, filters })
 }
 
@@ -84,8 +76,4 @@ function appendRepeatedParams(params, key, values) {
             params.append(key, String(value))
         }
     })
-}
-
-function getResidentId(resident) {
-    return resident.residentId ?? resident.ResidentId ?? resident.id
 }
