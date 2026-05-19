@@ -33,12 +33,12 @@ function bindSearchControls() {
 
 function bindDocumentControls() {
     elements.previewBtn?.addEventListener('click', previewDocument)
-    elements.documentType?.addEventListener('change', clearPreview)
+    elements.documentType?.addEventListener('change', handleDocumentTypeChange)
     elements.reasonType?.addEventListener('change', handleReasonChange)
     elements.otherReason?.addEventListener('input', clearPreview)
     elements.form?.addEventListener('submit', handleDocumentSubmit)
 
-    updateOtherReasonState()
+    updateReasonControls()
 }
 
 function handleSearchKeydown(event) {
@@ -49,7 +49,12 @@ function handleSearchKeydown(event) {
 }
 
 function handleReasonChange() {
-    updateOtherReasonState()
+    updateReasonControls()
+    clearPreview()
+}
+
+function handleDocumentTypeChange() {
+    updateReasonControls()
     clearPreview()
 }
 
@@ -60,13 +65,7 @@ async function handleDocumentSubmit(event) {
     if (!isReady) return
 
     try {
-        await downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName(), {
-            documentType: getDocumentType(),
-            resident: pageState.selectedResident,
-            reasonType: getReasonType(),
-            otherReason: getOtherReason(),
-            documentDefaults: getDocumentDefaults()
-        })
+        await downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName(), getDocumentExportContext())
     }
     catch (error) {
         console.error(error)
@@ -149,7 +148,8 @@ async function previewDocument() {
         })
         pageState.currentDocumentHtml = applyRequestReason(html, {
             reasonType: getReasonType(),
-            otherReason: getOtherReason()
+            otherReason: getOtherReason(),
+            shouldApplyReason: documentUsesReason()
         })
         renderPreview(elements, pageState.currentDocumentHtml)
         setPagePreviewStatus(`${getSelectedDocumentLabel()} ready`)
@@ -168,6 +168,7 @@ function getDocumentRequestError() {
     const reasonType = getReasonType()
 
     if (!pageState.selectedResident) return 'Select a resident before generating a document.'
+    if (!documentUsesReason()) return ''
     if (!reasonType) return 'Select a reason for the document request.'
     if (reasonType === OTHER_REASON_VALUE && !getOtherReason()) return 'Specify the reason for the document request.'
 
@@ -197,17 +198,52 @@ function getDocumentType() {
 }
 
 function getReasonType() {
-    return elements.reasonType?.value ?? ''
+    return documentUsesReason() ? elements.reasonType?.value ?? '' : ''
 }
 
 function getOtherReason() {
     return elements.otherReason?.value.trim() ?? ''
 }
 
-function updateOtherReasonState() {
+function getDocumentExportContext() {
+    const documentType = getDocumentType()
+    const context = {
+        resident: pageState.selectedResident,
+        documentDefaults: getDocumentDefaults()
+    }
+
+    if (documentType === '1') {
+        context.documentType = documentType
+    }
+
+    if (documentUsesReason()) {
+        context.documentType = documentType
+        context.reasonType = getReasonType()
+        context.otherReason = getOtherReason()
+    }
+
+    return context
+}
+
+function documentUsesReason() {
+    return getDocumentType() === '2'
+}
+
+function updateReasonControls() {
+    const usesReason = documentUsesReason()
+
+    if (elements.reasonGroup) elements.reasonGroup.hidden = !usesReason
+    if (elements.reasonType) {
+        elements.reasonType.disabled = !usesReason
+        elements.reasonType.required = usesReason
+        elements.reasonType.setAttribute('aria-disabled', String(!usesReason))
+
+        if (!usesReason) elements.reasonType.value = ''
+    }
+
     if (!elements.otherReason) return
 
-    const needsOtherReason = getReasonType() === OTHER_REASON_VALUE
+    const needsOtherReason = usesReason && getReasonType() === OTHER_REASON_VALUE
     elements.otherReason.disabled = !needsOtherReason
     elements.otherReason.required = needsOtherReason
     elements.otherReason.setAttribute('aria-disabled', String(!needsOtherReason))

@@ -1,5 +1,6 @@
 using BMIS.Endpoints;
 using BMIS.Services;
+using Microsoft.EntityFrameworkCore;
 
 var ELECTRON_CORS = "electronCors";
 
@@ -47,6 +48,7 @@ if(app.Environment.IsDevelopment() || args.Contains("dev")) {
     var context = services.GetRequiredService<AppDbContext>();
 
     context.Database.EnsureCreated();
+    EnsureDatabaseSchema(context);
     DbInitializer.Initialize(context);
 }
 
@@ -59,3 +61,47 @@ app.MapTransactionEndpoints();
 app.MapDocumentEndpoints();
 
 app.Run();
+
+static void EnsureDatabaseSchema(AppDbContext context) {
+    var residentColumns = GetColumnNames(context, "Residents");
+    if(residentColumns.Contains("ResidentId") && !residentColumns.Contains("Id")) {
+        context.Database.ExecuteSqlRaw("ALTER TABLE Residents RENAME COLUMN ResidentId TO Id");
+        residentColumns = GetColumnNames(context, "Residents");
+    }
+
+    if(!residentColumns.Contains("Contact")) {
+        context.Database.ExecuteSqlRaw("ALTER TABLE Residents ADD COLUMN Contact TEXT NOT NULL DEFAULT ''");
+    }
+
+    var transactionColumns = GetColumnNames(context, "Transactions");
+    if(transactionColumns.Contains("TypeOfDocument") && !transactionColumns.Contains("DocumentType")) {
+        context.Database.ExecuteSqlRaw("ALTER TABLE Transactions RENAME COLUMN TypeOfDocument TO DocumentType");
+    }
+}
+
+static HashSet<string> GetColumnNames(AppDbContext context, string tableName) {
+    var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var connection = context.Database.GetDbConnection();
+    var shouldClose = connection.State != System.Data.ConnectionState.Open;
+
+    if(shouldClose) {
+        connection.Open();
+    }
+
+    try {
+        using var command = connection.CreateCommand();
+        command.CommandText = $"PRAGMA table_info(\"{tableName}\")";
+
+        using var reader = command.ExecuteReader();
+        while(reader.Read()) {
+            columns.Add(reader.GetString(1));
+        }
+    }
+    finally {
+        if(shouldClose) {
+            connection.Close();
+        }
+    }
+
+    return columns;
+}

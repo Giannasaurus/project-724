@@ -1,5 +1,6 @@
 import { getResidentFullName, getResidentId } from '../../shared/residentUtils.js'
 import { getActivityLogSettings } from '../settings/activityLogSettings.js'
+import { openConfirmDialog } from '../../shared/confirmDialog.js'
 
 const HISTORY_TYPES = {
     RESIDENT_ADDED: 'resident-added',
@@ -81,9 +82,15 @@ function bindHistoryControls(key) {
 
     searchInput?.addEventListener('input', () => renderHistory(activeHistory))
     typeFilter?.addEventListener('change', () => renderHistory(activeHistory))
-    clearBtn?.addEventListener('click', () => {
+    clearBtn?.addEventListener('click', async () => {
         if (activeHistory.length === 0) return
-        if (!window.confirm('Clear all recorded activity on this device?')) return
+        const shouldClear = await openConfirmDialog({
+            title: 'Clear activity log?',
+            heading: 'Clear local activity?',
+            message: 'This removes all Activity Log records saved on this device. This cannot be undone.',
+            confirmLabel: 'Clear log'
+        })
+        if (!shouldClear) return
 
         localStorage.removeItem(key)
         activeHistory = []

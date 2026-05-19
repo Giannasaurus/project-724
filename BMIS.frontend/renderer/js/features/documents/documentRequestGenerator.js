@@ -13,13 +13,13 @@ export async function fetchDocumentHtml({ documentType, resident }) {
     return response.text()
 }
 
-export function applyRequestReason(html, { reasonType, otherReason }) {
+export function applyRequestReason(html, { reasonType, otherReason, shouldApplyReason = true }) {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
     const reason = REASON_OPTIONS[reasonType]
     const othersReason = doc.getElementById('option-others-reason')
 
-    reason?.checkboxIds.forEach((checkboxId) => {
+    if (shouldApplyReason) reason?.checkboxIds.forEach((checkboxId) => {
         const checkbox = doc.getElementById(checkboxId)
         if (!checkbox) return
 
@@ -32,7 +32,7 @@ export function applyRequestReason(html, { reasonType, otherReason }) {
         checkbox.classList.add('is-checked')
     })
 
-    if (othersReason && reasonType === OTHER_REASON_VALUE) {
+    if (shouldApplyReason && othersReason && reasonType === OTHER_REASON_VALUE) {
         if (othersReason.tagName === 'INPUT') {
             othersReason.setAttribute('value', otherReason)
         }

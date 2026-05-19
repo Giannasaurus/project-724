@@ -1,7 +1,7 @@
-import { closeOpenRowActions, loadApp } from './appShell.js'
+import { closeOpenRowActions, loadInitialView } from './appShell.js'
 
 const app = document.getElementById('app')
 
-loadApp(app)
+loadInitialView(app)
 
 document.addEventListener('click', closeOpenRowActions)

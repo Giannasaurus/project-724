@@ -18,7 +18,15 @@ public class Resident {
     public CivilStatus CivilStatus { get; set; }
     public string Address { get; set; }
     public string Contact { get; set; }
-    public int HouseHoldId { get; set; }
+    public int HouseHoldId { get; set; } = 0;
+
+    [SetsRequiredMembers]
+    public Resident() {
+        FirstName = string.Empty;
+        LastName = string.Empty;
+        Address = string.Empty;
+        Contact = string.Empty;
+    }
 
     [SetsRequiredMembers]
     public Resident(
@@ -65,7 +73,7 @@ public class Resident {
     protected int GetAge() {
         DateOnly now = DateOnly.FromDateTime(DateTime.Now);
         int _age = now.Year - BirthDate.Year;
-        if(BirthDate > now) {
+        if(BirthDate.AddYears(_age) > now) {
             _age--;
         }
 

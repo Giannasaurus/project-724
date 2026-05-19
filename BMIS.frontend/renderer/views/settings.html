@@ -10,6 +10,7 @@
         <aside class="settings-sidebar" aria-label="Settings sections">
             <button class="settings-tab active" type="button" data-settings-panel="documentDefaultsPanel">Document Defaults</button>
             <button class="settings-tab" type="button" data-settings-panel="activityLogPanel">Activity Log</button>
+            <button class="settings-tab" type="button" data-settings-panel="backupRestorePanel">Backup & Restore</button>
         </aside>
 
         <form id="documentDefaultsForm" class="settings-panel" data-settings-panel-id="documentDefaultsPanel">
@@ -94,6 +95,35 @@
                 </div>
                 <button id="activityLogClearBtn" class="settings-danger-btn" type="button">Clear log</button>
             </div>
+        </section>
+
+        <section id="backupRestorePanel" class="settings-panel" data-settings-panel-id="backupRestorePanel" hidden>
+            <div class="settings-panel-header">
+                <div>
+                    <h3>Backup & Restore</h3>
+                    <p>Create a restorable file containing resident records, households, document defaults, and activity settings.</p>
+                </div>
+            </div>
+
+            <div class="settings-backup-list">
+                <div class="settings-backup-item">
+                    <div>
+                        <h4>Create backup</h4>
+                        <p>Save a complete BMIS backup file to this device or external storage.</p>
+                    </div>
+                    <button id="backupCreateBtn" class="settings-primary-btn" type="button">Create backup</button>
+                </div>
+
+                <div class="settings-backup-item settings-backup-item--restore">
+                    <div>
+                        <h4>Restore backup</h4>
+                        <p>Replace the current database and local settings with a selected BMIS backup file.</p>
+                    </div>
+                    <button id="backupRestoreBtn" class="settings-danger-btn" type="button">Restore backup</button>
+                </div>
+            </div>
+
+            <p id="backupRestoreStatus" class="settings-status" aria-live="polite"></p>
         </section>
     </div>
 </section>

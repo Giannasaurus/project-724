@@ -8,6 +8,7 @@ export function getDocumentRequestElements() {
         previewBtn: document.getElementById('dr-previewBtn'),
         previewFrame: document.getElementById('dr-previewFrame'),
         previewStatus: document.getElementById('dr-previewStatus'),
+        reasonGroup: document.getElementById('dr-reasonGroup'),
         reasonType: document.getElementById('dr-reasonType'),
         resultsContainer: document.getElementById('dr-searchResults'),
         searchBtn: document.getElementById('dr-searchBtn'),

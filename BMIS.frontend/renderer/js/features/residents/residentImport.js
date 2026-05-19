@@ -10,7 +10,8 @@ const HEADER_ALIASES = {
     sex: ['sex', 'gender'],
     sector: ['sector', 'pwd/senior', 'pwd senior', 'classification'],
     civilStatus: ['civil status', 'civilstatus', 'marital status'],
-    address: ['address', 'full address', 'residence', 'residential address']
+    address: ['address', 'full address', 'residence', 'residential address'],
+    contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile', 'mobile number']
 }
 
 const SEX_VALUES = {
@@ -110,7 +111,7 @@ async function importResidentRows(rows = [], options = {}) {
         if (result.success) {
             summary.imported += 1
             knownResidentKeys.add(residentKey)
-            options.addResidentHistoryLog?.(result.data)
+            options.addResidentHistoryLog?.(result.data ?? resident)
         }
         else if (result.status === 409) {
             summary.duplicates += 1
@@ -165,7 +166,8 @@ function parseResidentRow(row) {
         sex: mapValue(normalizedRow.sex, SEX_VALUES),
         sector: mapValue(normalizedRow.sector, SECTOR_VALUES, 0),
         civilStatus: mapValue(normalizedRow.civilStatus, CIVIL_STATUS_VALUES),
-        address: normalizedRow.address
+        address: normalizedRow.address,
+        contact: normalizedRow.contact || ''
     }
 }
 
@@ -297,6 +299,7 @@ function getImportStatusMessage(result, fileName) {
     if (result.failed > 0) parts.push(`${result.failed} failed.`)
     if (result.skipped > 0) parts.push(`${result.skipped} blank row${result.skipped === 1 ? '' : 's'} skipped.`)
     if (result.duplicates > 0) parts.push(`${result.duplicates} duplicate resident${result.duplicates === 1 ? '' : 's'} skipped.`)
+    if (result.errors.length > 0) parts.push(result.errors.slice(0, 2).join(' '))
 
     return parts.join(' ')
 }
