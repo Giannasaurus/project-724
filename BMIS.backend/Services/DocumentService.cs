@@ -1,5 +1,4 @@
 using BMIS.Models;
-using BMIS;
 
 namespace BMIS.Services;
 

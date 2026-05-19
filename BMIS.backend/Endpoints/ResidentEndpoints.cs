@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 using BMIS.Services;
 
