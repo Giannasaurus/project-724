@@ -1,4 +1,5 @@
 using BMIS.Endpoints;
+using BMIS.Services;
 
 var ELECTRON_CORS = "electronCors";
 
@@ -6,6 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IResidentService, ResidentService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
 /* 
  * [!] WARNING

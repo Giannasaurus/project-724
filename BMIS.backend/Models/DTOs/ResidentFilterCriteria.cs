@@ -1,18 +1,16 @@
+using Microsoft.AspNetCore.Mvc;
 namespace BMIS.Models.DTOs;
 
 public record ResidentFilterCriteria( 
-    string? firstName,
-    string? middleName,
-    string? lastName,
-    int? minAge,
-    int? maxAge,
-
-    string[]? sex,
-    string[]? sector,
-    string[]? civilStat,
-
-    ResidentOrder order = ResidentOrder.ByLastName,
+    [FromQuery(Name="sex")]string[] sex,
+    [FromQuery(Name="sector")]string[] sector,
+    [FromQuery(Name="civilStat")]string[] civilStat,
     
-    int from = 1,
-    int limit = 50
+    ResidentOrder? order,
+    
+    int? from,
+    int? limit,
+    
+    int minAge = 0,
+    int maxAge = 999
 );
