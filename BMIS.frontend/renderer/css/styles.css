@@ -271,6 +271,23 @@ label {
     background-color: var(--color-bg-btn-save-active);
 }
 
+.login-role-field {
+    align-items: center;
+    display: flex;
+    gap: var(--gap-md);
+    height: auto;
+}
+
+.login-role-field span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.login-role-field select {
+    width: 184px;
+}
+
 
 /* ============================================================
    APP LAYOUT (app.html)
@@ -329,6 +346,28 @@ label {
 
 .sub-main-nav--account {
     flex: 0 0 auto;
+}
+
+.account-profile {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 40px;
+    padding: 6px 10px;
+}
+
+.account-profile span {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.account-profile strong {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .sub-main-nav-a {

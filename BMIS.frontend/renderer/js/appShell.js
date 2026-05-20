@@ -77,10 +77,11 @@ export async function loadLogin(app) {
 
         const username = document.getElementById('usernameInput')
         const password = document.getElementById('passwordInput')
+        const role = document.getElementById('roleInput')
         const loginErrorMessage = document.getElementById('loginErrorMessage')
 
         if (isValidLogin(username.value, password.value)) {
-            saveLoginSession(username.value)
+            saveLoginSession(username.value, role?.value)
             await loadApp(app)
             return
         }
@@ -102,6 +103,7 @@ export async function loadApp(app) {
     }
 
     bindNav(state, app)
+    renderAccountProfile()
     await renderView(state, DEFAULT_VIEW)
 }
 
@@ -316,12 +318,31 @@ function ensureStoredCredentials() {
     return DEFAULT_AUTH_CREDENTIALS
 }
 
-function saveLoginSession(username) {
+function saveLoginSession(username, role = 'Admin') {
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({
         isLoggedIn: true,
         username: username.trim(),
+        role: role === 'Kagawad' ? 'Kagawad' : 'Admin',
         loggedInAt: new Date().toISOString()
     }))
+}
+
+function getLoginSession() {
+    try {
+        return JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) ?? '{}')
+    }
+    catch {
+        return {}
+    }
+}
+
+function renderAccountProfile() {
+    const session = getLoginSession()
+    const profileName = document.getElementById('accountProfileName')
+    const profileRole = document.getElementById('accountProfileRole')
+
+    if (profileName) profileName.textContent = session.username || 'User'
+    if (profileRole) profileRole.textContent = session.role || 'Admin'
 }
 
 function clearLoginSession() {
