@@ -24,7 +24,7 @@ const DEFAULT_AUTH_CREDENTIALS = {
     username: 'user',
     password: 'password'
 }
-const DEFAULT_PAGE_SIZE = 50
+const DEFAULT_PAGE_SIZE = 300
 const DEFAULT_VIEW = 'home'
 
 const views = {

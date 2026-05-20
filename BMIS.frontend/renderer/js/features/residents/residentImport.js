@@ -11,8 +11,31 @@ const HEADER_ALIASES = {
     sector: ['sector', 'pwd/senior', 'pwd senior', 'classification'],
     civilStatus: ['civil status', 'civilstatus', 'marital status'],
     address: ['address', 'full address', 'residence', 'residential address'],
-    contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile', 'mobile number']
+    contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile', 'mobile number'],
+    email: ['email', 'email address'],
+    householdRole: ['household role', 'role in household', 'head/member', 'head or member'],
+    householdHeadName: ['household head', 'head of household', 'household head name'],
+    householdMembers: ['household members', 'members of household'],
+    proofId: ['proof id', 'verification id', 'pwd id', 'senior id', 'supporting id']
 }
+
+const RESIDENT_TEMPLATE_HEADERS = [
+    'First Name',
+    'Middle Name',
+    'Last Name',
+    'Suffix',
+    'Birthdate',
+    'Sex',
+    'Sector',
+    'Civil Status',
+    'Full Address',
+    'Contact Number',
+    'Email',
+    'Household Role',
+    'Household Head',
+    'Household Members',
+    'Proof ID'
+]
 
 const SEX_VALUES = {
     male: 0,
@@ -43,8 +66,14 @@ const CIVIL_STATUS_VALUES = {
 
 export function bindResidentImportControls(options = {}) {
     const importBtn = document.getElementById('importResidentsBtn')
+    const templateBtn = document.getElementById('downloadResidentTemplateBtn')
     const statusEl = document.getElementById('residentImportStatus')
     if (!importBtn) return
+
+    templateBtn?.addEventListener('click', () => {
+        downloadResidentTemplate()
+        setImportStatus('Resident import template downloaded.')
+    })
 
     importBtn.addEventListener('click', async () => {
         setImportState(importBtn, statusEl, true, 'Choose a spreadsheet file to import.')
@@ -167,7 +196,12 @@ function parseResidentRow(row) {
         sector: mapValue(normalizedRow.sector, SECTOR_VALUES, 0),
         civilStatus: mapValue(normalizedRow.civilStatus, CIVIL_STATUS_VALUES),
         address: normalizedRow.address,
-        contact: normalizedRow.contact || ''
+        contact: normalizedRow.contact || '',
+        email: normalizedRow.email || '',
+        householdRole: normalizeHouseholdRole(normalizedRow.householdRole),
+        householdHeadName: normalizedRow.householdHeadName || '',
+        householdMembers: normalizedRow.householdMembers || '',
+        proofId: normalizedRow.proofId || ''
     }
 }
 
@@ -251,6 +285,9 @@ function getResidentValidationError(resident) {
     if (resident.sector === undefined) return 'invalid sector'
     if (resident.civilStatus === undefined) return 'invalid civil status'
     if (!resident.address) return 'missing address'
+    if (resident.sector > 0 && !resident.proofId) return 'PWD/Senior residents require a proof ID'
+    if (resident.householdRole === 'Head' && !resident.householdMembers) return 'household heads require household members'
+    if (resident.householdRole === 'Member' && !resident.householdHeadName) return 'household members require a household head'
     return ''
 }
 
@@ -290,6 +327,48 @@ function normalizeKey(value) {
         .toLowerCase()
         .replace(/\./g, '')
         .replace(/\s+/g, ' ')
+}
+
+function normalizeHouseholdRole(value) {
+    const role = normalizeKey(value)
+    if (role === 'head' || role === 'household head') return 'Head'
+    if (role === 'member' || role === 'household member') return 'Member'
+    return ''
+}
+
+function downloadResidentTemplate() {
+    const example = [
+        'Juan',
+        'Santos',
+        'Dela Cruz',
+        '',
+        '1980-01-15',
+        'Male',
+        'General',
+        'Married',
+        '123 Block 67, Pipeline Street, Barangay 724, Malate, Metro Manila',
+        '09171234567',
+        'juan@example.com',
+        'Head',
+        '',
+        'Maria Dela Cruz; Ana Dela Cruz',
+        ''
+    ]
+    const csv = [RESIDENT_TEMPLATE_HEADERS, example]
+        .map(row => row.map(escapeCsv).join(','))
+        .join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.download = 'resident-import-template.csv'
+    link.click()
+    URL.revokeObjectURL(url)
+}
+
+function escapeCsv(value) {
+    return `"${String(value ?? '').replaceAll('"', '""')}"`
 }
 
 function getImportStatusMessage(result, fileName) {

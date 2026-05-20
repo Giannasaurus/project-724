@@ -1,14 +1,9 @@
-import {
-    getCivilStatusLabel,
-    getResidentFullName,
-    getSectorLabel,
-    getSexLabel
-} from '../../shared/residentUtils.js'
+import { getResidentFullName, getSectorLabel, getSexLabel } from '../../shared/residentUtils.js'
 import { createResidentActions } from './residentActions.js'
 import { openResidentDetails } from './residentDetailsView.js'
 
 function getFieldNames() {
-    return ["Full Name", "Birthdate", "Sex", "Sector", "Civil Status", "Address"]
+    return ["Full Name", "Birthdate", "Sex", "Sector", "Household", "Contact", "Address"]
 }
 
 function getCells(resident) {
@@ -17,7 +12,8 @@ function getCells(resident) {
         { value: resident.birthDate, class: 'col-birthdate' },
         { value: getSexLabel(resident.sex), class: 'col-sex' },
         { value: getSectorLabel(resident.sector), class: 'col-sector' },
-        { value: getCivilStatusLabel(resident.civilStatus), class: 'col-civilstatus' },
+        { value: getHouseholdLabel(resident), class: 'col-household' },
+        { value: getContactLabel(resident), class: 'col-contact' },
         { value: resident.address, class: 'col-address' }
     ]
 }
@@ -29,7 +25,8 @@ export async function loadData(result, options = {}) {
         'col-birthdate',
         'col-sex',
         'col-sector',
-        'col-civilstatus',
+        'col-household',
+        'col-contact',
         'col-address'
     ]
 
@@ -115,6 +112,16 @@ export async function loadData(result, options = {}) {
         selectedRow.classList.add('is-selected')
         renderResidentActionBar(actionBar, selectedResident, options)
     }
+}
+
+function getHouseholdLabel(resident) {
+    if (resident.householdRole === 'Head') return 'Head'
+    if (resident.householdRole === 'Member') return `Member of ${resident.householdHeadName || 'household'}`
+    return 'Not recorded'
+}
+
+function getContactLabel(resident) {
+    return resident.contact || resident.email || 'Not recorded'
 }
 
 function renderResidentActionBar(actionBar, resident, options) {

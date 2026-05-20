@@ -110,7 +110,13 @@ function getResidentPayload(values) {
         sex: values.sex,
         sector: values.sector,
         civilStatus: values.civilStatus,
-        address: values.address
+        address: values.address,
+        contact: values.contact,
+        email: values.email,
+        householdRole: values.householdRole,
+        householdHeadName: values.householdHeadName,
+        householdMembers: values.householdMembers,
+        proofId: values.proofId
     }
 }
 
@@ -120,6 +126,8 @@ function getResidentFormValues() {
         middleName: document.getElementById('ar-middleName').value.trim(),
         lastName: document.getElementById('ar-lastName').value.trim(),
         suffix: document.getElementById('ar-suffix').value.trim(),
+        contact: document.getElementById('ar-contact')?.value.trim() ?? '',
+        email: document.getElementById('ar-email')?.value.trim() ?? '',
         address: document.getElementById('ar-address').value.trim(),
         day: document.getElementById('ar-bday').value.trim(),
         month: document.getElementById('ar-bmonth').value,
@@ -127,6 +135,10 @@ function getResidentFormValues() {
         sex: parseInt(document.getElementById('ar-sex').value, 10),
         sector: parseInt(document.getElementById('ar-sector').value, 10),
         civilStatus: parseInt(document.getElementById('ar-civilStatus').value, 10),
+        householdRole: document.getElementById('ar-householdRole')?.value ?? '',
+        householdHeadName: document.getElementById('ar-householdHeadName')?.value.trim() ?? '',
+        householdMembers: document.getElementById('ar-householdMembers')?.value.trim() ?? '',
+        proofId: document.getElementById('ar-proofId')?.value.trim() ?? '',
     }
 }
 
@@ -137,6 +149,17 @@ function getResidentFormValidationError(values) {
 
     const birthdateError = getBirthdateValidationError(values)
     if (birthdateError) return birthdateError
+
+    if (!values.householdRole) return 'Please select whether the resident is the household head or a member.'
+    if (values.householdRole === 'Head' && !values.householdMembers) {
+        return 'Household heads must include the residents that are part of the household.'
+    }
+    if (values.householdRole === 'Member' && !values.householdHeadName) {
+        return 'Household members must identify the household head they are related to.'
+    }
+    if (values.sector > 0 && !values.proofId) {
+        return 'PWD and Senior residents require a proof ID before they can be added.'
+    }
 
     return ''
 }
@@ -270,6 +293,8 @@ function fillResidentForm(resident) {
     setInputValue('ar-middleName', resident.middleName)
     setInputValue('ar-lastName', resident.lastName)
     setInputValue('ar-suffix', resident.suffix)
+    setInputValue('ar-contact', resident.contact)
+    setInputValue('ar-email', resident.email)
     setInputValue('ar-address', resident.address)
     setInputValue('ar-bday', birthdate.day)
     setInputValue('ar-bmonth', birthdate.month)
@@ -277,6 +302,10 @@ function fillResidentForm(resident) {
     setInputValue('ar-sex', resident.sex)
     setInputValue('ar-sector', resident.sector)
     setInputValue('ar-civilStatus', resident.civilStatus)
+    setInputValue('ar-householdRole', resident.householdRole)
+    setInputValue('ar-householdHeadName', resident.householdHeadName)
+    setInputValue('ar-householdMembers', resident.householdMembers)
+    setInputValue('ar-proofId', resident.proofId)
 }
 
 function setInputValue(id, value) {

@@ -1,5 +1,4 @@
 import { openEditResidentPage } from './residentForm.js'
-import { openDeleteDialog } from './residentDeleteDialog.js'
 
 export function createResidentActions(resident, options, actionOptions = {}) {
     const actions = document.createElement('div')
@@ -7,12 +6,7 @@ export function createResidentActions(resident, options, actionOptions = {}) {
     const buttons = [
         createActionButton('Edit', 'entity-action-btn', () => openEditResidentPage(resident, options)),
         createActionButton('Document Request', 'entity-action-btn', () => options.onDocumentRequest?.(resident)),
-        createActionButton('Delete', 'entity-action-btn entity-action-btn--danger', () => {
-            openDeleteDialog(resident, {
-                addDeletedHistoryLog: options.addDeletedHistoryLog,
-                onDeleted: options.showResidentsView
-            })
-        })
+        createDisabledActionButton('No deletion', 'entity-action-btn')
     ]
 
     if (actionOptions.includeView !== false) {
@@ -22,6 +16,18 @@ export function createResidentActions(resident, options, actionOptions = {}) {
     actions.append(...buttons)
 
     return actions
+}
+
+function createDisabledActionButton(label, className) {
+    const button = document.createElement('button')
+
+    button.className = className
+    button.type = 'button'
+    button.textContent = label
+    button.disabled = true
+    button.title = 'Resident records are retained for transparency. Edit the record instead of deleting it.'
+
+    return button
 }
 
 function createActionButton(label, className, onClick) {

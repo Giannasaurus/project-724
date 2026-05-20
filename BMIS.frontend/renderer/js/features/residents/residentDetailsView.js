@@ -34,6 +34,9 @@ export function openResidentDetails(resident, options = {}) {
                 <div><dt>Sex</dt><dd>${escapeHtml(getSexLabel(resident.sex))}</dd></div>
                 <div><dt>Sector</dt><dd>${escapeHtml(getSectorLabel(resident.sector))}</dd></div>
                 <div><dt>Civil Status</dt><dd>${escapeHtml(getCivilStatusLabel(resident.civilStatus))}</dd></div>
+                <div><dt>Contact</dt><dd>${escapeHtml(resident.contact || resident.email || 'Not recorded')}</dd></div>
+                <div><dt>Household</dt><dd>${escapeHtml(getHouseholdDetails(resident))}</dd></div>
+                <div><dt>Proof ID</dt><dd>${escapeHtml(resident.proofId || 'Not required/recorded')}</dd></div>
                 <div><dt>Resident ID</dt><dd>${escapeHtml(String(getResidentId(resident) ?? 'Not available'))}</dd></div>
             </dl>
         </div>
@@ -45,6 +48,12 @@ export function openResidentDetails(resident, options = {}) {
     }))
     iLView.appendChild(detailsView)
     if (deleteDialog) iLView.appendChild(deleteDialog)
+}
+
+function getHouseholdDetails(resident) {
+    if (resident.householdRole === 'Head') return `Head; members: ${resident.householdMembers || 'not recorded'}`
+    if (resident.householdRole === 'Member') return `Member; head: ${resident.householdHeadName || 'not recorded'}`
+    return 'Not recorded'
 }
 
 function escapeHtml(value) {
