@@ -1,10 +1,11 @@
 require('dotenv').config()
-const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, dialog, safeStorage } = require('electron')
 const path = require('node:path')
 const fs = require('node:fs/promises')
 const { createWordDocumentBuffer } = require('./documentExport.js')
 
 let backendProcess = null
+const BACKUP_MAGIC = 'BMISBACKUP1'
 
 function getDevBackendDirectory() {
     return path.join(__dirname, '..', 'dev.backend')
@@ -49,6 +50,28 @@ function ensureBackupExtension(filePath) {
     return filePath.toLowerCase().endsWith('.bmis-backup')
         ? filePath
         : `${filePath}.bmis-backup`
+}
+
+function encryptBackupPayload(backup) {
+    if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Backup encryption is not available on this device.')
+    }
+
+    const encrypted = safeStorage.encryptString(JSON.stringify(backup))
+    return `${BACKUP_MAGIC}\n${encrypted.toString('base64')}`
+}
+
+function decryptBackupPayload(content) {
+    if (content.startsWith(`${BACKUP_MAGIC}\n`)) {
+        if (!safeStorage.isEncryptionAvailable()) {
+            throw new Error('Backup decryption is not available on this device.')
+        }
+
+        const encrypted = Buffer.from(content.slice(BACKUP_MAGIC.length + 1), 'base64')
+        return JSON.parse(safeStorage.decryptString(encrypted))
+    }
+
+    return JSON.parse(content)
 }
 
 async function stopBackendProcess() {
@@ -419,7 +442,7 @@ app.whenReady().then(async () => {
             }
             const outputPath = ensureBackupExtension(result.filePath)
 
-            await fs.writeFile(outputPath, JSON.stringify(backup, null, 2), 'utf8')
+            await fs.writeFile(outputPath, encryptBackupPayload(backup), 'utf8')
 
             return {
                 success: true,
@@ -450,7 +473,7 @@ app.whenReady().then(async () => {
 
         try {
             const filePath = result.filePaths[0]
-            const backup = JSON.parse(await fs.readFile(filePath, 'utf8'))
+            const backup = decryptBackupPayload(await fs.readFile(filePath, 'utf8'))
 
             if (backup?.format !== 'bmis-backup' || !backup?.database?.base64) {
                 return {
