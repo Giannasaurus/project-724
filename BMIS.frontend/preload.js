@@ -10,5 +10,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveWordDocument: (html, fileName, context) => ipcRenderer.invoke('save-word-document', html, fileName, context),
     exportAppBackup: (localData) => ipcRenderer.invoke('export-app-backup', localData),
     readAppBackup: () => ipcRenderer.invoke('read-app-backup'),
-    restoreBackupDatabase: (database) => ipcRenderer.invoke('restore-backup-database', database),
 })
+    restoreBackupDatabase: (database) => ipcRenderer.invoke('restore-backup-database', database),
