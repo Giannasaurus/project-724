@@ -421,6 +421,23 @@ app.whenReady().then(async () => {
         return { success: true }
     })
 
+    ipcMain.handle('send-incident-notification', async (e, request) => {
+        const emails = Array.isArray(request?.emails) ? request.emails.filter(Boolean) : []
+        if (emails.length === 0) {
+            return {
+                success: false,
+                message: 'No email addresses were provided.'
+            }
+        }
+
+        const subject = encodeURIComponent(request.subject ?? 'Barangay case notice')
+        const body = encodeURIComponent(request.message ?? '')
+
+        await shell.openExternal(`mailto:${emails.map(encodeURIComponent).join(',')}?subject=${subject}&body=${body}`)
+
+        return { success: true }
+    })
+
     ipcMain.handle('export-app-backup', async (e, localData) => {
         const now = new Date()
         const defaultPath = `BMIS backup ${now.toISOString().slice(0, 10)}.bmis-backup`

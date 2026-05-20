@@ -9,6 +9,7 @@ import {
 import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
 import { renderHomeSummary } from './features/home/homePage.js'
 import { initHouseholdsPage } from './features/households/householdsPage.js'
+import { initIncidentsPage } from './features/incidents/incidentsPage.js'
 import { getFilteredResidentPageData, hasActiveResidentFilters } from './features/residents/residentFilters.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
 import { bindResidentImportControls } from './features/residents/residentImport.js'
@@ -46,6 +47,10 @@ const views = {
     templates: {
         file: 'views/document-requests.html',
         afterRender: showDocumentRequestsView
+    },
+    incidents: {
+        file: 'views/incidents.html',
+        afterRender: initIncidentsPage
     },
     history: {
         file: 'views/activity-log.html',

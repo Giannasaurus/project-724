@@ -2,7 +2,8 @@ const BACKUP_LOCAL_STORAGE_KEYS = [
     'bmisDocumentDefaults',
     'bmisActivityLogSettings',
     'bmisResidentHistory',
-    'bmisHouseholds'
+    'bmisHouseholds',
+    'bmisIncidentCases'
 ]
 
 export function createLocalBackupData() {
