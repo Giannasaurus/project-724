@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { app, BrowserWindow, Menu, ipcMain, dialog, safeStorage } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, dialog, safeStorage, shell } = require('electron')
 const path = require('node:path')
 const fs = require('node:fs/promises')
 const { createWordDocumentBuffer } = require('./documentExport.js')
@@ -401,6 +401,24 @@ app.whenReady().then(async () => {
                 message: `[!] failed to save Word document: ${err.message}`
             }
         }
+    })
+
+    ipcMain.handle('send-document-ready-email', async (e, request) => {
+        if (!request?.email) {
+            return {
+                success: false,
+                message: 'Resident email is not recorded.'
+            }
+        }
+
+        const subject = encodeURIComponent(`${request.documentLabel} ready for pickup`)
+        const body = encodeURIComponent(
+            `Good day ${request.residentName},\n\nYour ${request.documentLabel} request is ready for pickup at the barangay office.\n\nThank you.`
+        )
+
+        await shell.openExternal(`mailto:${encodeURIComponent(request.email)}?subject=${subject}&body=${body}`)
+
+        return { success: true }
     })
 
     ipcMain.handle('export-app-backup', async (e, localData) => {

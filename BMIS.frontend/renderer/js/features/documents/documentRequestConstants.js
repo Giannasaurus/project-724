@@ -1,7 +1,13 @@
 export const DOCUMENT_TYPES = {
     0: 'Barangay Clearance',
     1: 'Certificate of Residency',
-    2: 'Certificate of Indigency'
+    2: 'Certificate of Indigency',
+    'business-clearance': 'Business Clearance',
+    'barangay-permit': 'Barangay Permit',
+    'construction-permit': 'Construction/Renovation Permit',
+    'excavation-permit': 'Excavation Permit',
+    'no-objection': 'Certificate of No Objection',
+    'good-moral': 'Certificate of Good Moral Character'
 }
 
 export const OTHER_REASON_VALUE = 'other'

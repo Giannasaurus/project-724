@@ -66,11 +66,38 @@ async function handleDocumentSubmit(event) {
 
     try {
         await downloadWordDocument(pageState.currentDocumentHtml, getCurrentDocumentFileName(), getDocumentExportContext())
+        try {
+            await sendReadyForPickupNotification()
+        }
+        catch (notificationError) {
+            console.error(notificationError)
+            setPagePreviewStatus(`${getSelectedDocumentLabel()} saved. Email notification was not sent.`)
+        }
     }
     catch (error) {
         console.error(error)
         setPageError('Failed to save document. Please try again.')
     }
+}
+
+async function sendReadyForPickupNotification() {
+    const email = pageState.selectedResident?.email
+    if (!email) {
+        setPagePreviewStatus(`${getSelectedDocumentLabel()} saved. No resident email is recorded.`)
+        return
+    }
+
+    const result = await window.electronAPI.sendDocumentReadyEmail({
+        email,
+        residentName: getResidentFullName(pageState.selectedResident),
+        documentLabel: getSelectedDocumentLabel()
+    })
+
+    setPagePreviewStatus(
+        result?.success
+            ? `${getSelectedDocumentLabel()} saved. Email notification opened.`
+            : `${getSelectedDocumentLabel()} saved. ${result?.message ?? 'Email notification was not sent.'}`
+    )
 }
 
 function clearResidentSearch() {

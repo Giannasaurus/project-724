@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteData: (endpoint, id) => ipcRenderer.invoke('delete-data', endpoint, id),
     readResidentsExcel: () => ipcRenderer.invoke('read-residents-excel'),
     saveWordDocument: (html, fileName, context) => ipcRenderer.invoke('save-word-document', html, fileName, context),
+    sendDocumentReadyEmail: (request) => ipcRenderer.invoke('send-document-ready-email', request),
     exportAppBackup: (localData) => ipcRenderer.invoke('export-app-backup', localData),
     readAppBackup: () => ipcRenderer.invoke('read-app-backup'),
     restoreBackupDatabase: (database) => ipcRenderer.invoke('restore-backup-database', database),

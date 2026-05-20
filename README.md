@@ -1,5 +1,7 @@
 # Project 724
 
+Alternative thesis title: Barangay Resident Record Management System
+
 View the Wiki! YIPEE
 
 ## TO RUN
