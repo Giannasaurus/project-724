@@ -8,8 +8,16 @@
 -->
 <div id="iLView">
     <div class="page-sticky-toolbar residents-sticky-toolbar">
-        <h2>Residents</h2>
-        <div id="iLNav">
+        <div class="resident-module-header">
+            <h2>Residents</h2>
+            <div class="resident-module-tabs" role="tablist" aria-label="Resident records views">
+                <button id="residentRecordsTab" class="resident-module-tab active" type="button" role="tab"
+                    aria-selected="true" aria-controls="residentRecordsPanel">Residents</button>
+                <button id="residentHouseholdsTab" class="resident-module-tab" type="button" role="tab"
+                    aria-selected="false" aria-controls="residentHouseholdsPanel">Households</button>
+            </div>
+        </div>
+        <div id="iLNav" class="resident-records-toolbar">
             <div id="searchSection">
                 <div id="searchOptions">
                     <div class="resident-search-input-wrap">
@@ -129,9 +137,29 @@
         </div>
         <p id="residentImportStatus" class="resident-import-status" aria-live="polite"></p>
         <div id="residentActionBarMount"></div>
+        <div id="residentHouseholdsToolbar" class="households-toolbar" hidden>
+            <input id="householdSearch" type="text" placeholder="Search household head, member, or address">
+        </div>
+        <div id="householdActionBar" class="entity-selection-bar" hidden></div>
     </div>
-    <div id="paginationContainer">
-    </div>
+    <section id="residentRecordsPanel" role="tabpanel" aria-labelledby="residentRecordsTab">
+        <div id="paginationContainer"></div>
+    </section>
+    <section id="residentHouseholdsPanel" role="tabpanel" aria-labelledby="residentHouseholdsTab" hidden>
+        <div class="households-list-header">
+            <span>Household</span>
+            <span>Head</span>
+            <span>Members</span>
+        </div>
+        <div id="householdsList" class="households-list" aria-live="polite"></div>
+    </section>
+    <section id="householdDetailsView" hidden>
+        <div class="subview-heading">
+            <button id="householdDetailsBackBtn" class="back-btn" type="button">&lt; Back</button>
+            <h2>Household Details</h2>
+        </div>
+        <div id="householdDetailsContent" class="entity-detail-panel"></div>
+    </section>
     <!-- R.I.P: addResidentDialog-->
     <dialog id="deleteConfirmDialog">
         <div class="delete-dialog-header">

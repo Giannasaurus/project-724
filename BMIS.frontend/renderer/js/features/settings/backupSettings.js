@@ -2,7 +2,6 @@ const BACKUP_LOCAL_STORAGE_KEYS = [
     'bmisDocumentDefaults',
     'bmisActivityLogSettings',
     'bmisResidentHistory',
-    'bmisHouseholds',
     'bmisIncidentCases'
 ]
 

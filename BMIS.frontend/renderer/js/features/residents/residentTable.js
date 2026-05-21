@@ -30,10 +30,10 @@ export async function loadData(result, options = {}) {
         'col-address'
     ]
 
-    const iLView = document.getElementById('iLView')
+    const recordsPanel = document.getElementById('residentRecordsPanel') ?? document.getElementById('iLView')
     const paginationContainer = document.getElementById('paginationContainer')
     const actionBarMount = document.getElementById('residentActionBarMount')
-    if (!iLView || !paginationContainer || !actionBarMount) {
+    if (!recordsPanel || !paginationContainer || !actionBarMount) {
         console.error('Residents view is not mounted')
         return
     }
@@ -42,7 +42,7 @@ export async function loadData(result, options = {}) {
     if (!dataContainer) {
         dataContainer = document.createElement('div')
         dataContainer.id = 'dataContainer'
-        iLView.insertBefore(dataContainer, paginationContainer)
+        recordsPanel.insertBefore(dataContainer, paginationContainer)
     }
 
     dataContainer.innerHTML = ''

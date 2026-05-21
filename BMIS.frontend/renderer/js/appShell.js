@@ -8,10 +8,10 @@ import {
 } from './features/activityLog/activityLogPage.js'
 import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
 import { renderHomeSummary } from './features/home/homePage.js'
-import { initHouseholdsPage } from './features/households/householdsPage.js'
 import { initIncidentsPage } from './features/incidents/incidentsPage.js'
 import { getFilteredResidentPageData, hasActiveResidentFilters } from './features/residents/residentFilters.js'
 import { openAddResidentForm } from './features/residents/residentForm.js'
+import { initResidentHouseholdsView } from './features/residents/residentHouseholdsView.js'
 import { bindResidentImportControls } from './features/residents/residentImport.js'
 import { bindResidentFilterControls, handleSearchInput, loadData, renderFilterIndicators } from './features/residents/residentsPage.js'
 import { renderPagination } from './features/residents/residentsPagination.js'
@@ -39,10 +39,6 @@ const views = {
     inhabitantList: {
         file: 'views/residents.html',
         afterRender: showResidentsView
-    },
-    household: {
-        file: 'views/households.html',
-        afterRender: initHouseholdsPage
     },
     templates: {
         file: 'views/document-requests.html',
@@ -178,6 +174,7 @@ async function showResidentsView(state) {
         addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
         showResidentsView: page => returnToResidentsView(state, page)
     })
+    initResidentHouseholdsView()
 }
 
 async function goToResidentsPage(state, page) {
