@@ -60,7 +60,11 @@ export function sanitizeResidentPayload(resident) {
         employerSchool: toNameCase(resident.employerSchool),
         highestEducationalAttainment: toNameCase(resident.highestEducationalAttainment),
         remarks: normalizeSpacing(resident.remarks),
-        proofId: normalizeSpacing(resident.proofId)
+        proofType: normalizeProofType(resident.proofType),
+        proofId: normalizeSpacing(resident.proofId),
+        verificationStatus: normalizeVerificationStatus(resident.verificationStatus),
+        verifiedBy: normalizeSpacing(resident.verifiedBy),
+        verifiedAt: normalizeSpacing(resident.verifiedAt)
     }
 }
 
@@ -107,6 +111,22 @@ function normalizeHouseholdMembers(value) {
 
 function normalizeEmail(value) {
     return normalizeSpacing(value).toLowerCase()
+}
+
+function normalizeProofType(value) {
+    const proofType = toNameCase(value)
+    const match = ['PWD ID', 'Senior Citizen ID', 'Medical Certificate']
+        .find(option => option.toLowerCase() === proofType.toLowerCase())
+
+    return match ?? proofType
+}
+
+function normalizeVerificationStatus(value) {
+    const status = toNameCase(value)
+    const match = ['Pending', 'Verified', 'Rejected']
+        .find(option => option.toLowerCase() === status.toLowerCase())
+
+    return match ?? status
 }
 
 function normalizeSpacing(value) {

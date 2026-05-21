@@ -2061,6 +2061,10 @@ tbody tr:hover .ellipsis-btn,
     .form-row--household {
         grid-template-columns: 1fr;
     }
+
+    .verification-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .dr-preview-panel {
@@ -2558,6 +2562,12 @@ tbody tr:hover .ellipsis-btn,
 
 .resident-form-section h3 {
     font-size: 1rem;
+}
+
+.verification-grid {
+    display: grid;
+    gap: var(--gap-lg);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .form-row {

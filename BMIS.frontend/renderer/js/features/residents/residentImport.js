@@ -31,7 +31,11 @@ const HEADER_ALIASES = {
     employerSchool: ['employer/school', 'employer school', 'employer', 'school'],
     highestEducationalAttainment: ['highest educational attainment', 'educational attainment', 'education'],
     remarks: ['remarks', 'remark'],
-    proofId: ['proof id', 'verification id', 'pwd id', 'senior id', 'supporting id']
+    proofType: ['proof type', 'verification proof type'],
+    proofId: ['proof id', 'proof number', 'reference number', 'verification id', 'pwd id', 'senior id', 'supporting id'],
+    verificationStatus: ['verification status', 'status'],
+    verifiedBy: ['verified by', 'verifier'],
+    verifiedAt: ['verified date', 'verified at', 'verification date']
 }
 
 const SEX_VALUES = {
@@ -209,7 +213,11 @@ function parseResidentRow(row) {
         employerSchool: normalizedRow.employerSchool || '',
         highestEducationalAttainment: normalizedRow.highestEducationalAttainment || '',
         remarks: normalizedRow.remarks || '',
-        proofId: normalizedRow.proofId || ''
+        proofType: normalizedRow.proofType || '',
+        proofId: normalizedRow.proofId || '',
+        verificationStatus: normalizedRow.verificationStatus || 'Pending',
+        verifiedBy: normalizedRow.verifiedBy || '',
+        verifiedAt: normalizedRow.verifiedAt || ''
     })
 }
 
@@ -294,7 +302,11 @@ function getResidentValidationError(resident) {
     if (resident.civilStatus === undefined) return 'invalid civil status'
     if (resident.civilStatus === 6 && !resident.civilStatusOther) return 'missing other civil status'
     if (!resident.address) return 'missing address'
-    if (resident.sector > 0 && !resident.proofId) return 'PWD/Senior residents require a proof ID'
+    if (resident.sector > 0 && !resident.proofType) return 'PWD/Senior residents require a proof type'
+    if (resident.sector > 0 && !resident.proofId) return 'PWD/Senior residents require a proof number'
+    if (resident.sector > 0 && !['PWD ID', 'Senior Citizen ID', 'Medical Certificate'].includes(resident.proofType)) {
+        return 'invalid proof type'
+    }
     if (resident.householdRole === 'Head' && !resident.householdMembers) return 'household heads require household members'
     if (resident.householdRole === 'Member' && !resident.householdHeadName) return 'household members require a household head'
     return ''

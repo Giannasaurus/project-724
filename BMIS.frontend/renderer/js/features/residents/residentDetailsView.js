@@ -43,7 +43,7 @@ export function openResidentDetails(resident, options = {}) {
                 <div><dt>Employer/School</dt><dd>${escapeHtml(resident.employerSchool || 'Not recorded')}</dd></div>
                 <div><dt>Education</dt><dd>${escapeHtml(resident.highestEducationalAttainment || 'Not recorded')}</dd></div>
                 <div><dt>Remarks</dt><dd>${escapeHtml(resident.remarks || 'None')}</dd></div>
-                <div><dt>Proof ID</dt><dd>${escapeHtml(resident.proofId || 'Not required/recorded')}</dd></div>
+                <div><dt>Verification</dt><dd>${escapeHtml(getVerificationDetails(resident))}</dd></div>
                 <div><dt>Resident ID</dt><dd>${escapeHtml(String(getResidentId(resident) ?? 'Not available'))}</dd></div>
             </dl>
         </div>
@@ -74,6 +74,18 @@ function getCivilStatusDetails(resident) {
     }
 
     return getCivilStatusLabel(resident.civilStatus)
+}
+
+function getVerificationDetails(resident) {
+    if (!resident.proofType && !resident.proofId) return 'Not required/recorded'
+
+    return [
+        resident.verificationStatus || 'Pending',
+        resident.proofType,
+        resident.proofId,
+        resident.verifiedBy ? `by ${resident.verifiedBy}` : '',
+        resident.verifiedAt ? `on ${resident.verifiedAt}` : ''
+    ].filter(Boolean).join(' - ')
 }
 
 function escapeHtml(value) {

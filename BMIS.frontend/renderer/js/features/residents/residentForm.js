@@ -10,6 +10,8 @@ const SENIOR_AGE = 60
 const SECTOR_GENERAL = 0
 const SECTOR_PWD = 1
 const SECTOR_SENIOR = 2
+const AUTH_SESSION_KEY = 'bmisAuthSession'
+const SECTOR_PROOF_TYPES = ['PWD ID', 'Senior Citizen ID', 'Medical Certificate']
 
 export async function openAddResidentForm(options = {}) {
     const { ilView = document.getElementById('iLView'), addResidentHistoryLog, showResidentsView } = options
@@ -21,6 +23,7 @@ export async function openAddResidentForm(options = {}) {
     if (options.householdHead) fillHouseholdMemberDefaults(options.householdHead)
     attachEnterToSubmit(addResidentForm)
     attachSeniorSectorHandler(addResidentForm)
+    attachSectorVerificationHandler(addResidentForm)
     attachHouseholdRoleHandler(addResidentForm)
     attachHouseholdHeadSearchHandler()
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
@@ -146,7 +149,11 @@ function getResidentPayload(values) {
         employerSchool: values.employerSchool,
         highestEducationalAttainment: values.highestEducationalAttainment,
         remarks: values.remarks,
-        proofId: values.proofId
+        proofType: values.proofType,
+        proofId: values.proofId,
+        verificationStatus: values.verificationStatus,
+        verifiedBy: values.verifiedBy,
+        verifiedAt: values.verifiedAt
     })
 }
 
@@ -184,6 +191,60 @@ function updateSeniorSectorFromBirthdate() {
 
     if (age < SENIOR_AGE && Number(sector.value) === SECTOR_SENIOR && !sector.dataset.userSelectedSector) {
         sector.value = String(SECTOR_GENERAL)
+    }
+}
+
+function attachSectorVerificationHandler(form) {
+    const sector = document.getElementById('ar-sector')
+    const status = document.getElementById('ar-verificationStatus')
+
+    sector?.addEventListener('change', updateSectorVerificationControls)
+    status?.addEventListener('change', syncVerificationMetadata)
+    updateSectorVerificationControls()
+}
+
+function updateSectorVerificationControls() {
+    const requiresVerification = getSelectedSector() > SECTOR_GENERAL
+    const proofType = document.getElementById('ar-proofType')
+    const proofId = document.getElementById('ar-proofId')
+    const status = document.getElementById('ar-verificationStatus')
+    const verifiedBy = document.getElementById('ar-verifiedBy')
+    const verifiedAt = document.getElementById('ar-verifiedAt')
+
+    setInputDisabled(proofType, !requiresVerification, { clear: true })
+    setInputDisabled(proofId, !requiresVerification, { clear: true })
+    setInputDisabled(status, !requiresVerification, { clear: true })
+    setInputRequired(proofType, requiresVerification)
+    setInputRequired(proofId, requiresVerification)
+    setInputRequired(status, requiresVerification)
+
+    if (!requiresVerification) {
+        if (!status.value) setInputValue('ar-verificationStatus', 'Pending')
+        setInputValue('ar-verifiedBy', '')
+        setInputValue('ar-verifiedAt', '')
+    }
+    else {
+        if (!status.value) status.value = 'Pending'
+        syncVerificationMetadata()
+    }
+
+    setInputDisabled(verifiedBy, true)
+    setInputDisabled(verifiedAt, true)
+    document.querySelectorAll('.sector-verification-required').forEach((marker) => {
+        marker.hidden = !requiresVerification
+    })
+}
+
+function syncVerificationMetadata() {
+    const requiresVerification = getSelectedSector() > SECTOR_GENERAL
+    const status = document.getElementById('ar-verificationStatus')?.value
+    if (!requiresVerification || status !== 'Verified') return
+
+    if (!document.getElementById('ar-verifiedBy')?.value) {
+        setInputValue('ar-verifiedBy', getCurrentVerifierName())
+    }
+    if (!document.getElementById('ar-verifiedAt')?.value) {
+        setInputValue('ar-verifiedAt', new Date().toISOString().slice(0, 10))
     }
 }
 
@@ -312,7 +373,11 @@ function getResidentFormValues() {
         employerSchool: document.getElementById('ar-employerSchool')?.value.trim() ?? '',
         highestEducationalAttainment: document.getElementById('ar-highestEducationalAttainment')?.value.trim() ?? '',
         remarks: document.getElementById('ar-remarks')?.value.trim() ?? '',
+        proofType: document.getElementById('ar-proofType')?.value ?? '',
         proofId: document.getElementById('ar-proofId')?.value.trim() ?? '',
+        verificationStatus: document.getElementById('ar-verificationStatus')?.value ?? '',
+        verifiedBy: document.getElementById('ar-verifiedBy')?.value.trim() ?? '',
+        verifiedAt: document.getElementById('ar-verifiedAt')?.value.trim() ?? '',
     }
 
     values.address = formatResidentAddress(values)
@@ -337,11 +402,25 @@ function getResidentFormValidationError(values) {
     if (values.householdRole === 'Member' && !values.relationshipToHouseholdHead) {
         return 'Household members must include their relationship to the household head.'
     }
-    if (values.sector > 0 && !values.proofId) {
-        return 'PWD and Senior residents require a proof ID before they can be added.'
+    const verificationError = getSectorVerificationError(values)
+    if (verificationError) return verificationError
+    if (values.proofType && !SECTOR_PROOF_TYPES.includes(values.proofType)) {
+        return 'Proof type must be PWD ID, Senior Citizen ID, or Medical Certificate.'
     }
     if (values.civilStatus === 6 && !values.civilStatusOther) {
         return 'Please specify the civil status when Others is selected.'
+    }
+
+    return ''
+}
+
+function getSectorVerificationError(values) {
+    if (values.sector <= SECTOR_GENERAL) return ''
+    if (!values.proofType) return 'PWD and Senior residents require a proof type.'
+    if (!values.proofId) return 'PWD and Senior residents require a proof or reference number.'
+    if (!values.verificationStatus) return 'PWD and Senior residents require a verification status.'
+    if (values.verificationStatus === 'Verified' && (!values.verifiedBy || !values.verifiedAt)) {
+        return 'Verified PWD/Senior records require verifier and verification date.'
     }
 
     return ''
@@ -454,6 +533,10 @@ function getAge(values) {
     return age
 }
 
+function getSelectedSector() {
+    return Number(document.getElementById('ar-sector')?.value ?? SECTOR_GENERAL)
+}
+
 function setSubmitState(button, isSaving) {
     if (!button) return
 
@@ -473,6 +556,7 @@ export async function openEditResidentPage(resident, options = {}) {
     fillResidentForm(resident)
     attachEnterToSubmit(editResidentForm)
     attachSeniorSectorHandler(editResidentForm)
+    attachSectorVerificationHandler(editResidentForm)
     attachHouseholdRoleHandler(editResidentForm)
     attachHouseholdHeadSearchHandler()
     attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
@@ -574,7 +658,11 @@ function fillResidentForm(resident) {
     setInputValue('ar-employerSchool', resident.employerSchool)
     setInputValue('ar-highestEducationalAttainment', resident.highestEducationalAttainment)
     setInputValue('ar-remarks', resident.remarks)
+    setInputValue('ar-proofType', resident.proofType)
     setInputValue('ar-proofId', resident.proofId)
+    setInputValue('ar-verificationStatus', resident.verificationStatus || 'Pending')
+    setInputValue('ar-verifiedBy', resident.verifiedBy)
+    setInputValue('ar-verifiedAt', resident.verifiedAt)
 }
 
 function fillHouseholdMemberDefaults(householdHead) {
@@ -663,4 +751,14 @@ function getResidentFormFullName(resident) {
         resident.lastName,
         resident.suffix
     ].filter(Boolean).join(' ')
+}
+
+function getCurrentVerifierName() {
+    try {
+        const session = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) ?? '{}')
+        return [session.username, session.role].filter(Boolean).join(' / ')
+    }
+    catch {
+        return ''
+    }
 }
