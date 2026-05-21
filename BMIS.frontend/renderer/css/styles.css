@@ -155,6 +155,58 @@ select:focus-visible,
     outline-offset: 2px;
 }
 
+.icon-btn {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--gap-sm);
+    justify-content: center;
+}
+
+.icon-btn::before {
+    background-color: currentColor;
+    content: "";
+    display: inline-block;
+    flex: 0 0 18px;
+    height: 18px;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    width: 18px;
+}
+
+.icon-clear::before {
+    mask-image: url('../../assets/icons/clear.svg');
+    -webkit-mask-image: url('../../assets/icons/clear.svg');
+}
+
+.icon-filter::before {
+    mask-image: url('../../assets/icons/filter.svg');
+    -webkit-mask-image: url('../../assets/icons/filter.svg');
+}
+
+.icon-generate::before {
+    mask-image: url('../../assets/icons/generate.svg');
+    -webkit-mask-image: url('../../assets/icons/generate.svg');
+}
+
+.icon-import::before {
+    mask-image: url('../../assets/icons/import.svg');
+    -webkit-mask-image: url('../../assets/icons/import.svg');
+}
+
+.icon-preview::before {
+    mask-image: url('../../assets/icons/preview.svg');
+    -webkit-mask-image: url('../../assets/icons/preview.svg');
+}
+
+.icon-search::before {
+    mask-image: url('../../assets/icons/search.svg');
+    -webkit-mask-image: url('../../assets/icons/search.svg');
+}
+
 
 /* ============================================================
    SHARED INPUTS
