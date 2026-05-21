@@ -1,5 +1,6 @@
 import { postData, updateData } from '../../core/api.js'
-import { getResidentId, sanitizeResidentPayload } from '../../shared/residentUtils.js'
+import { getResidentFullName, getResidentId, sanitizeResidentPayload } from '../../shared/residentUtils.js'
+import { searchResidentsByName } from './residentSearch.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
@@ -21,6 +22,7 @@ export async function openAddResidentForm(options = {}) {
     attachEnterToSubmit(addResidentForm)
     attachSeniorSectorHandler(addResidentForm)
     attachHouseholdRoleHandler(addResidentForm)
+    attachHouseholdHeadSearchHandler()
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
@@ -197,14 +199,86 @@ function updateHouseholdRoleControls() {
     const isMember = getSelectedRadioValue('ar-householdRole') === 'Member'
     const householdHead = document.getElementById('ar-householdHeadName')
     const relationship = document.getElementById('ar-relationshipToHouseholdHead')
+    const searchBtn = document.getElementById('ar-householdHeadSearchBtn')
+    const results = document.getElementById('ar-householdHeadResults')
 
     setInputDisabled(householdHead, !isMember, { clear: true })
     setInputDisabled(relationship, !isMember, { clear: true })
+    setInputDisabled(searchBtn, !isMember)
+    setInputPlaceholder(householdHead, isMember
+        ? 'Search existing resident head'
+        : 'Disabled because this resident is the household head')
+    setInputPlaceholder(relationship, isMember
+        ? 'Self, spouse, child, sibling'
+        : 'Disabled because this resident is the household head')
     setInputRequired(householdHead, isMember)
     setInputRequired(relationship, isMember)
     document.querySelectorAll('.household-member-required').forEach((marker) => {
         marker.hidden = !isMember
     })
+    if (!isMember && results) results.innerHTML = '<p>Household heads cannot assign another household head.</p>'
+    if (isMember && results) results.innerHTML = ''
+}
+
+function attachHouseholdHeadSearchHandler() {
+    const input = document.getElementById('ar-householdHeadName')
+    const searchBtn = document.getElementById('ar-householdHeadSearchBtn')
+    if (!input || !searchBtn) return
+
+    searchBtn.addEventListener('click', searchHouseholdHeads)
+    input.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' || input.disabled) return
+
+        event.preventDefault()
+        searchHouseholdHeads()
+    })
+}
+
+async function searchHouseholdHeads() {
+    const input = document.getElementById('ar-householdHeadName')
+    const results = document.getElementById('ar-householdHeadResults')
+    const query = input?.value.trim() ?? ''
+    if (!results) return
+
+    if (!query) {
+        results.innerHTML = '<p>Enter a resident name to search.</p>'
+        return
+    }
+
+    results.innerHTML = '<p>Searching...</p>'
+    const result = await searchResidentsByName(query, { from: 0, limit: 8 })
+    const residents = result?.success && Array.isArray(result.data)
+        ? result.data.filter(resident => resident.householdRole !== 'Member')
+        : []
+
+    renderHouseholdHeadResults(residents)
+}
+
+function renderHouseholdHeadResults(residents) {
+    const results = document.getElementById('ar-householdHeadResults')
+    if (!results) return
+
+    results.innerHTML = ''
+    if (residents.length === 0) {
+        results.innerHTML = '<p>No household heads found.</p>'
+        return
+    }
+
+    residents.forEach((resident) => {
+        const button = document.createElement('button')
+        button.className = 'household-head-result'
+        button.type = 'button'
+        button.innerHTML = `<span>${escapeHtml(getResidentFullName(resident))}</span><small>${escapeHtml(resident.address ?? '')}</small>`
+        button.addEventListener('click', () => selectHouseholdHead(resident))
+        results.appendChild(button)
+    })
+}
+
+function selectHouseholdHead(resident) {
+    setInputValue('ar-householdHeadName', getResidentFullName(resident))
+    fillAddressFields(resident)
+    const results = document.getElementById('ar-householdHeadResults')
+    if (results) results.innerHTML = '<p>Household head selected.</p>'
 }
 
 function getResidentFormValues() {
@@ -400,6 +474,7 @@ export async function openEditResidentPage(resident, options = {}) {
     attachEnterToSubmit(editResidentForm)
     attachSeniorSectorHandler(editResidentForm)
     attachHouseholdRoleHandler(editResidentForm)
+    attachHouseholdHeadSearchHandler()
     attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
@@ -526,6 +601,10 @@ function setInputDisabled(input, disabled, options = {}) {
     if (disabled && options.clear) input.value = ''
 }
 
+function setInputPlaceholder(input, placeholder) {
+    if (input) input.placeholder = placeholder
+}
+
 function setInputRequired(input, required) {
     if (!input) return
 
@@ -563,6 +642,16 @@ function fillAddressFields(resident) {
     setInputValue('ar-barangay', resident.barangay || 'Barangay 724')
     setInputValue('ar-municipalityCity', resident.municipalityCity || 'Manila')
     setInputValue('ar-province', resident.province || 'Metro Manila')
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    })[char])
 }
 
 function getResidentFormFullName(resident) {
