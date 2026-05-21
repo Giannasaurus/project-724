@@ -131,7 +131,7 @@
 
         <section class="resident-form-section">
             <h3>Household Details</h3>
-            <div class="form-row">
+            <div class="form-row form-row--household">
                 <div class="form-group form-group--sm">
                     <label>Household Role <span class="required">*</span></label>
                     <div id="ar-householdRole" class="radio-group" role="radiogroup" aria-label="Household Role">
@@ -139,7 +139,7 @@
                         <label><input type="radio" name="ar-householdRole" value="Member"> Member</label>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group form-group--household-head">
                     <label>Name of Household Head</label>
                     <div class="household-head-search">
                         <input type="text" id="ar-householdHeadName" placeholder="Search existing resident head">
@@ -147,7 +147,7 @@
                     </div>
                     <div id="ar-householdHeadResults" class="household-head-results"></div>
                 </div>
-                <div class="form-group">
+                <div class="form-group form-group--relationship">
                     <label>Relationship to Household Head <span class="required household-member-required">*</span></label>
                     <input type="text" id="ar-relationshipToHouseholdHead" placeholder="Self, spouse, child, sibling">
                 </div>

@@ -2027,6 +2027,7 @@ tbody tr:hover .ellipsis-btn,
     flex-direction: column;
     gap: var(--gap-sm);
     margin-top: var(--gap-sm);
+    min-height: 24px;
 }
 
 .household-head-results p {
@@ -2054,6 +2055,12 @@ tbody tr:hover .ellipsis-btn,
 
 .household-head-result small {
     color: var(--color-text-muted);
+}
+
+@media (max-width: 980px) {
+    .form-row--household {
+        grid-template-columns: 1fr;
+    }
 }
 
 .dr-preview-panel {
@@ -2560,11 +2567,22 @@ tbody tr:hover .ellipsis-btn,
     align-items: flex-end;
 }
 
+.form-row--household {
+    align-items: start;
+    display: grid;
+    grid-template-columns: 212px minmax(360px, 1fr) minmax(360px, 1fr);
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
     gap: var(--gap-xs);
     flex: 1;
+}
+
+.form-group--household-head,
+.form-group--relationship {
+    min-width: 0;
 }
 
 .form-group--sm {
