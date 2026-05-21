@@ -818,6 +818,10 @@ dialog::backdrop {
     gap: var(--gap-lg);
 }
 
+#iLNav[hidden] {
+    display: none;
+}
+
 #searchSection {
     flex: 3;
     display: flex;
