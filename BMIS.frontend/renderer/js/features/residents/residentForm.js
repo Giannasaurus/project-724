@@ -5,6 +5,10 @@ const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
 const RESIDENT_FORM_ID = 'addResidentForm'
 const MIN_BIRTH_YEAR = 1900
+const SENIOR_AGE = 60
+const SECTOR_GENERAL = 0
+const SECTOR_PWD = 1
+const SECTOR_SENIOR = 2
 
 export async function openAddResidentForm(options = {}) {
     const { ilView, addResidentHistoryLog, showResidentsView } = options
@@ -14,6 +18,7 @@ export async function openAddResidentForm(options = {}) {
     if (!addResidentForm) return
 
     attachEnterToSubmit(addResidentForm)
+    attachSeniorSectorHandler(addResidentForm)
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
@@ -132,6 +137,43 @@ function getResidentPayload(values) {
         remarks: values.remarks,
         proofId: values.proofId
     })
+}
+
+function attachSeniorSectorHandler(form) {
+    const sector = document.getElementById('ar-sector')
+    if (!sector) return
+
+    getBirthdateInputs().forEach((input) => {
+        input.addEventListener('input', updateSeniorSectorFromBirthdate)
+        input.addEventListener('change', updateSeniorSectorFromBirthdate)
+    })
+
+    form.addEventListener('change', (event) => {
+        if (event.target !== sector) return
+
+        sector.dataset.userSelectedSector = Number(sector.value) === SECTOR_SENIOR ? '' : 'true'
+    })
+
+    updateSeniorSectorFromBirthdate()
+}
+
+function updateSeniorSectorFromBirthdate() {
+    const sector = document.getElementById('ar-sector')
+    if (!sector) return
+
+    const values = getBirthdateInputValues()
+    if (!isCompleteRealBirthdate(values)) return
+
+    const age = getAge(values)
+    if (age >= SENIOR_AGE && Number(sector.value) !== SECTOR_PWD) {
+        sector.value = String(SECTOR_SENIOR)
+        sector.dataset.userSelectedSector = ''
+        return
+    }
+
+    if (age < SENIOR_AGE && Number(sector.value) === SECTOR_SENIOR && !sector.dataset.userSelectedSector) {
+        sector.value = String(SECTOR_GENERAL)
+    }
 }
 
 function getResidentFormValues() {
@@ -273,6 +315,40 @@ function isFutureDate(year, month, day) {
     return birthdate > today
 }
 
+function getBirthdateInputs() {
+    return ['ar-bday', 'ar-bmonth', 'ar-byear']
+        .map(id => document.getElementById(id))
+        .filter(Boolean)
+}
+
+function getBirthdateInputValues() {
+    return {
+        day: document.getElementById('ar-bday')?.value.trim() ?? '',
+        month: document.getElementById('ar-bmonth')?.value ?? '',
+        year: document.getElementById('ar-byear')?.value.trim() ?? ''
+    }
+}
+
+function isCompleteRealBirthdate(values) {
+    if (!values.day || !values.month || !values.year) return false
+    if (!isWholeNumber(values.day) || !isWholeNumber(values.year)) return false
+
+    return isRealDate(Number(values.year), Number(values.month), Number(values.day))
+}
+
+function getAge(values) {
+    const today = new Date()
+    const birthdate = new Date(Number(values.year), Number(values.month) - 1, Number(values.day))
+    let age = today.getFullYear() - birthdate.getFullYear()
+    const birthdayHasPassed = (
+        today.getMonth() > birthdate.getMonth() ||
+        (today.getMonth() === birthdate.getMonth() && today.getDate() >= birthdate.getDate())
+    )
+
+    if (!birthdayHasPassed) age -= 1
+    return age
+}
+
 function setSubmitState(button, isSaving) {
     if (!button) return
 
@@ -291,6 +367,7 @@ export async function openEditResidentPage(resident, options = {}) {
 
     fillResidentForm(resident)
     attachEnterToSubmit(editResidentForm)
+    attachSeniorSectorHandler(editResidentForm)
     attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
