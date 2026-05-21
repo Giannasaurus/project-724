@@ -57,28 +57,50 @@ export function handleSearchInput({ onSearch }) {
 export function bindResidentFilterControls({ getFilters, onApplyFilters, onClearFilters }) {
     const filterBtn = document.getElementById('btn_filter')
     const filterDialog = document.getElementById('filterMenu')
+    const sortBtn = document.getElementById('btn_sort')
+    const sortDialog = document.getElementById('sortMenu')
     const cancelBtn = document.getElementById('cancelFilter')
     const applyBtn = document.getElementById('saveFilter')
     const clearBtn = document.getElementById('clearFilter')
     const closeBtn = document.getElementById('filterDialogCloseBtn')
+    const cancelSortBtn = document.getElementById('cancelSort')
+    const applySortBtn = document.getElementById('saveSort')
+    const clearSortBtn = document.getElementById('clearSort')
+    const closeSortBtn = document.getElementById('sortDialogCloseBtn')
 
     filterBtn?.addEventListener('click', () => {
         setResidentFilterFormValues(getFilters?.() ?? {})
         filterDialog?.showModal()
     })
+    sortBtn?.addEventListener('click', () => {
+        setResidentSortFormValue(getFilters?.().order)
+        sortDialog?.showModal()
+    })
     cancelBtn?.addEventListener('click', () => filterDialog?.close())
     closeBtn?.addEventListener('click', () => filterDialog?.close())
     clearBtn?.addEventListener('click', async () => {
         resetResidentFilterForm()
-        await onClearFilters?.()
+        await onApplyFilters?.(getFiltersWithNextFilterValues(getFilters?.() ?? {}, getResidentFilterValues()))
         filterDialog?.close()
     })
     applyBtn?.addEventListener('click', async () => {
-        await onApplyFilters?.(getResidentFilterValues())
+        await onApplyFilters?.(getFiltersWithNextFilterValues(getFilters?.() ?? {}, getResidentFilterValues()))
         filterDialog?.close()
+    })
+    cancelSortBtn?.addEventListener('click', () => sortDialog?.close())
+    closeSortBtn?.addEventListener('click', () => sortDialog?.close())
+    clearSortBtn?.addEventListener('click', async () => {
+        setResidentSortFormValue('')
+        await onApplyFilters?.({ ...(getFilters?.() ?? {}), order: '' })
+        sortDialog?.close()
+    })
+    applySortBtn?.addEventListener('click', async () => {
+        await onApplyFilters?.({ ...(getFilters?.() ?? {}), order: getResidentSortValue() })
+        sortDialog?.close()
     })
 
     filterDialog?.addEventListener('click', closeDialogOnBackdrop)
+    sortDialog?.addEventListener('click', closeDialogOnBackdrop)
 }
 
 export function renderFilterIndicators(filters, { onApplyFilters, onClearFilters } = {}) {
@@ -131,9 +153,12 @@ function getResidentFilterValues() {
         civilStat: getCheckedValues('filterCivil'),
         householdRole: getCheckedValues('filterHouseholdRole'),
         contactStatus: getCheckedValues('filterContactStatus'),
-        verificationStatus: getCheckedValues('filterVerificationStatus'),
-        order: document.getElementById('filterOrder')?.value ?? ''
+        verificationStatus: getCheckedValues('filterVerificationStatus')
     }
+}
+
+function getResidentSortValue() {
+    return document.getElementById('filterOrder')?.value ?? ''
 }
 
 function resetResidentFilterForm() {
@@ -142,8 +167,7 @@ function resetResidentFilterForm() {
         if (input.type === 'number') input.value = ''
     })
 
-    const orderSelect = document.getElementById('filterOrder')
-    if (orderSelect) orderSelect.value = ''
+    setResidentSortFormValue('')
 }
 
 function setResidentFilterFormValues(filters) {
@@ -157,8 +181,19 @@ function setResidentFilterFormValues(filters) {
     setCheckedValues('filterContactStatus', filters.contactStatus)
     setCheckedValues('filterVerificationStatus', filters.verificationStatus)
 
+    setResidentSortFormValue(filters.order)
+}
+
+function setResidentSortFormValue(value) {
     const orderSelect = document.getElementById('filterOrder')
-    if (orderSelect) orderSelect.value = filters.order ?? ''
+    if (orderSelect) orderSelect.value = value ?? ''
+}
+
+function getFiltersWithNextFilterValues(currentFilters, nextFilterValues) {
+    return {
+        ...currentFilters,
+        ...nextFilterValues
+    }
 }
 
 function getNumberInputValue(id) {

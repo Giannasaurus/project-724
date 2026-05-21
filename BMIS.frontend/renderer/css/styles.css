@@ -187,6 +187,11 @@ select:focus-visible,
     -webkit-mask-image: url('../../assets/icons/filter.svg');
 }
 
+.icon-sort::before {
+    mask-image: url('../../assets/icons/sort.svg');
+    -webkit-mask-image: url('../../assets/icons/sort.svg');
+}
+
 .icon-generate::before {
     mask-image: url('../../assets/icons/generate.svg');
     -webkit-mask-image: url('../../assets/icons/generate.svg');
@@ -913,16 +918,23 @@ dialog::backdrop {
     gap: var(--gap-lg);
 }
 
-#iLView #filterMenu {
+#iLView #filterMenu,
+#iLView #sortMenu {
     width: min(680px, calc(100vw - 48px));
     padding: 24px;
 }
 
-#iLView #filterMenu:not([open]) {
+#iLView #sortMenu {
+    width: min(420px, calc(100vw - 48px));
+}
+
+#iLView #filterMenu:not([open]),
+#iLView #sortMenu:not([open]) {
     display: none;
 }
 
-#iLView #filterMenu[open] {
+#iLView #filterMenu[open],
+#iLView #sortMenu[open] {
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -934,7 +946,8 @@ dialog::backdrop {
     justify-content: space-between;
 }
 
-#filterDialogCloseBtn {
+#filterDialogCloseBtn,
+#sortDialogCloseBtn {
     aspect-ratio: 1;
     flex: 0 0 36px;
     height: 36px;
@@ -946,8 +959,15 @@ dialog::backdrop {
     width: 36px;
 }
 
-#filterDialogCloseBtn:hover {
+#filterDialogCloseBtn:hover,
+#sortDialogCloseBtn:hover {
     border-radius: var(--radius-sm);
+}
+
+.sort-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 #iLView .filterMenuOptions {
@@ -3102,6 +3122,7 @@ tbody tr:hover .ellipsis-btn,
 }
 
 #filterMenu,
+#sortMenu,
 .delete-confirm-dialog,
 .context-menu {
     box-shadow: var(--shadow-popover);

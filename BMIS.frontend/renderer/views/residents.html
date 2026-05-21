@@ -26,6 +26,7 @@
                             aria-label="Clear resident search"></button>
                     </div>
                     <button id="btn_filter" class="btn_sub icon-btn icon-filter" type="button">Filter</button>
+                    <button id="btn_sort" class="btn_sub icon-btn icon-sort" type="button">Sort</button>
                     <dialog id="filterMenu">
                         <div class="filter-dialog-header">
                             <h3>Filter Residents</h3>
@@ -148,23 +149,35 @@
                                     </label>
                                 </div>
                             </fieldset>
-                            <fieldset>
-                                <h3>Sort</h3>
-                                <select id="filterOrder">
-                                    <option value="">Default: last name A-Z</option>
-                                    <option value="ByLastName">Last name A-Z</option>
-                                    <option value="ByLastNameDesc">Last name Z-A</option>
-                                    <option value="ByFirstName">First name A-Z</option>
-                                    <option value="ByFirstNameDesc">First name Z-A</option>
-                                    <option value="ByAgeDesc">Oldest first</option>
-                                    <option value="ByAge">Youngest first</option>
-                                </select>
-                            </fieldset>
                         </div>
                         <div class="filter-dialog-actions">
                             <button id="clearFilter" class="btn_sub icon-btn icon-clear" type="button">Clear</button>
                             <button id="cancelFilter" class="btn_sub" type="button">Cancel</button>
                             <button id="saveFilter" class="btn_main" type="button">Apply</button>
+                        </div>
+                    </dialog>
+                    <dialog id="sortMenu">
+                        <div class="filter-dialog-header">
+                            <h3>Sort Residents</h3>
+                            <button id="sortDialogCloseBtn" class="delete-dialog-x" type="button"
+                                aria-label="Close sort">&times;</button>
+                        </div>
+                        <div class="sort-dialog-body">
+                            <label for="filterOrder">Order by</label>
+                            <select id="filterOrder">
+                                <option value="">Default: last name A-Z</option>
+                                <option value="ByLastName">Last name A-Z</option>
+                                <option value="ByLastNameDesc">Last name Z-A</option>
+                                <option value="ByFirstName">First name A-Z</option>
+                                <option value="ByFirstNameDesc">First name Z-A</option>
+                                <option value="ByAgeDesc">Oldest first</option>
+                                <option value="ByAge">Youngest first</option>
+                            </select>
+                        </div>
+                        <div class="filter-dialog-actions">
+                            <button id="clearSort" class="btn_sub icon-btn icon-clear" type="button">Default</button>
+                            <button id="cancelSort" class="btn_sub" type="button">Cancel</button>
+                            <button id="saveSort" class="btn_main" type="button">Apply</button>
                         </div>
                     </dialog>
                 </div>

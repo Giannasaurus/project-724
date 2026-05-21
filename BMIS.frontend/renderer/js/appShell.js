@@ -202,6 +202,7 @@ async function goToResidentsPage(state, page) {
         addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         addUpdatedHistoryLog: resident => addResidentUpdatedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
+        preserveOrder: Boolean(state.residentFilters.order),
         showResidentsView: () => returnToResidentsView(state, state.currentPage)
     })
     renderPagination(state.currentPage, state.totalPages, nextPage => goToResidentsPage(state, nextPage))

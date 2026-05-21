@@ -81,7 +81,9 @@ export async function loadData(result, options = {}) {
     actionBar.hidden = true
     actionBarMount.replaceChildren(actionBar)
 
-    getSortedResidents(result.data).forEach(resident => {
+    const residents = options.preserveOrder ? result.data : getSortedResidents(result.data)
+
+    residents.forEach(resident => {
         const cells = getCells(resident)
         const row = document.createElement('tr')
         row.className = 'entity-row'
