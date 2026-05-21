@@ -1,4 +1,5 @@
 import { getData, postData, readResidentsExcel } from '../../core/api.js'
+import { sanitizeResidentPayload } from '../../shared/residentUtils.js'
 
 const HEADER_ALIASES = {
     firstName: ['first name', 'firstname', 'given name'],
@@ -162,7 +163,7 @@ function parseResidentRow(row) {
     const normalizedRow = getNormalizedRow(row)
     const nameParts = parseFullName(normalizedRow.fullName)
 
-    return {
+    return sanitizeResidentPayload({
         firstName: normalizedRow.firstName || nameParts.firstName,
         middleName: normalizedRow.middleName || nameParts.middleName,
         lastName: normalizedRow.lastName || nameParts.lastName,
@@ -178,7 +179,7 @@ function parseResidentRow(row) {
         householdHeadName: normalizedRow.householdHeadName || '',
         householdMembers: normalizedRow.householdMembers || '',
         proofId: normalizedRow.proofId || ''
-    }
+    })
 }
 
 function getNormalizedRow(row) {

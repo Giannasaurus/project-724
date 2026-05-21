@@ -32,3 +32,72 @@ export function getSectorLabel(sector) {
 export function getCivilStatusLabel(civilStatus) {
     return CIVIL_STATUS_LABELS[civilStatus] ?? 'Unknown'
 }
+
+export function sanitizeResidentPayload(resident) {
+    return {
+        ...resident,
+        firstName: toNameCase(resident.firstName),
+        middleName: toNameCase(resident.middleName),
+        lastName: toNameCase(resident.lastName),
+        suffix: normalizeSuffix(resident.suffix),
+        address: normalizeSpacing(resident.address),
+        contact: normalizeSpacing(resident.contact),
+        email: normalizeEmail(resident.email),
+        householdHeadName: toNameCase(resident.householdHeadName),
+        householdMembers: normalizeHouseholdMembers(resident.householdMembers),
+        proofId: normalizeSpacing(resident.proofId)
+    }
+}
+
+export function compareResidentsByName(left, right) {
+    return getResidentSortName(left).localeCompare(getResidentSortName(right), undefined, {
+        sensitivity: 'base',
+        numeric: true
+    })
+}
+
+function getResidentSortName(resident) {
+    return [
+        resident?.lastName,
+        resident?.firstName,
+        resident?.middleName,
+        resident?.suffix
+    ].map(normalizeSpacing).join(' ')
+}
+
+function toNameCase(value) {
+    return normalizeSpacing(value)
+        .toLowerCase()
+        .replace(/\b([a-z])/g, match => match.toUpperCase())
+        .replace(/\b(Mc)([a-z])/g, (_, prefix, letter) => `${prefix}${letter.toUpperCase()}`)
+}
+
+function normalizeSuffix(value) {
+    const suffix = normalizeSpacing(value)
+    const romanSuffix = suffix.toUpperCase()
+
+    if (['JR', 'SR'].includes(romanSuffix)) return `${titleCase(suffix)}.`
+    if (/^(I|II|III|IV|V|VI|VII|VIII|IX|X)$/.test(romanSuffix)) return romanSuffix
+
+    return suffix
+}
+
+function normalizeHouseholdMembers(value) {
+    return normalizeSpacing(value)
+        .split(';')
+        .map(toNameCase)
+        .filter(Boolean)
+        .join('; ')
+}
+
+function normalizeEmail(value) {
+    return normalizeSpacing(value).toLowerCase()
+}
+
+function normalizeSpacing(value) {
+    return String(value ?? '').trim().replace(/\s+/g, ' ')
+}
+
+function titleCase(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+}

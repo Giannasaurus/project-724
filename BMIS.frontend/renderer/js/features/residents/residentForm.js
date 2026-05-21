@@ -1,5 +1,5 @@
 import { postData, updateData } from '../../core/api.js'
-import { getResidentId } from '../../shared/residentUtils.js'
+import { getResidentId, sanitizeResidentPayload } from '../../shared/residentUtils.js'
 
 const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
 const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
@@ -101,7 +101,7 @@ function attachNavigationHandlers(view) {
 }
 
 function getResidentPayload(values) {
-    return {
+    return sanitizeResidentPayload({
         firstName: values.firstName,
         middleName: values.middleName,
         lastName: values.lastName,
@@ -117,7 +117,7 @@ function getResidentPayload(values) {
         householdHeadName: values.householdHeadName,
         householdMembers: values.householdMembers,
         proofId: values.proofId
-    }
+    })
 }
 
 function getResidentFormValues() {

@@ -1,4 +1,4 @@
-import { getResidentFullName, getSectorLabel, getSexLabel } from '../../shared/residentUtils.js'
+import { compareResidentsByName, getResidentFullName, getSectorLabel, getSexLabel } from '../../shared/residentUtils.js'
 import { createResidentActions } from './residentActions.js'
 import { openResidentDetails } from './residentDetailsView.js'
 
@@ -79,7 +79,7 @@ export async function loadData(result, options = {}) {
     actionBar.className = 'entity-selection-bar'
     actionBar.hidden = true
 
-    result.data.forEach(resident => {
+    getSortedResidents(result.data).forEach(resident => {
         const cells = getCells(resident)
         const row = document.createElement('tr')
         row.className = 'entity-row'
@@ -112,6 +112,10 @@ export async function loadData(result, options = {}) {
         selectedRow.classList.add('is-selected')
         renderResidentActionBar(actionBar, selectedResident, options)
     }
+}
+
+function getSortedResidents(residents) {
+    return [...residents].sort(compareResidentsByName)
 }
 
 function getHouseholdLabel(resident) {
