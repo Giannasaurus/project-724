@@ -146,7 +146,7 @@ function getResidentFormValues() {
         day: document.getElementById('ar-bday').value.trim(),
         month: document.getElementById('ar-bmonth').value,
         year: document.getElementById('ar-byear').value.trim(),
-        sex: parseInt(document.getElementById('ar-sex').value, 10),
+        sex: getSelectedRadioNumber('ar-sex'),
         sector: parseInt(document.getElementById('ar-sector').value, 10),
         civilStatus: parseInt(document.getElementById('ar-civilStatus').value, 10),
         civilStatusOther: document.getElementById('ar-civilStatusOther')?.value.trim() ?? '',
@@ -354,7 +354,7 @@ function fillResidentForm(resident) {
     setInputValue('ar-bday', birthdate.day)
     setInputValue('ar-bmonth', birthdate.month)
     setInputValue('ar-byear', birthdate.year)
-    setInputValue('ar-sex', resident.sex)
+    setRadioValue('ar-sex', resident.sex)
     setInputValue('ar-sector', resident.sector)
     setInputValue('ar-civilStatus', resident.civilStatus)
     setInputValue('ar-civilStatusOther', resident.civilStatusOther)
@@ -374,6 +374,16 @@ function fillResidentForm(resident) {
 function setInputValue(id, value) {
     const input = document.getElementById(id)
     if (input) input.value = value ?? ''
+}
+
+function getSelectedRadioNumber(name) {
+    const checked = document.querySelector(`input[name="${name}"]:checked`)
+    return parseInt(checked?.value ?? '0', 10)
+}
+
+function setRadioValue(name, value) {
+    const input = document.querySelector(`input[name="${name}"][value="${value ?? 0}"]`)
+    if (input) input.checked = true
 }
 
 function parseBirthdate(value) {

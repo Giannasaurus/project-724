@@ -2523,6 +2523,28 @@ tbody tr:hover .ellipsis-btn,
     width: 100%;
 }
 
+.radio-group {
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: var(--gap-md);
+    min-height: 42px;
+    padding: 8px 10px;
+}
+
+.radio-group label {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    gap: var(--gap-sm);
+    height: auto;
+}
+
+.radio-group input {
+    accent-color: var(--color-accent);
+}
+
 .birthdate-inputs {
     display: flex;
     flex-direction: row;
