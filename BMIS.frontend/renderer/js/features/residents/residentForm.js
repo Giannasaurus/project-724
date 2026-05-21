@@ -20,6 +20,7 @@ export async function openAddResidentForm(options = {}) {
     if (options.householdHead) fillHouseholdMemberDefaults(options.householdHead)
     attachEnterToSubmit(addResidentForm)
     attachSeniorSectorHandler(addResidentForm)
+    attachHouseholdRoleHandler(addResidentForm)
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
@@ -184,6 +185,23 @@ function updateSeniorSectorFromBirthdate() {
     }
 }
 
+function attachHouseholdRoleHandler(form) {
+    form.querySelectorAll('input[name="ar-householdRole"]').forEach((input) => {
+        input.addEventListener('change', updateHouseholdRoleControls)
+    })
+
+    updateHouseholdRoleControls()
+}
+
+function updateHouseholdRoleControls() {
+    const isMember = getSelectedRadioValue('ar-householdRole') === 'Member'
+    const householdHead = document.getElementById('ar-householdHeadName')
+    const relationship = document.getElementById('ar-relationshipToHouseholdHead')
+
+    setInputDisabled(householdHead, !isMember, { clear: true })
+    setInputDisabled(relationship, !isMember, { clear: true })
+}
+
 function getResidentFormValues() {
     const values = {
         firstName: document.getElementById('ar-firstName').value.trim(),
@@ -207,7 +225,7 @@ function getResidentFormValues() {
         barangay: document.getElementById('ar-barangay')?.value.trim() ?? '',
         municipalityCity: document.getElementById('ar-municipalityCity')?.value.trim() ?? '',
         province: document.getElementById('ar-province')?.value.trim() ?? '',
-        householdRole: document.getElementById('ar-householdRole')?.value ?? '',
+        householdRole: getSelectedRadioValue('ar-householdRole'),
         householdHeadName: document.getElementById('ar-householdHeadName')?.value.trim() ?? '',
         relationshipToHouseholdHead: document.getElementById('ar-relationshipToHouseholdHead')?.value.trim() ?? '',
         householdMembers: document.getElementById('ar-householdMembers')?.value.trim() ?? '',
@@ -376,6 +394,7 @@ export async function openEditResidentPage(resident, options = {}) {
     fillResidentForm(resident)
     attachEnterToSubmit(editResidentForm)
     attachSeniorSectorHandler(editResidentForm)
+    attachHouseholdRoleHandler(editResidentForm)
     attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
     attachNavigationHandlers(showResidentsView)
 }
@@ -467,7 +486,7 @@ function fillResidentForm(resident) {
     setInputValue('ar-civilStatusOther', resident.civilStatusOther)
     setInputValue('ar-citizenship', resident.citizenship || 'Filipino')
     setInputValue('ar-religion', resident.religion)
-    setInputValue('ar-householdRole', resident.householdRole)
+    setRadioValue('ar-householdRole', resident.householdRole || 'Head')
     setInputValue('ar-householdHeadName', resident.householdHeadName)
     setInputValue('ar-relationshipToHouseholdHead', resident.relationshipToHouseholdHead)
     setInputValue('ar-householdMembers', resident.householdMembers)
@@ -479,7 +498,8 @@ function fillResidentForm(resident) {
 }
 
 function fillHouseholdMemberDefaults(householdHead) {
-    setInputValue('ar-householdRole', 'Member')
+    setRadioValue('ar-householdRole', 'Member')
+    updateHouseholdRoleControls()
     setInputValue('ar-householdHeadName', getResidentFormFullName(householdHead))
     setInputValue('ar-householdMembers', '')
     fillAddressFields(householdHead)
@@ -493,9 +513,21 @@ function setInputValue(id, value) {
     if (input) input.value = value ?? ''
 }
 
+function setInputDisabled(input, disabled, options = {}) {
+    if (!input) return
+
+    input.disabled = disabled
+    input.setAttribute('aria-disabled', String(disabled))
+    if (disabled && options.clear) input.value = ''
+}
+
 function getSelectedRadioNumber(name) {
     const checked = document.querySelector(`input[name="${name}"]:checked`)
     return parseInt(checked?.value ?? '0', 10)
+}
+
+function getSelectedRadioValue(name) {
+    return document.querySelector(`input[name="${name}"]:checked`)?.value ?? ''
 }
 
 function setRadioValue(name, value) {

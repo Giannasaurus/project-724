@@ -1987,6 +1987,12 @@ tbody tr:hover .ellipsis-btn,
     cursor: not-allowed;
 }
 
+.form-group input:disabled {
+    background-color: #f3f4f6;
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
+
 .dr-preview-panel {
     display: flex;
     flex-direction: column;
