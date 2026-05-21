@@ -1,17 +1,28 @@
 import { postData, updateData } from '../../core/api.js'
 import { getResidentFullName, getResidentId, sanitizeResidentPayload } from '../../shared/residentUtils.js'
+import {
+    ADD_RESIDENT_FORM_VIEW,
+    AUTH_SESSION_KEY,
+    EDIT_RESIDENT_FORM_VIEW,
+    RESIDENT_FORM_ID,
+    SECTOR_GENERAL,
+    SECTOR_PROOF_TYPES,
+    SECTOR_PWD,
+    SECTOR_SENIOR,
+    SENIOR_AGE
+} from './residentFormConstants.js'
+import { getAge, getBirthdateValidationError, isCompleteRealBirthdate } from './residentFormDate.js'
+import {
+    escapeHtml,
+    getSelectedRadioNumber,
+    getSelectedRadioValue,
+    setInputDisabled,
+    setInputPlaceholder,
+    setInputRequired,
+    setInputValue,
+    setRadioValue
+} from './residentFormDom.js'
 import { searchResidentsByName } from './residentSearch.js'
-
-const ADD_RESIDENT_FORM_VIEW = 'views/subviews/add-resident.html'
-const EDIT_RESIDENT_FORM_VIEW = 'views/subviews/edit-resident.html'
-const RESIDENT_FORM_ID = 'addResidentForm'
-const MIN_BIRTH_YEAR = 1900
-const SENIOR_AGE = 60
-const SECTOR_GENERAL = 0
-const SECTOR_PWD = 1
-const SECTOR_SENIOR = 2
-const AUTH_SESSION_KEY = 'bmisAuthSession'
-const SECTOR_PROOF_TYPES = ['PWD ID', 'Senior Citizen ID', 'Medical Certificate']
 
 export async function openAddResidentForm(options = {}) {
     const { ilView = document.getElementById('iLView'), addResidentHistoryLog, showResidentsView } = options
@@ -444,61 +455,6 @@ function formatResidentAddress(values) {
     ].filter(Boolean).join(', ')
 }
 
-function getBirthdateValidationError(values) {
-    if (!values.day || !values.year) {
-        return 'Please enter a complete birthdate.'
-    }
-
-    if (!isWholeNumber(values.day) || !isWholeNumber(values.year)) {
-        return 'Birthdate must use whole numbers for day and year.'
-    }
-
-    const day = Number(values.day)
-    const month = Number(values.month)
-    const year = Number(values.year)
-    const currentYear = new Date().getFullYear()
-
-    if (year < MIN_BIRTH_YEAR || year > currentYear) {
-        return `Birth year must be between ${MIN_BIRTH_YEAR} and ${currentYear}.`
-    }
-
-    if (day < 1 || day > 31) {
-        return 'Birth day must be between 1 and 31.'
-    }
-
-    if (!isRealDate(year, month, day)) {
-        return 'Please enter a valid birthdate.'
-    }
-
-    if (isFutureDate(year, month, day)) {
-        return 'Birthdate cannot be in the future.'
-    }
-
-    return ''
-}
-
-function isWholeNumber(value) {
-    return /^\d+$/.test(value)
-}
-
-function isRealDate(year, month, day) {
-    const date = new Date(year, month - 1, day)
-
-    return (
-        date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day
-    )
-}
-
-function isFutureDate(year, month, day) {
-    const today = new Date()
-    const birthdate = new Date(year, month - 1, day)
-
-    today.setHours(0, 0, 0, 0)
-    return birthdate > today
-}
-
 function getBirthdateInputs() {
     return ['ar-bday', 'ar-bmonth', 'ar-byear']
         .map(id => document.getElementById(id))
@@ -511,26 +467,6 @@ function getBirthdateInputValues() {
         month: document.getElementById('ar-bmonth')?.value ?? '',
         year: document.getElementById('ar-byear')?.value.trim() ?? ''
     }
-}
-
-function isCompleteRealBirthdate(values) {
-    if (!values.day || !values.month || !values.year) return false
-    if (!isWholeNumber(values.day) || !isWholeNumber(values.year)) return false
-
-    return isRealDate(Number(values.year), Number(values.month), Number(values.day))
-}
-
-function getAge(values) {
-    const today = new Date()
-    const birthdate = new Date(Number(values.year), Number(values.month) - 1, Number(values.day))
-    let age = today.getFullYear() - birthdate.getFullYear()
-    const birthdayHasPassed = (
-        today.getMonth() > birthdate.getMonth() ||
-        (today.getMonth() === birthdate.getMonth() && today.getDate() >= birthdate.getDate())
-    )
-
-    if (!birthdayHasPassed) age -= 1
-    return age
 }
 
 function getSelectedSector() {
@@ -676,44 +612,6 @@ function fillHouseholdMemberDefaults(householdHead) {
     firstName?.focus()
 }
 
-function setInputValue(id, value) {
-    const input = document.getElementById(id)
-    if (input) input.value = value ?? ''
-}
-
-function setInputDisabled(input, disabled, options = {}) {
-    if (!input) return
-
-    input.disabled = disabled
-    input.setAttribute('aria-disabled', String(disabled))
-    if (disabled && options.clear) input.value = ''
-}
-
-function setInputPlaceholder(input, placeholder) {
-    if (input) input.placeholder = placeholder
-}
-
-function setInputRequired(input, required) {
-    if (!input) return
-
-    input.required = required
-    input.setAttribute('aria-required', String(required))
-}
-
-function getSelectedRadioNumber(name) {
-    const checked = document.querySelector(`input[name="${name}"]:checked`)
-    return parseInt(checked?.value ?? '0', 10)
-}
-
-function getSelectedRadioValue(name) {
-    return document.querySelector(`input[name="${name}"]:checked`)?.value ?? ''
-}
-
-function setRadioValue(name, value) {
-    const input = document.querySelector(`input[name="${name}"][value="${value ?? 0}"]`)
-    if (input) input.checked = true
-}
-
 function parseBirthdate(value) {
     const [year = '', month = '', day = ''] = String(value ?? '').split('-')
 
@@ -730,16 +628,6 @@ function fillAddressFields(resident) {
     setInputValue('ar-barangay', resident.barangay || 'Barangay 724')
     setInputValue('ar-municipalityCity', resident.municipalityCity || 'Manila')
     setInputValue('ar-province', resident.province || 'Metro Manila')
-}
-
-function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    })[char])
 }
 
 function getResidentFormFullName(resident) {
