@@ -19,7 +19,10 @@ export function hasActiveResidentFilters(filters = {}) {
         filters.order ||
         filters.sex?.length ||
         filters.sector?.length ||
-        filters.civilStat?.length
+        filters.civilStat?.length ||
+        filters.householdRole?.length ||
+        filters.contactStatus?.length ||
+        filters.verificationStatus?.length
     )
 }
 
@@ -49,11 +52,38 @@ function filterResidentData(residents, filters = {}) {
         if (!matchesEnumFilter(resident.sex, filters.sex, SEX_FILTER_VALUES)) return false
         if (!matchesEnumFilter(resident.sector, filters.sector, SECTOR_FILTER_VALUES)) return false
         if (!matchesEnumFilter(resident.civilStatus, filters.civilStat, CIVIL_STATUS_FILTER_VALUES)) return false
+        if (!matchesHouseholdRoleFilter(resident, filters.householdRole)) return false
+        if (!matchesContactStatusFilter(resident, filters.contactStatus)) return false
+        if (!matchesVerificationStatusFilter(resident, filters.verificationStatus)) return false
 
         return true
     })
 
     return sortResidents(filtered, filters.order)
+}
+
+function matchesHouseholdRoleFilter(resident, selectedValues = []) {
+    if (!Array.isArray(selectedValues) || selectedValues.length === 0) return true
+
+    const role = resident.householdRole || 'NotRecorded'
+    return selectedValues.includes(role)
+}
+
+function matchesContactStatusFilter(resident, selectedValues = []) {
+    if (!Array.isArray(selectedValues) || selectedValues.length === 0) return true
+
+    const hasContact = Boolean(resident.contact?.trim() || resident.email?.trim())
+    return (
+        hasContact && selectedValues.includes('WithContact') ||
+        !hasContact && selectedValues.includes('MissingContact')
+    )
+}
+
+function matchesVerificationStatusFilter(resident, selectedValues = []) {
+    if (!Array.isArray(selectedValues) || selectedValues.length === 0) return true
+
+    const status = resident.verificationStatus || 'NotRecorded'
+    return selectedValues.includes(status)
 }
 
 function matchesEnumFilter(value, selectedValues = [], valueMap) {

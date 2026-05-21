@@ -129,6 +129,9 @@ function getResidentFilterValues() {
         sex: getCheckedValues('filterSex'),
         sector: getCheckedValues('filterSector'),
         civilStat: getCheckedValues('filterCivil'),
+        householdRole: getCheckedValues('filterHouseholdRole'),
+        contactStatus: getCheckedValues('filterContactStatus'),
+        verificationStatus: getCheckedValues('filterVerificationStatus'),
         order: document.getElementById('filterOrder')?.value ?? ''
     }
 }
@@ -150,6 +153,9 @@ function setResidentFilterFormValues(filters) {
     setCheckedValues('filterSex', filters.sex)
     setCheckedValues('filterSector', filters.sector)
     setCheckedValues('filterCivil', filters.civilStat)
+    setCheckedValues('filterHouseholdRole', filters.householdRole)
+    setCheckedValues('filterContactStatus', filters.contactStatus)
+    setCheckedValues('filterVerificationStatus', filters.verificationStatus)
 
     const orderSelect = document.getElementById('filterOrder')
     if (orderSelect) orderSelect.value = filters.order ?? ''
@@ -188,6 +194,21 @@ function getFilterIndicators(filters = {}) {
         value,
         label: `Civil: ${getCivilStatusFilterLabel(value)}`
     }))
+    filters.householdRole?.forEach(value => indicators.push({
+        key: 'householdRole',
+        value,
+        label: `Household: ${getHouseholdRoleFilterLabel(value)}`
+    }))
+    filters.contactStatus?.forEach(value => indicators.push({
+        key: 'contactStatus',
+        value,
+        label: getContactStatusFilterLabel(value)
+    }))
+    filters.verificationStatus?.forEach(value => indicators.push({
+        key: 'verificationStatus',
+        value,
+        label: `Verification: ${getVerificationStatusFilterLabel(value)}`
+    }))
     if (filters.order) indicators.push({ key: 'order', label: `Sort: ${getOrderLabel(filters.order)}` })
 
     return indicators
@@ -198,7 +219,10 @@ function removeFilter(filters, filter) {
         ...filters,
         sex: [...(filters.sex ?? [])],
         sector: [...(filters.sector ?? [])],
-        civilStat: [...(filters.civilStat ?? [])]
+        civilStat: [...(filters.civilStat ?? [])],
+        householdRole: [...(filters.householdRole ?? [])],
+        contactStatus: [...(filters.contactStatus ?? [])],
+        verificationStatus: [...(filters.verificationStatus ?? [])]
     }
 
     if (Array.isArray(nextFilters[filter.key])) {
@@ -216,6 +240,21 @@ function getCivilStatusFilterLabel(value) {
         Anulled: 'Annulled',
         LegallySeparated: 'Legally Separated'
     })[value] ?? value
+}
+
+function getHouseholdRoleFilterLabel(value) {
+    return value === 'NotRecorded' ? 'Not recorded' : value
+}
+
+function getContactStatusFilterLabel(value) {
+    return ({
+        WithContact: 'With contact',
+        MissingContact: 'Missing contact'
+    })[value] ?? value
+}
+
+function getVerificationStatusFilterLabel(value) {
+    return value === 'NotRecorded' ? 'Not recorded' : value
 }
 
 function getOrderLabel(order) {

@@ -910,8 +910,8 @@ dialog::backdrop {
 }
 
 #iLView #filterMenu {
-    width: min(720px, calc(100vw - 48px));
-    padding: var(--gap-xl);
+    width: min(680px, calc(100vw - 48px));
+    padding: 24px;
 }
 
 #iLView #filterMenu:not([open]) {
@@ -921,7 +921,7 @@ dialog::backdrop {
 #iLView #filterMenu[open] {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-xl);
+    gap: 18px;
 }
 
 .filter-dialog-header {
@@ -948,7 +948,7 @@ dialog::backdrop {
 
 #iLView .filterMenuOptions {
     display: grid;
-    gap: var(--gap-xl);
+    gap: 14px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -957,8 +957,13 @@ dialog::backdrop {
     border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
-    gap: var(--gap-md);
-    padding: var(--gap-lg);
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+#iLView .filterMenuOptions fieldset h3 {
+    font-size: 1rem;
+    margin: 0;
 }
 
 #iLView #filterMenu .filterAgeConst {
@@ -1003,8 +1008,8 @@ dialog::backdrop {
 #iLView .filterSection {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--gap-md);
-    font-size: 1rem;
+    gap: 10px 16px;
+    font-size: 0.95rem;
 }
 
 #iLView .filterSection label,
@@ -1029,17 +1034,17 @@ dialog::backdrop {
     cursor: pointer;
     display: grid;
     flex: 0 0 auto;
-    height: 22px;
+    height: 20px;
     margin: 0;
-    max-height: 22px;
-    max-width: 22px;
-    min-height: 22px;
-    min-width: 22px;
+    max-height: 20px;
+    max-width: 20px;
+    min-height: 20px;
+    min-width: 20px;
     padding: 0;
     place-content: center;
     transition: background-color var(--hover-transition-duration) var(--hover-transition-timing),
         border-color var(--hover-transition-duration) var(--hover-transition-timing);
-    width: 22px;
+    width: 20px;
 }
 
 #iLView .filterSection input[type="checkbox"]::before {
@@ -1068,8 +1073,8 @@ dialog::backdrop {
 
 .filter-range-row {
     display: grid;
-    gap: var(--gap-md);
-    grid-template-columns: 1fr 120px;
+    gap: 10px 14px;
+    grid-template-columns: 1fr 110px;
 }
 
 .filter-dialog-actions {
@@ -1082,9 +1087,9 @@ dialog::backdrop {
 #iLView .filter-dialog-actions .btn_main,
 #iLView .filter-dialog-actions .btn_sub {
     margin: 0;
-    min-height: 42px;
+    min-height: 38px;
     min-width: 88px;
-    padding: 10px 18px;
+    padding: 8px 16px;
 }
 
 #filterOrder {
