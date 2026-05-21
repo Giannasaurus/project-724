@@ -19,24 +19,6 @@ const HEADER_ALIASES = {
     proofId: ['proof id', 'verification id', 'pwd id', 'senior id', 'supporting id']
 }
 
-const RESIDENT_TEMPLATE_HEADERS = [
-    'First Name',
-    'Middle Name',
-    'Last Name',
-    'Suffix',
-    'Birthdate',
-    'Sex',
-    'Sector',
-    'Civil Status',
-    'Full Address',
-    'Contact Number',
-    'Email',
-    'Household Role',
-    'Household Head',
-    'Household Members',
-    'Proof ID'
-]
-
 const SEX_VALUES = {
     male: 0,
     m: 0,
@@ -66,14 +48,8 @@ const CIVIL_STATUS_VALUES = {
 
 export function bindResidentImportControls(options = {}) {
     const importBtn = document.getElementById('importResidentsBtn')
-    const templateBtn = document.getElementById('downloadResidentTemplateBtn')
     const statusEl = document.getElementById('residentImportStatus')
     if (!importBtn) return
-
-    templateBtn?.addEventListener('click', () => {
-        downloadResidentTemplate()
-        setImportStatus('Resident import template downloaded.')
-    })
 
     importBtn.addEventListener('click', async () => {
         setImportState(importBtn, statusEl, true, 'Choose a spreadsheet file to import.')
@@ -334,41 +310,6 @@ function normalizeHouseholdRole(value) {
     if (role === 'head' || role === 'household head') return 'Head'
     if (role === 'member' || role === 'household member') return 'Member'
     return ''
-}
-
-function downloadResidentTemplate() {
-    const example = [
-        'Juan',
-        'Santos',
-        'Dela Cruz',
-        '',
-        '1980-01-15',
-        'Male',
-        'General',
-        'Married',
-        '123 Block 67, Pipeline Street, Barangay 724, Malate, Metro Manila',
-        '09171234567',
-        'juan@example.com',
-        'Head',
-        '',
-        'Maria Dela Cruz; Ana Dela Cruz',
-        ''
-    ]
-    const csv = [RESIDENT_TEMPLATE_HEADERS, example]
-        .map(row => row.map(escapeCsv).join(','))
-        .join('\r\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-
-    link.href = url
-    link.download = 'resident-import-template.csv'
-    link.click()
-    URL.revokeObjectURL(url)
-}
-
-function escapeCsv(value) {
-    return `"${String(value ?? '').replaceAll('"', '""')}"`
 }
 
 function getImportStatusMessage(result, fileName) {
