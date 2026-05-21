@@ -200,6 +200,11 @@ function updateHouseholdRoleControls() {
 
     setInputDisabled(householdHead, !isMember, { clear: true })
     setInputDisabled(relationship, !isMember, { clear: true })
+    setInputRequired(householdHead, isMember)
+    setInputRequired(relationship, isMember)
+    document.querySelectorAll('.household-member-required').forEach((marker) => {
+        marker.hidden = !isMember
+    })
 }
 
 function getResidentFormValues() {
@@ -519,6 +524,13 @@ function setInputDisabled(input, disabled, options = {}) {
     input.disabled = disabled
     input.setAttribute('aria-disabled', String(disabled))
     if (disabled && options.clear) input.value = ''
+}
+
+function setInputRequired(input, required) {
+    if (!input) return
+
+    input.required = required
+    input.setAttribute('aria-required', String(required))
 }
 
 function getSelectedRadioNumber(name) {
