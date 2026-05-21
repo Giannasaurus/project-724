@@ -11,12 +11,13 @@ const SECTOR_PWD = 1
 const SECTOR_SENIOR = 2
 
 export async function openAddResidentForm(options = {}) {
-    const { ilView, addResidentHistoryLog, showResidentsView } = options
+    const { ilView = document.getElementById('iLView'), addResidentHistoryLog, showResidentsView } = options
     if (!ilView) return
 
     const addResidentForm = await renderResidentForm(ilView, ADD_RESIDENT_FORM_VIEW)
     if (!addResidentForm) return
 
+    if (options.householdHead) fillHouseholdMemberDefaults(options.householdHead)
     attachEnterToSubmit(addResidentForm)
     attachSeniorSectorHandler(addResidentForm)
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
@@ -66,7 +67,7 @@ function attachSubmitHandler(form, options) {
             return
         }
 
-        const saveBtn = document.getElementById('ar-saveBtn')
+        const saveBtn = getSubmitButton(e)
         setSubmitState(saveBtn, true)
 
         try {
@@ -75,6 +76,13 @@ function attachSubmitHandler(form, options) {
 
             if (result.success) {
                 addResidentHistoryLog?.(result.data)
+                if (saveBtn?.id === 'ar-saveAddMemberBtn') {
+                    await openAddResidentForm({
+                        ...options,
+                        householdHead: getHouseholdHeadForNextMember(result.data ?? payload, payload)
+                    })
+                    return
+                }
                 await showResidentsView?.(1)
             } else {
                 errorEl.textContent = 'Failed to save resident. Please try again.'
@@ -226,11 +234,11 @@ function getResidentFormValidationError(values) {
     if (addressError) return addressError
 
     if (!values.householdRole) return 'Please select whether the resident is the household head or a member.'
-    if (values.householdRole === 'Head' && !values.householdMembers) {
-        return 'Household heads must include the residents that are part of the household.'
-    }
     if (values.householdRole === 'Member' && !values.householdHeadName) {
         return 'Household members must identify the household head they are related to.'
+    }
+    if (values.householdRole === 'Member' && !values.relationshipToHouseholdHead) {
+        return 'Household members must include their relationship to the household head.'
     }
     if (values.sector > 0 && !values.proofId) {
         return 'PWD and Senior residents require a proof ID before they can be added.'
@@ -372,6 +380,28 @@ export async function openEditResidentPage(resident, options = {}) {
     attachNavigationHandlers(showResidentsView)
 }
 
+function getSubmitButton(event) {
+    return event.submitter ?? document.getElementById('ar-saveBtn')
+}
+
+function getHouseholdHeadForNextMember(savedResident, payload) {
+    if (payload.householdRole === 'Head') return { ...payload, ...savedResident }
+
+    return {
+        firstName: payload.householdHeadName,
+        middleName: '',
+        lastName: '',
+        suffix: '',
+        householdHeadName: payload.householdHeadName,
+        address: payload.address,
+        houseNumberStreet: payload.houseNumberStreet,
+        purokZone: payload.purokZone,
+        barangay: payload.barangay,
+        municipalityCity: payload.municipalityCity,
+        province: payload.province
+    }
+}
+
 function attachEditSubmitHandler(form, resident, options) {
     const { addUpdatedHistoryLog, showResidentsView } = options
 
@@ -448,6 +478,16 @@ function fillResidentForm(resident) {
     setInputValue('ar-proofId', resident.proofId)
 }
 
+function fillHouseholdMemberDefaults(householdHead) {
+    setInputValue('ar-householdRole', 'Member')
+    setInputValue('ar-householdHeadName', getResidentFormFullName(householdHead))
+    setInputValue('ar-householdMembers', '')
+    fillAddressFields(householdHead)
+
+    const firstName = document.getElementById('ar-firstName')
+    firstName?.focus()
+}
+
 function setInputValue(id, value) {
     const input = document.getElementById(id)
     if (input) input.value = value ?? ''
@@ -479,4 +519,15 @@ function fillAddressFields(resident) {
     setInputValue('ar-barangay', resident.barangay || 'Barangay 724')
     setInputValue('ar-municipalityCity', resident.municipalityCity || 'Manila')
     setInputValue('ar-province', resident.province || 'Metro Manila')
+}
+
+function getResidentFormFullName(resident) {
+    if (resident.householdHeadName && !resident.lastName) return resident.householdHeadName
+
+    return [
+        resident.firstName,
+        resident.middleName,
+        resident.lastName,
+        resident.suffix
+    ].filter(Boolean).join(' ')
 }

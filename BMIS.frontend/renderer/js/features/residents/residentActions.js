@@ -1,4 +1,4 @@
-import { openEditResidentPage } from './residentForm.js'
+import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
 
 export function createResidentActions(resident, options, actionOptions = {}) {
     const actions = document.createElement('div')
@@ -11,6 +11,17 @@ export function createResidentActions(resident, options, actionOptions = {}) {
 
     if (actionOptions.includeView !== false) {
         buttons.unshift(createActionButton('View', 'entity-action-btn', () => actionOptions.onView?.(resident)))
+    }
+
+    if (resident.householdRole === 'Head') {
+        buttons.splice(2, 0, createActionButton('Add Household Member', 'entity-action-btn', () => {
+            openAddResidentForm({
+                ilView: document.getElementById('iLView'),
+                addResidentHistoryLog: options.addResidentHistoryLog,
+                showResidentsView: options.showResidentsView,
+                householdHead: resident
+            })
+        }))
     }
 
     actions.append(...buttons)

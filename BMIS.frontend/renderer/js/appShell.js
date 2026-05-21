@@ -201,6 +201,7 @@ async function goToResidentsPage(state, page) {
     }
 
     await loadData(data, {
+        addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
         addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         addUpdatedHistoryLog: resident => addResidentUpdatedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),

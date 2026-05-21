@@ -58,7 +58,7 @@ export function openResidentDetails(resident, options = {}) {
 }
 
 function getHouseholdDetails(resident) {
-    if (resident.householdRole === 'Head') return `Head; members: ${resident.householdMembers || 'not recorded'}`
+    if (resident.householdRole === 'Head') return `Head; members: ${resident.householdMembers || 'pending / add linked members'}`
     if (resident.householdRole === 'Member') {
         const relationship = resident.relationshipToHouseholdHead
             ? `; relationship: ${resident.relationshipToHouseholdHead}`
