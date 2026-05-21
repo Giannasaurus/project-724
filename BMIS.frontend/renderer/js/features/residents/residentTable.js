@@ -32,7 +32,8 @@ export async function loadData(result, options = {}) {
 
     const iLView = document.getElementById('iLView')
     const paginationContainer = document.getElementById('paginationContainer')
-    if (!iLView || !paginationContainer) {
+    const actionBarMount = document.getElementById('residentActionBarMount')
+    if (!iLView || !paginationContainer || !actionBarMount) {
         console.error('Residents view is not mounted')
         return
     }
@@ -78,6 +79,7 @@ export async function loadData(result, options = {}) {
     const actionBar = document.createElement('div')
     actionBar.className = 'entity-selection-bar'
     actionBar.hidden = true
+    actionBarMount.replaceChildren(actionBar)
 
     getSortedResidents(result.data).forEach(resident => {
         const cells = getCells(resident)
@@ -102,7 +104,6 @@ export async function loadData(result, options = {}) {
     })
 
     table.append(colGroup, tableHeader, tableBody)
-    dataContainer.appendChild(actionBar)
     dataContainer.appendChild(table)
 
     function selectResidentRow(row, resident) {
