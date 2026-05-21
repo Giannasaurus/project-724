@@ -1,17 +1,16 @@
 import { postData, updateData } from '../../core/api.js'
-import { getResidentFullName, getResidentId, sanitizeResidentPayload } from '../../shared/residentUtils.js'
+import { getResidentFullName, getResidentId } from '../../shared/residentUtils.js'
 import {
     ADD_RESIDENT_FORM_VIEW,
     AUTH_SESSION_KEY,
     EDIT_RESIDENT_FORM_VIEW,
     RESIDENT_FORM_ID,
     SECTOR_GENERAL,
-    SECTOR_PROOF_TYPES,
     SECTOR_PWD,
     SECTOR_SENIOR,
     SENIOR_AGE
 } from './residentFormConstants.js'
-import { getAge, getBirthdateValidationError, isCompleteRealBirthdate } from './residentFormDate.js'
+import { getAge, isCompleteRealBirthdate } from './residentFormDate.js'
 import {
     escapeHtml,
     getSelectedRadioNumber,
@@ -22,6 +21,8 @@ import {
     setInputValue,
     setRadioValue
 } from './residentFormDom.js'
+import { formatResidentAddress, getResidentPayload } from './residentFormPayload.js'
+import { getResidentFormValidationError } from './residentFormValidation.js'
 import { searchResidentsByName } from './residentSearch.js'
 
 export async function openAddResidentForm(options = {}) {
@@ -128,44 +129,6 @@ function attachNavigationHandlers(view) {
             await view?.(1)
         })
     }
-}
-
-function getResidentPayload(values) {
-    return sanitizeResidentPayload({
-        firstName: values.firstName,
-        middleName: values.middleName,
-        lastName: values.lastName,
-        suffix: values.suffix,
-        birthDate: `${values.year}-${values.month.padStart(2, '0')}-${values.day.padStart(2, '0')}`,
-        placeOfBirth: values.placeOfBirth,
-        sex: values.sex,
-        sector: values.sector,
-        civilStatus: values.civilStatus,
-        civilStatusOther: values.civilStatusOther,
-        citizenship: values.citizenship,
-        religion: values.religion,
-        address: values.address,
-        houseNumberStreet: values.houseNumberStreet,
-        purokZone: values.purokZone,
-        barangay: values.barangay,
-        municipalityCity: values.municipalityCity,
-        province: values.province,
-        contact: values.contact,
-        email: values.email,
-        householdRole: values.householdRole,
-        householdHeadName: values.householdHeadName,
-        relationshipToHouseholdHead: values.relationshipToHouseholdHead,
-        householdMembers: values.householdMembers,
-        occupation: values.occupation,
-        employerSchool: values.employerSchool,
-        highestEducationalAttainment: values.highestEducationalAttainment,
-        remarks: values.remarks,
-        proofType: values.proofType,
-        proofId: values.proofId,
-        verificationStatus: values.verificationStatus,
-        verifiedBy: values.verifiedBy,
-        verifiedAt: values.verifiedAt
-    })
 }
 
 function attachSeniorSectorHandler(form) {
@@ -393,66 +356,6 @@ function getResidentFormValues() {
 
     values.address = formatResidentAddress(values)
     return values
-}
-
-function getResidentFormValidationError(values) {
-    if (!values.firstName || !values.middleName || !values.lastName) {
-        return 'Please fill in all required fields.'
-    }
-
-    const birthdateError = getBirthdateValidationError(values)
-    if (birthdateError) return birthdateError
-
-    const addressError = getAddressValidationError(values)
-    if (addressError) return addressError
-
-    if (!values.householdRole) return 'Please select whether the resident is the household head or a member.'
-    if (values.householdRole === 'Member' && !values.householdHeadName) {
-        return 'Household members must identify the household head they are related to.'
-    }
-    if (values.householdRole === 'Member' && !values.relationshipToHouseholdHead) {
-        return 'Household members must include their relationship to the household head.'
-    }
-    const verificationError = getSectorVerificationError(values)
-    if (verificationError) return verificationError
-    if (values.proofType && !SECTOR_PROOF_TYPES.includes(values.proofType)) {
-        return 'Proof type must be PWD ID, Senior Citizen ID, or Medical Certificate.'
-    }
-    if (values.civilStatus === 6 && !values.civilStatusOther) {
-        return 'Please specify the civil status when Others is selected.'
-    }
-
-    return ''
-}
-
-function getSectorVerificationError(values) {
-    if (values.sector <= SECTOR_GENERAL) return ''
-    if (!values.proofType) return 'PWD and Senior residents require a proof type.'
-    if (!values.proofId) return 'PWD and Senior residents require a proof or reference number.'
-    if (!values.verificationStatus) return 'PWD and Senior residents require a verification status.'
-    if (values.verificationStatus === 'Verified' && (!values.verifiedBy || !values.verifiedAt)) {
-        return 'Verified PWD/Senior records require verifier and verification date.'
-    }
-
-    return ''
-}
-
-function getAddressValidationError(values) {
-    if (!values.houseNumberStreet || !values.barangay || !values.municipalityCity || !values.province) {
-        return 'Please complete the required address fields.'
-    }
-
-    return ''
-}
-
-function formatResidentAddress(values) {
-    return [
-        values.houseNumberStreet,
-        values.purokZone,
-        values.barangay,
-        values.municipalityCity,
-        values.province
-    ].filter(Boolean).join(', ')
 }
 
 function getBirthdateInputs() {
