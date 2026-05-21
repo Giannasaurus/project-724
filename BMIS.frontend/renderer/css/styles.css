@@ -486,25 +486,21 @@ li,
 .resident-module-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+    justify-content: flex-start;
+    gap: 14px;
 }
 
 .resident-module-tabs {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid #d6dde8;
-    border-radius: 8px;
-    background: #f8fafc;
+    gap: 6px;
 }
 
 .resident-module-tab {
-    min-width: 112px;
-    height: 40px;
-    padding: 0 16px;
-    border: 0;
+    min-width: 92px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
     color: #4b5563;
@@ -516,8 +512,9 @@ li,
 .resident-module-tab.active,
 .resident-module-tab:hover {
     background: #ffffff;
+    border-color: #d6dde8;
     color: #0f172a;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 
@@ -1497,6 +1494,10 @@ td {
 .households-toolbar {
     display: flex;
     gap: var(--gap-lg);
+}
+
+.households-toolbar[hidden] {
+    display: none;
 }
 
 .households-toolbar input {
