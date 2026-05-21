@@ -8,15 +8,29 @@ const HEADER_ALIASES = {
     suffix: ['suffix', 'extension'],
     fullName: ['full name', 'name', 'resident name'],
     birthDate: ['birthdate', 'birth date', 'date of birth', 'dob'],
+    placeOfBirth: ['place of birth', 'birth place', 'birthplace'],
     sex: ['sex', 'gender'],
     sector: ['sector', 'pwd/senior', 'pwd senior', 'classification'],
     civilStatus: ['civil status', 'civilstatus', 'marital status'],
+    civilStatusOther: ['civil status other', 'other civil status', 'others civil status'],
+    citizenship: ['citizenship', 'nationality'],
+    religion: ['religion'],
     address: ['address', 'full address', 'residence', 'residential address'],
+    houseNumberStreet: ['house number/street', 'house number street', 'house no street', 'street', 'house number'],
+    purokZone: ['purok/zone', 'purok zone', 'zone', 'purok'],
+    barangay: ['barangay', 'brgy'],
+    municipalityCity: ['municipality/city', 'municipality city', 'city', 'municipality'],
+    province: ['province'],
     contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile', 'mobile number'],
     email: ['email', 'email address'],
     householdRole: ['household role', 'role in household', 'head/member', 'head or member'],
     householdHeadName: ['household head', 'head of household', 'household head name'],
+    relationshipToHouseholdHead: ['relationship to household head', 'relationship', 'relation to household head'],
     householdMembers: ['household members', 'members of household'],
+    occupation: ['occupation'],
+    employerSchool: ['employer/school', 'employer school', 'employer', 'school'],
+    highestEducationalAttainment: ['highest educational attainment', 'educational attainment', 'education'],
+    remarks: ['remarks', 'remark'],
     proofId: ['proof id', 'verification id', 'pwd id', 'senior id', 'supporting id']
 }
 
@@ -43,8 +57,11 @@ const CIVIL_STATUS_VALUES = {
     divorced: 3,
     annulled: 4,
     anulled: 4,
+    separated: 5,
     'legally separated': 5,
-    legallyseparated: 5
+    legallyseparated: 5,
+    other: 6,
+    others: 6
 }
 
 export function bindResidentImportControls(options = {}) {
@@ -169,15 +186,29 @@ function parseResidentRow(row) {
         lastName: normalizedRow.lastName || nameParts.lastName,
         suffix: normalizedRow.suffix || nameParts.suffix || '',
         birthDate: normalizeBirthdate(normalizedRow.birthDate),
+        placeOfBirth: normalizedRow.placeOfBirth,
         sex: mapValue(normalizedRow.sex, SEX_VALUES),
         sector: mapValue(normalizedRow.sector, SECTOR_VALUES, 0),
         civilStatus: mapValue(normalizedRow.civilStatus, CIVIL_STATUS_VALUES),
-        address: normalizedRow.address,
+        civilStatusOther: normalizedRow.civilStatusOther,
+        citizenship: normalizedRow.citizenship || 'Filipino',
+        religion: normalizedRow.religion,
+        address: normalizedRow.address || formatResidentAddress(normalizedRow),
+        houseNumberStreet: normalizedRow.houseNumberStreet,
+        purokZone: normalizedRow.purokZone,
+        barangay: normalizedRow.barangay,
+        municipalityCity: normalizedRow.municipalityCity,
+        province: normalizedRow.province,
         contact: normalizedRow.contact || '',
         email: normalizedRow.email || '',
         householdRole: normalizeHouseholdRole(normalizedRow.householdRole),
         householdHeadName: normalizedRow.householdHeadName || '',
+        relationshipToHouseholdHead: normalizedRow.relationshipToHouseholdHead || '',
         householdMembers: normalizedRow.householdMembers || '',
+        occupation: normalizedRow.occupation || '',
+        employerSchool: normalizedRow.employerSchool || '',
+        highestEducationalAttainment: normalizedRow.highestEducationalAttainment || '',
+        remarks: normalizedRow.remarks || '',
         proofId: normalizedRow.proofId || ''
     })
 }
@@ -261,11 +292,22 @@ function getResidentValidationError(resident) {
     if (resident.sex === undefined) return 'invalid sex'
     if (resident.sector === undefined) return 'invalid sector'
     if (resident.civilStatus === undefined) return 'invalid civil status'
+    if (resident.civilStatus === 6 && !resident.civilStatusOther) return 'missing other civil status'
     if (!resident.address) return 'missing address'
     if (resident.sector > 0 && !resident.proofId) return 'PWD/Senior residents require a proof ID'
     if (resident.householdRole === 'Head' && !resident.householdMembers) return 'household heads require household members'
     if (resident.householdRole === 'Member' && !resident.householdHeadName) return 'household members require a household head'
     return ''
+}
+
+function formatResidentAddress(row) {
+    return [
+        row.houseNumberStreet,
+        row.purokZone,
+        row.barangay,
+        row.municipalityCity,
+        row.province
+    ].filter(Boolean).join(', ')
 }
 
 function isValidBirthdate(value) {

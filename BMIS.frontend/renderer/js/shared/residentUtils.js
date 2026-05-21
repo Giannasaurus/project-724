@@ -6,7 +6,8 @@ export const CIVIL_STATUS_LABELS = {
     2: 'Widowed',
     3: 'Divorced',
     4: 'Annulled',
-    5: 'Legally Separated'
+    5: 'Separated',
+    6: 'Other'
 }
 
 export function getResidentId(resident) {
@@ -40,11 +41,25 @@ export function sanitizeResidentPayload(resident) {
         middleName: toNameCase(resident.middleName),
         lastName: toNameCase(resident.lastName),
         suffix: normalizeSuffix(resident.suffix),
+        placeOfBirth: toNameCase(resident.placeOfBirth),
+        civilStatusOther: toNameCase(resident.civilStatusOther),
+        citizenship: toNameCase(resident.citizenship),
+        religion: toNameCase(resident.religion),
         address: normalizeSpacing(resident.address),
+        houseNumberStreet: normalizeSpacing(resident.houseNumberStreet),
+        purokZone: normalizeSpacing(resident.purokZone),
+        barangay: toNameCase(resident.barangay),
+        municipalityCity: toNameCase(resident.municipalityCity),
+        province: toNameCase(resident.province),
         contact: normalizeSpacing(resident.contact),
         email: normalizeEmail(resident.email),
         householdHeadName: toNameCase(resident.householdHeadName),
+        relationshipToHouseholdHead: toNameCase(resident.relationshipToHouseholdHead),
         householdMembers: normalizeHouseholdMembers(resident.householdMembers),
+        occupation: toNameCase(resident.occupation),
+        employerSchool: toNameCase(resident.employerSchool),
+        highestEducationalAttainment: toNameCase(resident.highestEducationalAttainment),
+        remarks: normalizeSpacing(resident.remarks),
         proofId: normalizeSpacing(resident.proofId)
     }
 }

@@ -31,11 +31,18 @@ export function openResidentDetails(resident, options = {}) {
             </div>
             <dl class="entity-detail-grid">
                 <div><dt>Birthdate</dt><dd>${escapeHtml(resident.birthDate ?? 'Not specified')}</dd></div>
+                <div><dt>Place of Birth</dt><dd>${escapeHtml(resident.placeOfBirth || 'Not recorded')}</dd></div>
                 <div><dt>Sex</dt><dd>${escapeHtml(getSexLabel(resident.sex))}</dd></div>
                 <div><dt>Sector</dt><dd>${escapeHtml(getSectorLabel(resident.sector))}</dd></div>
-                <div><dt>Civil Status</dt><dd>${escapeHtml(getCivilStatusLabel(resident.civilStatus))}</dd></div>
+                <div><dt>Civil Status</dt><dd>${escapeHtml(getCivilStatusDetails(resident))}</dd></div>
+                <div><dt>Citizenship</dt><dd>${escapeHtml(resident.citizenship || 'Not recorded')}</dd></div>
+                <div><dt>Religion</dt><dd>${escapeHtml(resident.religion || 'Not recorded')}</dd></div>
                 <div><dt>Contact</dt><dd>${escapeHtml(resident.contact || resident.email || 'Not recorded')}</dd></div>
                 <div><dt>Household</dt><dd>${escapeHtml(getHouseholdDetails(resident))}</dd></div>
+                <div><dt>Occupation</dt><dd>${escapeHtml(resident.occupation || 'Not recorded')}</dd></div>
+                <div><dt>Employer/School</dt><dd>${escapeHtml(resident.employerSchool || 'Not recorded')}</dd></div>
+                <div><dt>Education</dt><dd>${escapeHtml(resident.highestEducationalAttainment || 'Not recorded')}</dd></div>
+                <div><dt>Remarks</dt><dd>${escapeHtml(resident.remarks || 'None')}</dd></div>
                 <div><dt>Proof ID</dt><dd>${escapeHtml(resident.proofId || 'Not required/recorded')}</dd></div>
                 <div><dt>Resident ID</dt><dd>${escapeHtml(String(getResidentId(resident) ?? 'Not available'))}</dd></div>
             </dl>
@@ -52,8 +59,21 @@ export function openResidentDetails(resident, options = {}) {
 
 function getHouseholdDetails(resident) {
     if (resident.householdRole === 'Head') return `Head; members: ${resident.householdMembers || 'not recorded'}`
-    if (resident.householdRole === 'Member') return `Member; head: ${resident.householdHeadName || 'not recorded'}`
+    if (resident.householdRole === 'Member') {
+        const relationship = resident.relationshipToHouseholdHead
+            ? `; relationship: ${resident.relationshipToHouseholdHead}`
+            : ''
+        return `Member; head: ${resident.householdHeadName || 'not recorded'}${relationship}`
+    }
     return 'Not recorded'
+}
+
+function getCivilStatusDetails(resident) {
+    if (resident.civilStatus === 6 && resident.civilStatusOther) {
+        return `Other: ${resident.civilStatusOther}`
+    }
+
+    return getCivilStatusLabel(resident.civilStatus)
 }
 
 function escapeHtml(value) {

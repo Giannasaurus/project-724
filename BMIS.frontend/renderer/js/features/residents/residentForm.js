@@ -107,48 +107,81 @@ function getResidentPayload(values) {
         lastName: values.lastName,
         suffix: values.suffix,
         birthDate: `${values.year}-${values.month.padStart(2, '0')}-${values.day.padStart(2, '0')}`,
+        placeOfBirth: values.placeOfBirth,
         sex: values.sex,
         sector: values.sector,
         civilStatus: values.civilStatus,
+        civilStatusOther: values.civilStatusOther,
+        citizenship: values.citizenship,
+        religion: values.religion,
         address: values.address,
+        houseNumberStreet: values.houseNumberStreet,
+        purokZone: values.purokZone,
+        barangay: values.barangay,
+        municipalityCity: values.municipalityCity,
+        province: values.province,
         contact: values.contact,
         email: values.email,
         householdRole: values.householdRole,
         householdHeadName: values.householdHeadName,
+        relationshipToHouseholdHead: values.relationshipToHouseholdHead,
         householdMembers: values.householdMembers,
+        occupation: values.occupation,
+        employerSchool: values.employerSchool,
+        highestEducationalAttainment: values.highestEducationalAttainment,
+        remarks: values.remarks,
         proofId: values.proofId
     })
 }
 
 function getResidentFormValues() {
-    return {
+    const values = {
         firstName: document.getElementById('ar-firstName').value.trim(),
         middleName: document.getElementById('ar-middleName').value.trim(),
         lastName: document.getElementById('ar-lastName').value.trim(),
         suffix: document.getElementById('ar-suffix').value.trim(),
+        placeOfBirth: document.getElementById('ar-placeOfBirth')?.value.trim() ?? '',
         contact: document.getElementById('ar-contact')?.value.trim() ?? '',
         email: document.getElementById('ar-email')?.value.trim() ?? '',
-        address: document.getElementById('ar-address').value.trim(),
         day: document.getElementById('ar-bday').value.trim(),
         month: document.getElementById('ar-bmonth').value,
         year: document.getElementById('ar-byear').value.trim(),
         sex: parseInt(document.getElementById('ar-sex').value, 10),
         sector: parseInt(document.getElementById('ar-sector').value, 10),
         civilStatus: parseInt(document.getElementById('ar-civilStatus').value, 10),
+        civilStatusOther: document.getElementById('ar-civilStatusOther')?.value.trim() ?? '',
+        citizenship: document.getElementById('ar-citizenship')?.value.trim() ?? '',
+        religion: document.getElementById('ar-religion')?.value.trim() ?? '',
+        houseNumberStreet: document.getElementById('ar-houseNumberStreet')?.value.trim() ?? '',
+        purokZone: document.getElementById('ar-purokZone')?.value.trim() ?? '',
+        barangay: document.getElementById('ar-barangay')?.value.trim() ?? '',
+        municipalityCity: document.getElementById('ar-municipalityCity')?.value.trim() ?? '',
+        province: document.getElementById('ar-province')?.value.trim() ?? '',
         householdRole: document.getElementById('ar-householdRole')?.value ?? '',
         householdHeadName: document.getElementById('ar-householdHeadName')?.value.trim() ?? '',
+        relationshipToHouseholdHead: document.getElementById('ar-relationshipToHouseholdHead')?.value.trim() ?? '',
         householdMembers: document.getElementById('ar-householdMembers')?.value.trim() ?? '',
+        occupation: document.getElementById('ar-occupation')?.value.trim() ?? '',
+        employerSchool: document.getElementById('ar-employerSchool')?.value.trim() ?? '',
+        highestEducationalAttainment: document.getElementById('ar-highestEducationalAttainment')?.value.trim() ?? '',
+        remarks: document.getElementById('ar-remarks')?.value.trim() ?? '',
         proofId: document.getElementById('ar-proofId')?.value.trim() ?? '',
     }
+
+    values.address = formatResidentAddress(values)
+    return values
 }
 
 function getResidentFormValidationError(values) {
-    if (!values.firstName || !values.middleName || !values.lastName || !values.address) {
+    if (!values.firstName || !values.middleName || !values.lastName) {
         return 'Please fill in all required fields.'
     }
 
     const birthdateError = getBirthdateValidationError(values)
     if (birthdateError) return birthdateError
+
+    const addressError = getAddressValidationError(values)
+    if (addressError) return addressError
 
     if (!values.householdRole) return 'Please select whether the resident is the household head or a member.'
     if (values.householdRole === 'Head' && !values.householdMembers) {
@@ -160,8 +193,29 @@ function getResidentFormValidationError(values) {
     if (values.sector > 0 && !values.proofId) {
         return 'PWD and Senior residents require a proof ID before they can be added.'
     }
+    if (values.civilStatus === 6 && !values.civilStatusOther) {
+        return 'Please specify the civil status when Others is selected.'
+    }
 
     return ''
+}
+
+function getAddressValidationError(values) {
+    if (!values.houseNumberStreet || !values.barangay || !values.municipalityCity || !values.province) {
+        return 'Please complete the required address fields.'
+    }
+
+    return ''
+}
+
+function formatResidentAddress(values) {
+    return [
+        values.houseNumberStreet,
+        values.purokZone,
+        values.barangay,
+        values.municipalityCity,
+        values.province
+    ].filter(Boolean).join(', ')
 }
 
 function getBirthdateValidationError(values) {
@@ -293,18 +347,27 @@ function fillResidentForm(resident) {
     setInputValue('ar-middleName', resident.middleName)
     setInputValue('ar-lastName', resident.lastName)
     setInputValue('ar-suffix', resident.suffix)
+    setInputValue('ar-placeOfBirth', resident.placeOfBirth)
     setInputValue('ar-contact', resident.contact)
     setInputValue('ar-email', resident.email)
-    setInputValue('ar-address', resident.address)
+    fillAddressFields(resident)
     setInputValue('ar-bday', birthdate.day)
     setInputValue('ar-bmonth', birthdate.month)
     setInputValue('ar-byear', birthdate.year)
     setInputValue('ar-sex', resident.sex)
     setInputValue('ar-sector', resident.sector)
     setInputValue('ar-civilStatus', resident.civilStatus)
+    setInputValue('ar-civilStatusOther', resident.civilStatusOther)
+    setInputValue('ar-citizenship', resident.citizenship || 'Filipino')
+    setInputValue('ar-religion', resident.religion)
     setInputValue('ar-householdRole', resident.householdRole)
     setInputValue('ar-householdHeadName', resident.householdHeadName)
+    setInputValue('ar-relationshipToHouseholdHead', resident.relationshipToHouseholdHead)
     setInputValue('ar-householdMembers', resident.householdMembers)
+    setInputValue('ar-occupation', resident.occupation)
+    setInputValue('ar-employerSchool', resident.employerSchool)
+    setInputValue('ar-highestEducationalAttainment', resident.highestEducationalAttainment)
+    setInputValue('ar-remarks', resident.remarks)
     setInputValue('ar-proofId', resident.proofId)
 }
 
@@ -321,4 +384,12 @@ function parseBirthdate(value) {
         month: String(Number(month) || 1),
         year
     }
+}
+
+function fillAddressFields(resident) {
+    setInputValue('ar-houseNumberStreet', resident.houseNumberStreet || resident.address)
+    setInputValue('ar-purokZone', resident.purokZone)
+    setInputValue('ar-barangay', resident.barangay || 'Barangay 724')
+    setInputValue('ar-municipalityCity', resident.municipalityCity || 'Manila')
+    setInputValue('ar-province', resident.province || 'Metro Manila')
 }
