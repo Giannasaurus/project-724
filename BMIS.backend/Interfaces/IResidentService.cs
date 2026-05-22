@@ -4,6 +4,8 @@ using BMIS.Models.DTOs;
 namespace BMIS.Interfaces;
 
 public interface IResidentService {
+    string GetFullName(Resident resident);
+
     Task<Result<Resident>> GetById(int id);
     Task<Result<List<Resident>>> GetAll();
     Task<Result<List<Resident>>> GetFiltered(ResidentFilterCriteria criteria);

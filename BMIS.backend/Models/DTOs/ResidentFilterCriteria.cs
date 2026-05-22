@@ -10,6 +10,8 @@ public record ResidentFilterCriteria(
     
     int? from,
     int? limit,
+
+    bool? isHead,
     
     int minAge = 0,
     int maxAge = 999

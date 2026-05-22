@@ -5,11 +5,16 @@ public record ResidentUpdateDto (
     string? middleName,
     string? lastName,
     string? suffix,
+
     DateOnly? birthDate,
     Sector? sector,
     Sex? sex,
     CivilStatus? civilStatus,
+
     string? address,
-    string? contact,
+    string? phone,
+    string? email,
+
+    bool? isHead,
     int? houseHoldId
 );

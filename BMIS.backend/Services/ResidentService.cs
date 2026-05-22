@@ -13,6 +13,20 @@ public class ResidentService : IResidentService, ISearchable {
     public ResidentService(AppDbContext db) {
         _db = db;
     }
+    
+    public string GetFullName(Resident resident){
+        string name = $"{resident.LastName}, {resident.FirstName}";
+        
+        if(!string.IsNullOrEmpty(resident.MiddleName)) {
+            name += $" {resident.MiddleName[0]}.";
+        }
+
+        if(!string.IsNullOrEmpty(resident.Suffix)) {
+            name += $", {resident.Suffix}";
+        }
+
+        return name;
+    }
 
     public async Task<Result<List<Resident>>> GetAll() {
         var value = await _db.Residents.AsNoTracking().ToListAsync();
@@ -69,9 +83,9 @@ public class ResidentService : IResidentService, ISearchable {
     
     public async Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria) {
         var residents = FilterResidents(criteria)
-                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, r.ToString()) })
+                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, GetFullName(r)) })
                             .OrderByDescending(r => r.Score)
-                            .ThenBy(r => r.Resident.ToString())
+                            .ThenBy(r => GetFullName(r.Resident))
                             .Select(r => r.Resident);
         
         var paginize = Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
@@ -80,7 +94,21 @@ public class ResidentService : IResidentService, ISearchable {
     }
 
     public async Task<Result<int>> AddResident(ResidentCreateDto details) {
-        Resident resident = new Resident(details);
+        Resident resident = new Resident() {
+            FirstName = details.firstName,
+            MiddleName = details.middleName,
+            LastName = details.lastName,
+            Suffix = details.suffix,
+            BirthDate = details.birthDate,
+            Sector = details.sector,
+            Sex = details.sex,
+            CivilStatus = details.civilStatus,
+            Address = details.address,
+            Phone = details.phone,
+            Email = details.email,
+            IsHead = details.isHead,
+            HouseHoldId= details.houseHoldId,
+        };
 
         if(HasDuplicate(resident)) {
             return ResultStatus.Conflict;
@@ -221,7 +249,7 @@ public class ResidentService : IResidentService, ISearchable {
     }
     
     private bool HasDuplicate(Resident resident) {
-        string reference = resident.ToString();
+        string reference = GetFullName(resident); 
         var similar = _db.Residents.AsNoTracking()
                             .Where(r => reference == r.ToString()); 
 
