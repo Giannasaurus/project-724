@@ -93,6 +93,11 @@ public class ResidentService : IResidentService, ISearchable {
         return paginize;
     }
 
+
+    // TODO: 
+    //  add logging
+    //  check required attributes if null before procceding
+    // 
     public async Task<Result<int>> AddResident(ResidentCreateDto details) {
         Resident resident = new Resident() {
             FirstName = details.firstName,
@@ -161,6 +166,11 @@ public class ResidentService : IResidentService, ISearchable {
         return resident; 
     }
 
+
+    // TODO: 
+    //  add logging
+    //  check required attributes if null before procceding
+    // 
     public async Task<Result<Resident>> UpdateResident(int id, ResidentUpdateDto changes) {
         var resident = await _db.Residents.FindAsync(id);
 
@@ -170,12 +180,20 @@ public class ResidentService : IResidentService, ISearchable {
 
         if(changes.firstName != null) resident.FirstName = changes.firstName;
         if(changes.middleName != null) resident.MiddleName = changes.middleName;
+        if(changes.lastName != null) resident.LastName = changes.lastName;
         if(changes.suffix != null) resident.Suffix = changes.suffix;
+
         if(changes.birthDate != null) resident.BirthDate = (DateOnly)changes.birthDate;
         if(changes.sector != null) resident.Sector = (Sector)changes.sector;
         if(changes.sex != null) resident.Sex = (Sex)changes.sex;
         if(changes.civilStatus != null) resident.CivilStatus = (CivilStatus)changes.civilStatus;
+
         if(changes.address != null) resident.Address = changes.address;
+        if(changes.phone != null) resident.Phone = changes.phone;
+        if(changes.email != null) resident.Email = changes.email;
+
+        if(changes.isHead != null) resident.IsHead = (bool)changes.isHead;
+        if(changes.houseHoldId != null) resident.HouseHoldId = (int)changes.houseHoldId;
 
         return resident;
     }
@@ -247,7 +265,7 @@ public class ResidentService : IResidentService, ISearchable {
 
         return max;
     }
-    
+
     private bool HasDuplicate(Resident resident) {
         string reference = GetFullName(resident); 
         var similar = _db.Residents.AsNoTracking()
