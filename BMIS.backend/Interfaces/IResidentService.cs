@@ -1,7 +1,7 @@
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 
-namespace BMIS.Services;
+namespace BMIS.Interfaces;
 
 public interface IResidentService {
     Task<Result<Resident>> GetById(int id);
@@ -9,9 +9,9 @@ public interface IResidentService {
     Task<Result<List<Resident>>> GetFiltered(ResidentFilterCriteria criteria);
     Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria); 
 
-    Task<Result<int>> Create(ResidentCreateDto detail);
+    Task<Result<int>> AddResident(ResidentCreateDto detail);
 
-    Task<Result<Resident>> Delete(int id);
+    Task<Result<Resident>> DeleteResident(int id);
 
-    Task<Result<Resident>> Update(int id, ResidentUpdateDto changes);
+    Task<Result<Resident>> UpdateResident(int id, ResidentUpdateDto changes);
 }

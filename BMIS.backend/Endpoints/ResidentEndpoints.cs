@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BMIS.Models.DTOs;
 using BMIS.Services;
+using BMIS.Interfaces;
 
 namespace BMIS.Endpoints;
 
@@ -58,7 +59,7 @@ public static class ResidentEndpoints {
     }
 
     private static async Task<IResult> Create(ResidentCreateDto details, IResidentService residentService) {
-        var result = await residentService.Create(details);
+        var result = await residentService.AddResident(details);
         
         if (result.code == ResultStatus.Conflict) {
             return TypedResults.Conflict();
@@ -68,7 +69,7 @@ public static class ResidentEndpoints {
     }
 
     private static async Task<IResult> Delete(int id, IResidentService residentService) {
-        var result = await residentService.Delete(id);
+        var result = await residentService.DeleteResident(id);
         if(result.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();
         }
@@ -77,7 +78,7 @@ public static class ResidentEndpoints {
     }
 
     private static async Task<IResult> Update(int id, ResidentUpdateDto changes, IResidentService residentService) {
-        var result = await residentService.Update(id, changes); 
+        var result = await residentService.UpdateResident(id, changes); 
         
         if(result.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();

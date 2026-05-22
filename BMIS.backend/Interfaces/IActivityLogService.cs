@@ -1,6 +1,6 @@
 using BMIS.Models.Entities;
 
-namespace BMIS.Services;
+namespace BMIS.Interfaces;
 
 public interface IActivityLogService {
     Task<Result<ActivityLog>> Get(int logId);    

@@ -79,7 +79,7 @@ public class ResidentService : IResidentService, ISearchable {
         return paginize;
     }
 
-    public async Task<Result<int>> Create(ResidentCreateDto details) {
+    public async Task<Result<int>> AddResident(ResidentCreateDto details) {
         Resident resident = new Resident(details);
 
         if(HasDuplicate(resident)) {
@@ -105,7 +105,7 @@ public class ResidentService : IResidentService, ISearchable {
      *  - should have a history of deletion, and should also be recovered
      *
      */
-    public async Task<Result<Resident>> Delete(int id) {
+    public async Task<Result<Resident>> DeleteResident(int id) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {
@@ -133,7 +133,7 @@ public class ResidentService : IResidentService, ISearchable {
         return resident; 
     }
 
-    public async Task<Result<Resident>> Update(int id, ResidentUpdateDto changes) {
+    public async Task<Result<Resident>> UpdateResident(int id, ResidentUpdateDto changes) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {

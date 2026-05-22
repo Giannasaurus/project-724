@@ -1,4 +1,5 @@
 using BMIS.Services;
+using BMIS.Interfaces;
 
 namespace BMIS.Endpoints;
 

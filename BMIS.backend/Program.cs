@@ -1,4 +1,5 @@
 using BMIS.Endpoints;
+using BMIS.Interfaces;
 using BMIS.Services;
 
 var ELECTRON_CORS = "electronCors";

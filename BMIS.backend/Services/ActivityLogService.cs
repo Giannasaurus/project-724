@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BMIS.Models.Entities;
+using BMIS.Interfaces;
 
 namespace BMIS.Services;
 
