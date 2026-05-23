@@ -19,20 +19,19 @@ public class AppDbContext : DbContext {
         builder.Entity<Deceased>()
             .HasOne(e => e.ResidentInfo)
             .WithOne()
-            .HasForeignKey<Resident>(r => r.Id);
-        
+            .HasForeignKey<Deceased>(r => r.ResidentId);
 
         builder.Entity<Senior>().HasKey(e => e.ResidentId);
         builder.Entity<Senior>()
             .HasOne(e => e.ResidentInfo)
             .WithOne()
-            .HasForeignKey<Resident>(r => r.Id);
+            .HasForeignKey<Senior>(r => r.ResidentId);
         
         builder.Entity<Pwd>().HasKey(e => e.ResidentId);
         builder.Entity<Pwd>()
             .HasOne(e => e.ResidentInfo)
             .WithOne()
-            .HasForeignKey<Resident>(r => r.Id);
+            .HasForeignKey<Pwd>(r => r.ResidentId);
 
 
     }

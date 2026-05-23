@@ -97,9 +97,25 @@ public class ResidentService : IResidentService, ISearchable {
     // TODO: 
     //  add logging
     //  check required attributes if null before procceding
+    //  fix household problem (what if the household doesn't exist)
     // 
     public async Task<Result<Guid>> AddResident(ResidentCreateDto details) {
-        Resident resident = new Resident() {
+        var houseHold = await _db.HouseHolds.FirstOrDefaultAsync(h => h.Id == details.houseHoldId);
+
+        if(houseHold == null && details.isHead) {
+            if (details.isHead){
+                houseHold = new HouseHold();
+                _db.HouseHolds.Add(houseHold);
+                await _db.SaveChangesAsync();
+            } else {
+                return ResultStatus.Conflict;
+            }
+
+        } else {
+            return ResultStatus.Conflict;
+        }
+
+        Resident resident = new Resident {
             FirstName = details.firstName,
             MiddleName = details.middleName,
             LastName = details.lastName,
@@ -111,14 +127,14 @@ public class ResidentService : IResidentService, ISearchable {
             Phone = details.phone,
             Email = details.email,
             IsHead = details.isHead,
-            HouseHoldId= details.houseHoldId,
+            HouseHoldId = houseHold.Id,
         };
 
         if(HasDuplicate(resident)) {
             return ResultStatus.Conflict;
         }
 
-        _db.Add(resident);
+        _db.Residents.Add(resident);
         
         try {
             await _db.SaveChangesAsync();
@@ -259,9 +275,15 @@ public class ResidentService : IResidentService, ISearchable {
 
     private bool HasDuplicate(Resident resident) {
         string reference = GetFullName(resident); 
-        var similar = _db.Residents.AsNoTracking()
-                            .Where(r => reference == r.ToString()); 
-
-        return similar.Any();    
+        
+        //
+        //  TODO:
+        //      find way to check if has duplicate
+        //
+        // var similar = _db.Residents.AsNoTracking().Select(r => new { Name = GetFullName(r) }).Where(r => reference == r.Name);
+        //
+        // return similar.Any(); 
+        
+        return false;
     }
 }
