@@ -71,8 +71,14 @@ public class TransactionService : ITransactionService {
         return results;
     }
 
-    public async Task<Result<int>> AddTransaction(TransactionCreateDto details) {
-       Transaction transaction = new Transaction(details);    
+    public async Task<Result<Guid>> AddTransaction(TransactionCreateDto details) {
+        Transaction transaction = new Transaction() {
+            RequesterId = details.requesterId, 
+            HandlerId = details.handlerId,
+            DocumentType = details.documentType,
+            Status = details.status,
+            Date = details.date
+        };    
 
         _db.Transactions.Add(transaction);
         

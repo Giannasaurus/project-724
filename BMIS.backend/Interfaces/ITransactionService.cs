@@ -7,7 +7,7 @@ public interface ITransactionService {
     Task<Result<List<Transaction>>> GetAll();
     Task<Result<List<Transaction>>> GetFiltered(TransactionFilterCriteria criteria);
 
-    Task<Result<int>> AddTransaction(TransactionCreateDto details);
+    Task<Result<Guid>> AddTransaction(TransactionCreateDto details);
 
     Task<Result<Transaction>> UpdateTransaction(int id, TransactionUpdateDto changes);
 
