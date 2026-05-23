@@ -33,7 +33,7 @@ public class ResidentService : IResidentService, ISearchable {
         return value;
     }
 
-    public async Task<Result<Resident>> GetById(int id) {
+    public async Task<Result<Resident>> GetById(Guid id) {
         var value = await _db.Residents.FindAsync(id);
         if(value == null) {
             return ResultStatus.NotFound;
@@ -98,7 +98,7 @@ public class ResidentService : IResidentService, ISearchable {
     //  add logging
     //  check required attributes if null before procceding
     // 
-    public async Task<Result<int>> AddResident(ResidentCreateDto details) {
+    public async Task<Result<Guid>> AddResident(ResidentCreateDto details) {
         Resident resident = new Resident() {
             FirstName = details.firstName,
             MiddleName = details.middleName,
@@ -137,7 +137,7 @@ public class ResidentService : IResidentService, ISearchable {
      *  - should have a history of deletion, and should also be recovered
      *
      */
-    public async Task<Result<Resident>> DeleteResident(int id) {
+    public async Task<Result<Resident>> DeleteResident(Guid id) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {
@@ -170,7 +170,7 @@ public class ResidentService : IResidentService, ISearchable {
     //  add logging
     //  check required attributes if null before procceding
     // 
-    public async Task<Result<Resident>> UpdateResident(int id, ResidentUpdateDto changes) {
+    public async Task<Result<Resident>> UpdateResident(Guid id, ResidentUpdateDto changes) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {
