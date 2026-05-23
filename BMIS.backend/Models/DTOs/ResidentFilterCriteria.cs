@@ -3,7 +3,15 @@ namespace BMIS.Models.DTOs;
 
 public record ResidentFilterCriteria( 
     [FromQuery(Name="sex")]string[] sex,
+
+
+    // 
+    //  TODO: 
+    //      implement filtering in the resident service
+    //
     [FromQuery(Name="sector")]string[] sector,
+
+
     [FromQuery(Name="civilStat")]string[] civilStat,
     
     ResidentOrder? order,

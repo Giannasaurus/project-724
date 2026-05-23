@@ -7,7 +7,6 @@ public record ResidentCreateDto (
     string? suffix,
 
     DateOnly birthDate,
-    Sector sector,
     Sex sex,
     CivilStatus civilStatus,
 

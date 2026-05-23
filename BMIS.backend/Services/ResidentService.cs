@@ -105,7 +105,6 @@ public class ResidentService : IResidentService, ISearchable {
             LastName = details.lastName,
             Suffix = details.suffix,
             BirthDate = details.birthDate,
-            Sector = details.sector,
             Sex = details.sex,
             CivilStatus = details.civilStatus,
             Address = details.address,
@@ -184,7 +183,6 @@ public class ResidentService : IResidentService, ISearchable {
         if(changes.suffix != null) resident.Suffix = changes.suffix;
 
         if(changes.birthDate != null) resident.BirthDate = (DateOnly)changes.birthDate;
-        if(changes.sector != null) resident.Sector = (Sector)changes.sector;
         if(changes.sex != null) resident.Sex = (Sex)changes.sex;
         if(changes.civilStatus != null) resident.CivilStatus = (CivilStatus)changes.civilStatus;
 
@@ -216,19 +214,12 @@ public class ResidentService : IResidentService, ISearchable {
             
             residents = residents.Where(r => valid.Contains(r.Sex)); 
         }
-        
-        if(criteria.sector != null && criteria.sector.Count() > 0) {
-            HashSet<Sector> valid = new HashSet<Sector>();
+       
+        //
+        //  TODO: 
+        //      add filtering of Senior/ PWDs
+        //
 
-            foreach(var s in criteria.sector) {
-                if(Enum.TryParse<Sector>(s, true, out Sector parsed)) {
-                    valid.Add(parsed);
-                }
-            }
-            
-            residents = residents.Where(r => valid.Contains(r.Sector)); 
-        }
-        
         if(criteria.civilStat != null && criteria.civilStat.Count() > 0) {
             HashSet<CivilStatus> valid = new HashSet<CivilStatus>();
 
