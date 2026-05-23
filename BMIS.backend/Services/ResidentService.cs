@@ -89,6 +89,7 @@ public class ResidentService : IResidentService, ISearchable {
                             .Select(r => r.Resident);
         
         var paginize = Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
+        // A custom alphanumeric ID often given during barangay census/surveys (e.g., "HH-2026-001")
         
         return paginize;
     }
