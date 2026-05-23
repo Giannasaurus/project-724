@@ -3,7 +3,7 @@ using BMIS.Models.DTOs;
 namespace BMIS.Models.Entities;
 
 public class Resident {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public required string FirstName { get; set; }
     public string? MiddleName { get; set; }
@@ -11,7 +11,6 @@ public class Resident {
     public string? Suffix { get; set; }
     
     public required DateOnly BirthDate { get; set; }
-    public required Sector Sector { get; set; }
     public required Sex Sex { get; set; }
     public required CivilStatus CivilStatus { get; set; }
     
