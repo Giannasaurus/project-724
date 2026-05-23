@@ -11,6 +11,31 @@ public class AppDbContext : DbContext {
     public DbSet<ActivityLog> ActivityLogs { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    
+    protected override void OnModelCreating(ModelBuilder builder) {
+        base.OnModelCreating(builder);
+        
+        builder.Entity<Deceased>().HasKey(e => e.ResidentId);
+        builder.Entity<Deceased>()
+            .HasOne(e => e.ResidentInfo)
+            .WithOne()
+            .HasForeignKey<Resident>(r => r.Id);
+        
+
+        builder.Entity<Senior>().HasKey(e => e.ResidentId);
+        builder.Entity<Senior>()
+            .HasOne(e => e.ResidentInfo)
+            .WithOne()
+            .HasForeignKey<Resident>(r => r.Id);
+        
+        builder.Entity<Pwd>().HasKey(e => e.ResidentId);
+        builder.Entity<Pwd>()
+            .HasOne(e => e.ResidentInfo)
+            .WithOne()
+            .HasForeignKey<Resident>(r => r.Id);
+
+
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {
         base.ConfigureConventions(builder);
