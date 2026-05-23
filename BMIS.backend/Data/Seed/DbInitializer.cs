@@ -2,6 +2,8 @@ using Bogus;
 using BMIS.Models;
 using BMIS.Models.Entities;
 
+using BMIS;
+
 public static class DbInitializer {
     public static void Initialize(AppDbContext context) { 
         /* 
