@@ -5,5 +5,4 @@ public class HouseHold {
     public required Guid HeadId { get; set; }
 
     public Resident HeadInfo { get; set; }
-    public ICollection<Resident> Members { get; set; }
 }
