@@ -1,4 +1,5 @@
 using BMIS.Services;
+using BMIS.Interfaces;
 
 namespace BMIS.Endpoints;
 
@@ -17,7 +18,7 @@ public static class ActivityLogEndpoints {
         return TypedResults.Ok(results.value);
     }
     
-    public static async Task<IResult> Create(int handlerId, string message, IActivityLogService activityLogService) {
+    public static async Task<IResult> Create(Guid handlerId, string message, IActivityLogService activityLogService) {
         var results = await activityLogService.Log(handlerId, message);    
         if(results.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();

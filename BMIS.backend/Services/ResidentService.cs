@@ -13,13 +13,27 @@ public class ResidentService : IResidentService, ISearchable {
     public ResidentService(AppDbContext db) {
         _db = db;
     }
+    
+    public string GetFullName(Resident resident){
+        string name = $"{resident.LastName}, {resident.FirstName}";
+        
+        if(!string.IsNullOrEmpty(resident.MiddleName)) {
+            name += $" {resident.MiddleName[0]}.";
+        }
+
+        if(!string.IsNullOrEmpty(resident.Suffix)) {
+            name += $", {resident.Suffix}";
+        }
+
+        return name;
+    }
 
     public async Task<Result<List<Resident>>> GetAll() {
         var value = await _db.Residents.AsNoTracking().ToListAsync();
         return value;
     }
 
-    public async Task<Result<Resident>> GetById(int id) {
+    public async Task<Result<Resident>> GetById(Guid id) {
         var value = await _db.Residents.FindAsync(id);
         if(value == null) {
             return ResultStatus.NotFound;
@@ -69,25 +83,59 @@ public class ResidentService : IResidentService, ISearchable {
     
     public async Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria) {
         var residents = FilterResidents(criteria)
-                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, r.ToString()) })
+                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, GetFullName(r)) })
                             .OrderByDescending(r => r.Score)
-                            .ThenBy(r => r.Resident.ToString())
+                            .ThenBy(r => GetFullName(r.Resident))
                             .Select(r => r.Resident);
         
         var paginize = Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
+        // A custom alphanumeric ID often given during barangay census/surveys (e.g., "HH-2026-001")
         
         return paginize;
     }
 
-    public async Task<Result<int>> Create(ResidentCreateDto details) {
-        Resident resident = new Resident(details);
-/*
+
+    // TODO: 
+    //  add logging
+    //  check required attributes if null before procceding
+    //  fix household problem (what if the household doesn't exist)
+    // 
+    public async Task<Result<Guid>> AddResident(ResidentCreateDto details) {
+        var houseHold = await _db.HouseHolds.FirstOrDefaultAsync(h => h.Id == details.houseHoldId);
+
+        if(houseHold == null && details.isHead) {
+            if (details.isHead){
+                houseHold = new HouseHold();
+                _db.HouseHolds.Add(houseHold);
+                await _db.SaveChangesAsync();
+            } else {
+                return ResultStatus.Conflict;
+            }
+
+        } else {
+            return ResultStatus.Conflict;
+        }
+
+        Resident resident = new Resident {
+            FirstName = details.firstName,
+            MiddleName = details.middleName,
+            LastName = details.lastName,
+            Suffix = details.suffix,
+            BirthDate = details.birthDate,
+            Sex = details.sex,
+            CivilStatus = details.civilStatus,
+            Address = details.address,
+            Phone = details.phone,
+            Email = details.email,
+            IsHead = details.isHead,
+            HouseHoldId = houseHold.Id,
+        };
+
         if(HasDuplicate(resident)) {
             return ResultStatus.Conflict;
         }
-*/
 
-        _db.Add(resident);
+        _db.Residents.Add(resident);
         
         try {
             await _db.SaveChangesAsync();
@@ -106,7 +154,7 @@ public class ResidentService : IResidentService, ISearchable {
      *  - should have a history of deletion, and should also be recovered
      *
      */
-    public async Task<Result<Resident>> Delete(int id) {
+    public async Task<Result<Resident>> DeleteResident(Guid id) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {
@@ -134,7 +182,12 @@ public class ResidentService : IResidentService, ISearchable {
         return resident; 
     }
 
-    public async Task<Result<Resident>> Update(int id, ResidentUpdateDto changes) {
+
+    // TODO: 
+    //  add logging
+    //  check required attributes if null before procceding
+    // 
+    public async Task<Result<Resident>> UpdateResident(Guid id, ResidentUpdateDto changes) {
         var resident = await _db.Residents.FindAsync(id);
 
         if(resident is null) {
@@ -143,30 +196,25 @@ public class ResidentService : IResidentService, ISearchable {
 
         if(changes.firstName != null) resident.FirstName = changes.firstName;
         if(changes.middleName != null) resident.MiddleName = changes.middleName;
+        if(changes.lastName != null) resident.LastName = changes.lastName;
         if(changes.suffix != null) resident.Suffix = changes.suffix;
+
         if(changes.birthDate != null) resident.BirthDate = (DateOnly)changes.birthDate;
-        if(changes.sector != null) resident.Sector = (Sector)changes.sector;
         if(changes.sex != null) resident.Sex = (Sex)changes.sex;
         if(changes.civilStatus != null) resident.CivilStatus = (CivilStatus)changes.civilStatus;
+
         if(changes.address != null) resident.Address = changes.address;
+        if(changes.phone != null) resident.Phone = changes.phone;
+        if(changes.email != null) resident.Email = changes.email;
+
+        if(changes.isHead != null) resident.IsHead = (bool)changes.isHead;
+        if(changes.houseHoldId != null) resident.HouseHoldId = (int)changes.houseHoldId;
 
         return resident;
     }
 
     private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
         var residents = _db.Residents.AsNoTracking();
-
-        if(!string.IsNullOrWhiteSpace(criteria.firstName)) {
-            residents = residents.Where(r => EF.Functions.Like(r.FirstName, $"%{criteria.firstName}%"));
-        }
-
-        if(!string.IsNullOrWhiteSpace(criteria.middleName)) {
-            residents = residents.Where(r => r.MiddleName != null && EF.Functions.Like(r.MiddleName, $"%{criteria.middleName}%"));
-        }
-
-        if(!string.IsNullOrWhiteSpace(criteria.lastName)) {
-            residents = residents.Where(r => EF.Functions.Like(r.LastName, $"%{criteria.lastName}%"));
-        }
 
         DateOnly minCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.minAge);
         DateOnly maxCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.maxAge);
@@ -183,19 +231,12 @@ public class ResidentService : IResidentService, ISearchable {
             
             residents = residents.Where(r => valid.Contains(r.Sex)); 
         }
-        
-        if(criteria.sector != null && criteria.sector.Count() > 0) {
-            HashSet<Sector> valid = new HashSet<Sector>();
+       
+        //
+        //  TODO: 
+        //      add filtering of Senior/ PWDs
+        //
 
-            foreach(var s in criteria.sector) {
-                if(Enum.TryParse<Sector>(s, true, out Sector parsed)) {
-                    valid.Add(parsed);
-                }
-            }
-            
-            residents = residents.Where(r => valid.Contains(r.Sector)); 
-        }
-        
         if(criteria.civilStat != null && criteria.civilStat.Count() > 0) {
             HashSet<CivilStatus> valid = new HashSet<CivilStatus>();
 
@@ -232,16 +273,18 @@ public class ResidentService : IResidentService, ISearchable {
 
         return max;
     }
-    
-    private bool HasDuplicate(Resident resident) {
-        string middleName = resident.MiddleName ?? "";
-        string suffix = resident.Suffix ?? "";
 
-        return _db.Residents.AsNoTracking().Any(r =>
-            r.FirstName == resident.FirstName &&
-            r.LastName == resident.LastName &&
-            (r.MiddleName ?? "") == middleName &&
-            (r.Suffix ?? "") == suffix
-        );
+    private bool HasDuplicate(Resident resident) {
+        string reference = GetFullName(resident); 
+        
+        //
+        //  TODO:
+        //      find way to check if has duplicate
+        //
+        // var similar = _db.Residents.AsNoTracking().Select(r => new { Name = GetFullName(r) }).Where(r => reference == r.Name);
+        //
+        // return similar.Any(); 
+        
+        return false;
     }
 }

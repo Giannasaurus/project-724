@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BMIS.Models.Entities;
+using BMIS.Interfaces;
 
 namespace BMIS.Services;
 
@@ -20,13 +21,16 @@ public class ActivityLogService : IActivityLogService {
         return log;
     }
 
-    public async Task<Result<int>> Log(int handlerId, string message) {
+    public async Task<Result<int>> Log(Guid handlerId, string message) {
         var handler = await _db.Residents.FindAsync(handlerId);
         if(handler == null) {
             return ResultStatus.NotFound;
         }
 
-        var activityLog = new ActivityLog(handlerId, message);
+        var activityLog = new ActivityLog() {
+            HandlerId = handlerId,
+            Message = message
+        };
         try {
             _db.ActivityLogs.Add(activityLog);
             await _db.SaveChangesAsync();

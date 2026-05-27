@@ -1,5 +1,6 @@
 using BMIS.Models;
 using BMIS.Services;
+using BMIS.Interfaces;
 
 namespace BMIS.Endpoints;
 
@@ -14,16 +15,16 @@ public static class DocumentEndpoints {
     private static async Task<IResult> GetTemplate(DocumentType type, IDocumentService documentService) {
         var results = await documentService.GetTemplate(type);
         if(results.code == ResultStatus.NotFound) {
-            return TypedResults.NotFound(); 
+            TypedResults.NotFound(); 
         }
 
         return TypedResults.Content(results.value, "text/html", System.Text.Encoding.UTF8);
     }
 
-    private static async Task<IResult> GetFilled(int id, DocumentType type, IDocumentService documentService) {
-        var results = await documentService.GetFilled(id, type);
+    private static async Task<IResult> GetFilled(int residentId, DocumentType type, IDocumentService documentService) {
+        var results = await documentService.GetFilled(residentId, type);
         if(results.code == ResultStatus.NotFound) {
-            return TypedResults.NotFound(); 
+            TypedResults.NotFound(); 
         }
 
         return TypedResults.Content(results.value, "text/html", System.Text.Encoding.UTF8);

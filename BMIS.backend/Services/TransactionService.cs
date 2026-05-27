@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 using BMIS.Models;
+using BMIS.Interfaces;
 
 namespace BMIS.Services;
 
@@ -70,8 +71,14 @@ public class TransactionService : ITransactionService {
         return results;
     }
 
-    public async Task<Result<int>> Create(TransactionCreateDto details) {
-       Transaction transaction = new Transaction(details);    
+    public async Task<Result<Guid>> AddTransaction(TransactionCreateDto details) {
+        Transaction transaction = new Transaction() {
+            RequesterId = details.requesterId, 
+            HandlerId = details.handlerId,
+            DocumentType = details.documentType,
+            Status = details.status,
+            Date = details.date
+        };    
 
         _db.Transactions.Add(transaction);
         
@@ -86,7 +93,7 @@ public class TransactionService : ITransactionService {
         return transaction.Id;
     }
    
-    public async Task<Result<Transaction>> Update(int id, TransactionUpdateDto changes) {
+    public async Task<Result<Transaction>> UpdateTransaction(int id, TransactionUpdateDto changes) {
         var transaction = await _db.Transactions.FindAsync(id);
 
         if(transaction is null) {
@@ -96,7 +103,7 @@ public class TransactionService : ITransactionService {
         return transaction;
     }
 
-    public async Task<Result<Transaction>> Delete(int id) {
+    public async Task<Result<Transaction>> DeleteTransaction(int id) {
         var transaction = await _db.Transactions.FindAsync(id);
         
         if(transaction is null) {

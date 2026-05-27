@@ -3,215 +3,89 @@
 <head>
 <style>
     html {
-        font-family: Arial, sans-serif;
+        font-family: "Times New Roman";
         font-size: 16px;
-        color: #111111;
     }
-
-    body {
-        box-sizing: border-box;
-        margin: 0;
-        background: #ffffff;
-    }
-
     @media screen {
         body {
             width: 8.5in;
-            min-height: 11in;
-            margin: 0 auto;
-            box-shadow: 0 0 0 1px #d8d8d8;
+            height: 11in;
+            padding: 1in;
+            margin: 0;
+            border: 2px solid;
         }
     }
-
     @media print {
         body {
             width: auto;
-            min-height: auto;
+            height: auto;
+            padding: 0;
+            border: 0;
         }
     }
-
     @page {
-        margin: 0.55in 0.65in;
+        margin: 1in;
     }
-
-    .certificate {
-        min-height: 10in;
-        padding: 0.35in 0.55in 0.5in;
-    }
-
-    .masthead {
+    .section-request-type {
         display: grid;
-        grid-template-columns: 0.95in 1fr;
-        align-items: center;
-        min-height: 1.05in;
-        margin: -0.35in -0.55in 0.18in;
-        padding: 0.12in 0.45in;
-        background: linear-gradient(90deg, #e8f7d6 0%, #fbfff2 48%, #e6f6fb 100%);
-        border-bottom: 5px solid #222222;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        width: 100%;
     }
-
-    .seal {
-        width: 0.74in;
-        height: 0.74in;
-        border: 3px solid #d2b21f;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        background: #f7f0b1;
-        color: #172554;
-        font: 700 9px Arial, sans-serif;
-        text-align: center;
-        line-height: 1.1;
-    }
-
-    .masthead-text {
-        text-align: center;
-        font-weight: 700;
-        line-height: 1.1;
-        letter-spacing: 0.04em;
-    }
-
-    .masthead-text .country {
-        font-size: 12px;
-    }
-
-    .masthead-text .province {
-        font-size: 11px;
-    }
-
-    .masthead-text .barangay {
+    label {
         font-size: 18px;
-        letter-spacing: 0.34em;
-    }
-
-    .masthead-text .office {
-        font-size: 17px;
-    }
-
-    h1 {
-        margin: 0.18in 0 0.34in;
-        text-align: center;
-        font-size: 24px;
-        letter-spacing: 0.03em;
-    }
-
-    .content {
-        width: 88%;
-        margin: 0 auto;
-        font-size: 13px;
-        line-height: 1.45;
-    }
-
-    .content p {
-        margin: 0 0 0.26in;
-        text-align: justify;
-    }
-
-    .indent {
-        text-indent: 0.45in;
-    }
-
-    .line {
-        display: inline-block;
-        min-width: 1.55in;
-        border-bottom: 1px solid #111111;
-        height: 0.12in;
-        vertical-align: baseline;
-    }
-
-    .line.short {
-        min-width: 0.55in;
-    }
-
-    .line.medium {
-        min-width: 1.15in;
-    }
-
-    .resident-name {
-        font-weight: 700;
-        text-decoration: underline;
-    }
-
-    .emphasis {
-        font-weight: 700;
-        font-style: italic;
-    }
-
-    .signature {
-        width: 2.6in;
-        margin: 0.58in 0 0 auto;
-        text-align: center;
-        font-size: 12px;
-    }
-
-    .signature-line {
-        border-top: 1px solid #111111;
-        padding-top: 0.06in;
-    }
-
-    .authority {
-        margin-top: 0.42in;
-        font-size: 12px;
-    }
-
-    .member-signature {
-        width: 2.9in;
-        margin: 0.36in auto 0;
-        text-align: center;
-        font-size: 12px;
     }
 </style>
 </head>
 <body>
-    <main class="certificate">
-        <header class="masthead">
-            <div class="seal">BARANGAY<br>724</div>
-            <div class="masthead-text">
-                <div class="country">REPUBLIC OF THE PHILIPPINES</div>
-                <div class="province">CITY OF MANILA</div>
-                <div class="barangay">BARANGAY</div>
-                <div>Barangay 724 Zone 79, District V</div>
-                <div class="office">OFFICE OF THE PUNONG BARANGAY</div>
-            </div>
-        </header>
+    <div>
 
-        <h1>CERTIFICATE OF RESIDENCY</h1>
+    <h1>CERTIFICATE OF RESIDENCY</h1>
+    <p style="font-size: 1.25rem">TO WHOM IT MAY CONCERN</p>
+    <p style="text-align: justify;">This is to certify that <strong><u>{{fullName}}</u></strong> of legal age born {{birthDate}}, {{civilStatus}} Filipino is a bonafide resident of {{address}} Barangay 724 Zone 79, District V. Manila and that {{pronoun}} belongs to an indigent family in our barangay.</p>
+    <br>
+    <p>This certification issued upon {{pronoun}} request for:</p>
+    <div class="section-request-type">
+        <div>
+            <input type="checkbox" id="option-medical-asst"\>
+            <label for="option-medical-asst">Medical Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-finance-asst">
+            <label for="option-finance-asst">Finacial Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-scholarship"\>
+            <label for="option-scholarship">Scholarship</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-educ-asst"\>
+            <label for="option-educ-asst">Education Assistance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-funeral-asst"\>
+            <label for="option-funeral-asst">Funeral/Burial Assitance</label>
+        </div>
+        <div>
+            <input type="checkbox" id="option-orange-car"\>
+            <label for="option-orange-car">Orange Card</label>
+        </div>
+        <div style="grid-column: 1/-1; display: flex">
+            <input type="checkbox" id="option-others"\>
+            <label for="option-others">Others pls. specify:</label>
+            <input type="text" id="option-others-reason" style="border: none; margin-left: 0.5rem; border-bottom: 2px solid; flex-grow: 1;"\>
+        </div>
+    </div>
+    <br>
+    <p style="font-size: 1.25rem;"> Issued and signed this {{signDay}} day of {{signMonth}}, {{signYear}}.</p>
+    <br><br><br><br>
+    <div style="display: inline-block; min-width: 30%; border-bottom: 2px solid; margin-bottom: 0.5rem; padding-right: 2rem;">
+        <span id="signee-underline" style="font-family: Times New Roman; font-weight: bold; font-size: 1.25rem;">{{chairName}}</span>
+    </div>
+    <br>
+    <label for="signee-underline">Punong Barangay</label>
 
-        <section class="content">
-            <p>To Whom It May Concern,</p>
 
-            <p class="indent">
-                This is to certify that <span class="resident-name">{{fullName}}</span>, {{age}} years old,
-                Filipino citizen is a bonafide resident of <strong>{{address}}</strong>, Barangay 724 Zone 79,
-                District V, Manila.
-            </p>
-
-            <p class="indent">
-                This is to certify further that the above-mentioned name is <span class="emphasis">living in this
-                Barangay since</span> <span class="line medium"></span> <span class="emphasis">up to present.</span>
-            </p>
-
-            <p class="indent">
-                This certification is being issued upon the request of the above-mentioned name in connection for
-                <span class="emphasis">whatever legal purposes it may serve.</span>
-            </p>
-
-            <p class="indent">
-                Given this <span class="line short">{{signDay}}</span> day of <span class="line medium">{{signMonth}}</span>,
-                {{signYear}}, at the Office of the Punong Barangay.
-            </p>
-
-            <div class="signature">
-                <div class="signature-line">{{chairName}}</div>
-                <div>Punong Barangay</div>
-            </div>
-
-            <div class="authority">By this authority of the Punong Barangay:</div>
-
-            <div class="member-signature">
-                <div class="signature-line">Sangguniang Barangay Member</div>
-            </div>
-        </section>
-    </main>
+    </div>
 </body>
 </html>

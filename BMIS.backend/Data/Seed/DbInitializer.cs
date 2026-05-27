@@ -2,8 +2,11 @@ using Bogus;
 using BMIS.Models;
 using BMIS.Models.Entities;
 
+using BMIS;
+
 public static class DbInitializer {
     public static void Initialize(AppDbContext context) { 
+        /* 
         if(!context.Residents.Any()) {
 
             var phPrefixes = new[] { "+63 917", "+63 915", "+63 927", "+63 918", "+63 919", "+63 920", "+63 991" };
@@ -78,5 +81,6 @@ public static class DbInitializer {
         }
 
         context.SaveChanges();
+        */ 
     }
 }

@@ -1,6 +1,6 @@
 using BMIS.Models;    
 
-namespace BMIS.Services;
+namespace BMIS.Interfaces;
 
 public interface IDocumentService {
     Task<Result<string>> GetTemplate(DocumentType type);

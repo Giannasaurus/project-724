@@ -1,10 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace BMIS.Models.Entities;
 
 public class Deceased {
-    [Key]
-    public int Id { get; set; }
-    public int ResidentId { get; set; }
-    public DateTime DateOfDeath { get; set; }
+    public required Guid ResidentId { get; set; }
+    public required DateTime DateOfDeath { get; set; }
+
+    // NOTE:
+    //  reffering to the image path
+    public required string DeathCertificate { get; set; }
+
+    public Resident ResidentInfo { get; set; }
 }
