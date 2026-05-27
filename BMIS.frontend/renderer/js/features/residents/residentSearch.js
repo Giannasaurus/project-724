@@ -1,5 +1,6 @@
-import { getData } from '../../core/api.js'
+import { postData } from '../../core/api.js'
 import { getResidentId } from '../../shared/residentUtils.js'
+import { mergeResidentExtras } from './residentBackendAdapter.js'
 
 export async function searchResidentsByName(query, options = {}) {
     const trimmedQuery = query?.trim() ?? ''
@@ -18,13 +19,9 @@ export async function searchResidentsByName(query, options = {}) {
 }
 
 async function searchResidentsByNameFields(query, options) {
-    const fields = ['firstName', 'middleName', 'lastName']
-    const responses = await Promise.all(fields.map((field) => {
-        const params = getResidentQueryParams(options)
-        params.set(field, query)
-
-        return getData(`/residents/filter?${params.toString()}`)
-    }))
+    const params = getResidentQueryParams(options)
+    const response = mergeResidentExtras(await postData(`/residents/search?${params.toString()}`, { query }))
+    const responses = [response]
 
     const residents = []
     const seenResidentIds = new Set()

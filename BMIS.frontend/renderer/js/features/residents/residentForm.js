@@ -23,7 +23,9 @@ import {
 } from './residentFormDom.js'
 import { formatResidentAddress, getResidentPayload } from './residentFormPayload.js'
 import { getResidentFormValidationError } from './residentFormValidation.js'
+import { getResidentIntegrityError } from './residentIntegrity.js'
 import { searchResidentsByName } from './residentSearch.js'
+import { saveResidentExtra, toResidentApiPayload } from './residentBackendAdapter.js'
 
 export async function openAddResidentForm(options = {}) {
     const { ilView = document.getElementById('iLView'), addResidentHistoryLog, showResidentsView } = options
@@ -89,11 +91,18 @@ function attachSubmitHandler(form, options) {
         setSubmitState(saveBtn, true)
 
         try {
+            const integrityError = await getResidentIntegrityError(values)
+            if (integrityError) {
+                errorEl.textContent = integrityError
+                return
+            }
+
             const payload = getResidentPayload(values)
-            const result = await postData('/residents', payload)
+            const result = await postData('/residents', toResidentApiPayload(payload))
 
             if (result.success) {
-                addResidentHistoryLog?.(result.data)
+                saveResidentExtra(result.data ?? payload, payload)
+                addResidentHistoryLog?.(result.data ?? payload)
                 if (saveBtn?.id === 'ar-saveAddMemberBtn') {
                     await openAddResidentForm({
                         ...options,
@@ -450,10 +459,17 @@ function attachEditSubmitHandler(form, resident, options) {
         setSubmitState(saveBtn, true)
 
         try {
+            const integrityError = await getResidentIntegrityError(values, { currentResident: resident })
+            if (integrityError) {
+                errorEl.textContent = integrityError
+                return
+            }
+
             const payload = getResidentPayload(values)
-            const result = await updateData(`/residents/${residentId}`, payload)
+            const result = await updateData(`/residents/${residentId}`, toResidentApiPayload(payload))
 
             if (result.success) {
+                saveResidentExtra(resident, payload)
                 addUpdatedHistoryLog?.({ ...resident, ...payload })
                 await showResidentsView?.(1)
             } else {

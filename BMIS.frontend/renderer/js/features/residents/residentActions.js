@@ -1,11 +1,12 @@
+import { applyPermissionState } from '../../core/permissions.js'
 import { openAddResidentForm, openEditResidentPage } from './residentForm.js'
 
 export function createResidentActions(resident, options, actionOptions = {}) {
     const actions = document.createElement('div')
     actions.className = 'entity-row-actions'
     const buttons = [
-        createActionButton('Edit', 'entity-action-btn', () => openEditResidentPage(resident, options)),
-        createActionButton('Document Request', 'entity-action-btn', () => options.onDocumentRequest?.(resident)),
+        createPermissionActionButton('Edit', 'entity-action-btn', 'editResidents', () => openEditResidentPage(resident, options)),
+        createPermissionActionButton('Document Request', 'entity-action-btn', 'requestDocuments', () => options.onDocumentRequest?.(resident)),
         createDisabledActionButton('No deletion', 'entity-action-btn')
     ]
 
@@ -14,7 +15,7 @@ export function createResidentActions(resident, options, actionOptions = {}) {
     }
 
     if (resident.householdRole === 'Head') {
-        buttons.splice(2, 0, createActionButton('Add Household Member', 'entity-action-btn', () => {
+        buttons.splice(2, 0, createPermissionActionButton('Add Household Member', 'entity-action-btn', 'addResidents', () => {
             openAddResidentForm({
                 ilView: document.getElementById('iLView'),
                 addResidentHistoryLog: options.addResidentHistoryLog,
@@ -41,6 +42,12 @@ function createDisabledActionButton(label, className) {
     return button
 }
 
+function createPermissionActionButton(label, className, permission, onClick) {
+    const button = createActionButton(label, className, onClick)
+    applyPermissionState(button, permission, { title: 'Admin permission required for this action.' })
+    return button
+}
+
 function createActionButton(label, className, onClick) {
     const button = document.createElement('button')
 
@@ -50,6 +57,7 @@ function createActionButton(label, className, onClick) {
     button.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
+        if (button.disabled) return
         onClick()
     })
 

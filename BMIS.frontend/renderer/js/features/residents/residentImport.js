@@ -1,5 +1,7 @@
 import { getData, postData, readResidentsExcel } from '../../core/api.js'
+import { applyPermissionState } from '../../core/permissions.js'
 import { sanitizeResidentPayload } from '../../shared/residentUtils.js'
+import { saveResidentExtra, toResidentApiPayload } from './residentBackendAdapter.js'
 
 const HEADER_ALIASES = {
     firstName: ['first name', 'firstname', 'given name'],
@@ -72,6 +74,7 @@ export function bindResidentImportControls(options = {}) {
     const importBtn = document.getElementById('importResidentsBtn')
     const statusEl = document.getElementById('residentImportStatus')
     if (!importBtn) return
+    if (!applyPermissionState(importBtn, 'importResidents', { title: 'Admin permission required to import spreadsheet data.' })) return
 
     importBtn.addEventListener('click', async () => {
         setImportState(importBtn, statusEl, true, 'Choose a spreadsheet file to import.')
@@ -89,7 +92,18 @@ export function bindResidentImportControls(options = {}) {
                 return
             }
 
-            const importResult = await importResidentRows(fileResult.rows, options)
+            const preview = await getImportPreview(fileResult.rows, fileResult.fileName)
+            setImportState(importBtn, statusEl, false, '')
+            const confirmed = await showImportPreview(preview)
+            if (!confirmed) {
+                setImportStatus('Import canceled. No resident records were saved.')
+                return
+            }
+
+            setImportState(importBtn, statusEl, true, 'Importing validated resident rows.')
+            const importResult = await importResidentRows(preview.validRows, options)
+            importResult.skipped += preview.blankRows + preview.invalidRows.length
+            importResult.duplicates += preview.duplicateRows.length
             const statusMessage = getImportStatusMessage(importResult, fileResult.fileName)
             await options.showResidentsView?.(1)
             setImportState(importBtn, statusEl, false, '')
@@ -102,6 +116,47 @@ export function bindResidentImportControls(options = {}) {
     })
 }
 
+async function getImportPreview(rows = [], fileName = '') {
+    const knownResidentKeys = await getExistingResidentKeys()
+    const preview = {
+        fileName,
+        totalRows: rows.length,
+        blankRows: 0,
+        validRows: [],
+        duplicateRows: [],
+        invalidRows: []
+    }
+    const previewResidentKeys = new Set()
+
+    for (const [index, row] of rows.entries()) {
+        const rowNumber = index + 2
+        const resident = parseResidentRow(row)
+
+        if (!hasRowContent(row)) {
+            preview.blankRows += 1
+            continue
+        }
+
+        const validationError = getResidentValidationError(resident)
+        if (validationError) {
+            preview.invalidRows.push({ rowNumber, resident, reason: validationError })
+            continue
+        }
+
+        const residentKey = getResidentDuplicateKey(resident)
+        if (knownResidentKeys.has(residentKey) || previewResidentKeys.has(residentKey)) {
+            preview.duplicateRows.push({ rowNumber, resident, reason: 'duplicate resident' })
+            continue
+        }
+
+        const warnings = getResidentImportWarnings(resident)
+        previewResidentKeys.add(residentKey)
+        preview.validRows.push({ rowNumber, resident, warnings })
+    }
+
+    return preview
+}
+
 async function importResidentRows(rows = [], options = {}) {
     const summary = {
         imported: 0,
@@ -112,21 +167,9 @@ async function importResidentRows(rows = [], options = {}) {
     }
     const knownResidentKeys = await getExistingResidentKeys()
 
-    for (const [index, row] of rows.entries()) {
-        const rowNumber = index + 2
-        const resident = parseResidentRow(row)
-
-        if (!hasRowContent(row)) {
-            summary.skipped += 1
-            continue
-        }
-
-        const validationError = getResidentValidationError(resident)
-        if (validationError) {
-            summary.failed += 1
-            summary.errors.push(`Row ${rowNumber}: ${validationError}`)
-            continue
-        }
+    for (const row of rows) {
+        const rowNumber = row.rowNumber
+        const resident = row.resident
 
         const residentKey = getResidentDuplicateKey(resident)
         if (knownResidentKeys.has(residentKey)) {
@@ -134,10 +177,11 @@ async function importResidentRows(rows = [], options = {}) {
             continue
         }
 
-        const result = await postData('/residents', resident)
+        const result = await postData('/residents', toResidentApiPayload(resident))
         if (result.success) {
             summary.imported += 1
             knownResidentKeys.add(residentKey)
+            saveResidentExtra(result.data ?? resident, resident)
             options.addResidentHistoryLog?.(result.data ?? resident)
         }
         else if (result.status === 409) {
@@ -156,6 +200,129 @@ async function importResidentRows(rows = [], options = {}) {
     }
 
     return summary
+}
+
+function showImportPreview(preview) {
+    const dialog = document.getElementById('residentImportPreviewDialog')
+    if (!dialog) return Promise.resolve(preview.validRows.length > 0)
+
+    renderImportPreview(preview)
+
+    const closeBtn = document.getElementById('importPreviewCloseBtn')
+    const cancelBtn = document.getElementById('importPreviewCancelBtn')
+    const confirmBtn = document.getElementById('importPreviewConfirmBtn')
+
+    return new Promise(resolve => {
+        const finish = (confirmed) => {
+            dialog.close()
+            closeBtn?.removeEventListener('click', onCancel)
+            cancelBtn?.removeEventListener('click', onCancel)
+            confirmBtn?.removeEventListener('click', onConfirm)
+            dialog.removeEventListener('cancel', onDialogCancel)
+            resolve(confirmed)
+        }
+        const onCancel = () => finish(false)
+        const onConfirm = () => finish(true)
+        const onDialogCancel = (event) => {
+            event.preventDefault()
+            finish(false)
+        }
+
+        closeBtn?.addEventListener('click', onCancel)
+        cancelBtn?.addEventListener('click', onCancel)
+        confirmBtn?.addEventListener('click', onConfirm)
+        dialog.addEventListener('cancel', onDialogCancel)
+        if (confirmBtn) confirmBtn.disabled = preview.validRows.length === 0
+        dialog.showModal()
+    })
+}
+
+function renderImportPreview(preview) {
+    const fileEl = document.getElementById('importPreviewFile')
+    const statsEl = document.getElementById('importPreviewStats')
+    const rowsEl = document.getElementById('importPreviewRows')
+    const issuesEl = document.getElementById('importPreviewIssues')
+    const warningCount = preview.validRows.filter(row => row.warnings.length > 0).length
+    const skippedCount = preview.blankRows + preview.duplicateRows.length + preview.invalidRows.length
+
+    if (fileEl) fileEl.textContent = preview.fileName ? `Source: ${preview.fileName}` : 'Source: selected spreadsheet'
+    if (statsEl) {
+        statsEl.innerHTML = ''
+        statsEl.append(
+            createImportStat('Total rows', preview.totalRows),
+            createImportStat('Ready', preview.validRows.length),
+            createImportStat('Pending verification', warningCount),
+            createImportStat('Issues', preview.invalidRows.length),
+            createImportStat('Duplicates', preview.duplicateRows.length),
+            createImportStat('Skipped', skippedCount)
+        )
+    }
+    if (rowsEl) rowsEl.innerHTML = getPreviewRowsHtml(preview.validRows)
+    if (issuesEl) issuesEl.innerHTML = getPreviewIssuesHtml(preview)
+}
+
+function createImportStat(label, value) {
+    const item = document.createElement('div')
+    const count = document.createElement('strong')
+    const caption = document.createElement('span')
+    count.textContent = String(value)
+    caption.textContent = label
+    item.append(count, caption)
+    return item
+}
+
+function getPreviewRowsHtml(rows) {
+    if (rows.length === 0) return '<p class="import-preview-empty">No valid rows detected.</p>'
+
+    const body = rows.slice(0, 8).map(({ rowNumber, resident, warnings }) => `
+        <tr>
+            <td>${rowNumber}</td>
+            <td>${escapeHtml(getPreviewResidentName(resident))}</td>
+            <td>${escapeHtml(resident.birthDate)}</td>
+            <td>${escapeHtml(getPreviewVerificationLabel(resident, warnings))}</td>
+            <td>${escapeHtml(resident.address)}</td>
+        </tr>
+    `).join('')
+    const more = rows.length > 8 ? `<p class="import-preview-note">Showing 8 of ${rows.length} valid rows.</p>` : ''
+
+    return `
+        <table class="import-preview-table">
+            <thead>
+                <tr><th>Row</th><th>Resident</th><th>Birthdate</th><th>Verification</th><th>Address</th></tr>
+            </thead>
+            <tbody>${body}</tbody>
+        </table>
+        ${more}
+    `
+}
+
+function getPreviewIssuesHtml(preview) {
+    const warnings = preview.validRows
+        .filter(row => row.warnings.length > 0)
+        .map(row => ({ ...row, type: 'Pending verification', reason: row.warnings.join(' ') }))
+    const issues = [
+        ...warnings,
+        ...preview.invalidRows.map(row => ({ ...row, type: 'Invalid' })),
+        ...preview.duplicateRows.map(row => ({ ...row, type: 'Duplicate' }))
+    ]
+
+    if (issues.length === 0 && preview.blankRows === 0) {
+        return '<p class="import-preview-empty">No issues found.</p>'
+    }
+
+    const issueItems = issues.slice(0, 10).map(issue => `
+        <li>
+            <strong>Row ${issue.rowNumber}: ${escapeHtml(issue.type)}</strong>
+            <span>${escapeHtml(issue.reason)}</span>
+            <small>${escapeHtml(getPreviewResidentName(issue.resident) || 'No resident name parsed')}</small>
+        </li>
+    `).join('')
+    const blankItem = preview.blankRows > 0
+        ? `<li><strong>Blank rows</strong><span>${preview.blankRows} blank row${preview.blankRows === 1 ? '' : 's'} skipped.</span></li>`
+        : ''
+    const more = issues.length > 10 ? `<p class="import-preview-note">Showing 10 of ${issues.length} rows needing attention.</p>` : ''
+
+    return `<ul>${issueItems}${blankItem}</ul>${more}`
 }
 
 async function getExistingResidentKeys() {
@@ -302,14 +469,21 @@ function getResidentValidationError(resident) {
     if (resident.civilStatus === undefined) return 'invalid civil status'
     if (resident.civilStatus === 6 && !resident.civilStatusOther) return 'missing other civil status'
     if (!resident.address) return 'missing address'
-    if (resident.sector > 0 && !resident.proofType) return 'PWD/Senior residents require a proof type'
-    if (resident.sector > 0 && !resident.proofId) return 'PWD/Senior residents require a proof number'
-    if (resident.sector > 0 && !['PWD ID', 'Senior Citizen ID', 'Medical Certificate'].includes(resident.proofType)) {
+    if (resident.sector > 0 && resident.proofType && !['PWD ID', 'Senior Citizen ID', 'Medical Certificate'].includes(resident.proofType)) {
         return 'invalid proof type'
     }
     if (resident.householdRole === 'Head' && !resident.householdMembers) return 'household heads require household members'
     if (resident.householdRole === 'Member' && !resident.householdHeadName) return 'household members require a household head'
     return ''
+}
+
+function getResidentImportWarnings(resident) {
+    const warnings = []
+    if (resident.sector > 0 && (!resident.proofType || !resident.proofId)) {
+        resident.verificationStatus = 'Pending'
+        warnings.push('PWD/Senior sector imported without proof ID; resident is marked pending verification.')
+    }
+    return warnings
 }
 
 function formatResidentAddress(row) {
@@ -388,4 +562,29 @@ function setImportState(button, statusEl, isImporting, message) {
 function setImportStatus(message) {
     const statusEl = document.getElementById('residentImportStatus')
     if (statusEl) statusEl.textContent = message
+}
+
+function getPreviewResidentName(resident) {
+    return [
+        resident.lastName ? `${resident.lastName},` : '',
+        resident.firstName,
+        resident.middleName,
+        resident.suffix
+    ].filter(Boolean).join(' ')
+}
+
+function getPreviewVerificationLabel(resident, warnings = []) {
+    if (warnings.length > 0) return 'Pending verification'
+    if (resident.sector > 0) return resident.verificationStatus || 'Pending'
+    return 'Not required'
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char])
 }

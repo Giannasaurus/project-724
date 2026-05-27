@@ -53,6 +53,14 @@ export async function loadData(result, options = {}) {
         return
     }
 
+    const listHeader = document.createElement('div')
+    listHeader.className = 'residents-list-header'
+    fieldNames.forEach(field => {
+        const label = document.createElement('span')
+        label.textContent = field
+        listHeader.appendChild(label)
+    })
+
     const table = document.createElement('table')
     table.setAttribute('id', 'dataTable')
 
@@ -62,15 +70,6 @@ export async function loadData(result, options = {}) {
         col.className = className
         colGroup.appendChild(col)
     })
-
-    const tableHeader = document.createElement('thead')
-    const headerRow = document.createElement('tr')
-    fieldNames.forEach(field => {
-        const th = document.createElement('th')
-        th.textContent = field
-        headerRow.appendChild(th)
-    })
-    tableHeader.appendChild(headerRow)
 
     const tableBody = document.createElement('tbody')
     let selectedResident = null
@@ -105,8 +104,8 @@ export async function loadData(result, options = {}) {
         tableBody.appendChild(row)
     })
 
-    table.append(colGroup, tableHeader, tableBody)
-    dataContainer.appendChild(table)
+    table.append(colGroup, tableBody)
+    dataContainer.append(listHeader, table)
 
     function selectResidentRow(row, resident) {
         selectedResident = resident

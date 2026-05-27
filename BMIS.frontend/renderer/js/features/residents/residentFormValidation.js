@@ -12,6 +12,9 @@ export function getResidentFormValidationError(values) {
     const addressError = getAddressValidationError(values)
     if (addressError) return addressError
 
+    const contactError = getContactValidationError(values)
+    if (contactError) return contactError
+
     if (!values.householdRole) return 'Please select whether the resident is the household head or a member.'
     if (values.householdRole === 'Member' && !values.householdHeadName) {
         return 'Household members must identify the household head they are related to.'
@@ -48,6 +51,21 @@ function getSectorVerificationError(values) {
 function getAddressValidationError(values) {
     if (!values.houseNumberStreet || !values.barangay || !values.municipalityCity || !values.province) {
         return 'Please complete the required address fields.'
+    }
+
+    return ''
+}
+
+function getContactValidationError(values) {
+    if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+        return 'Please enter a valid email address.'
+    }
+
+    if (!values.contact) return ''
+
+    const digits = values.contact.replace(/\D/g, '')
+    if (!/^[+()\d\s-]+$/.test(values.contact) || digits.length < 7 || digits.length > 15) {
+        return 'Phone number must contain 7 to 15 digits and may only use spaces, hyphens, parentheses, or +.'
     }
 
     return ''

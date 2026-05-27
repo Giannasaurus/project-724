@@ -1,4 +1,5 @@
 import { getData } from './core/api.js'
+import { applyPermissionState, canAccessView, getCurrentUserRole } from './core/permissions.js'
 import { loadView } from './core/viewLoader.js'
 import {
     loadHistory,
@@ -105,6 +106,7 @@ export async function loadApp(app) {
 
     bindNav(state, app)
     renderAccountProfile()
+    applyNavigationPermissions()
     await renderView(state, DEFAULT_VIEW)
 }
 
@@ -123,6 +125,8 @@ function bindNav(state, app) {
             return
         }
 
+        if (!canAccessView(navLink.id)) return
+
         if (navLink.id === state.currentView) {
             if (navLink.id === 'templates') {
                 state.documentRequestResident = null
@@ -140,7 +144,7 @@ function bindNav(state, app) {
 async function renderView(state, viewId) {
     const view = views[viewId]
     const mainBody = document.getElementById('mainBody')
-    if (!view || !mainBody) return
+    if (!view || !mainBody || !canAccessView(viewId)) return
 
     state.currentView = viewId
     setActiveNav(viewId)
@@ -262,6 +266,7 @@ function attachAddResidentButton(state) {
     const addResidentBtn = document.getElementById('addResidentBtn')
     const residentsView = document.getElementById('iLView')
     if (!addResidentBtn || !residentsView) return
+    if (!applyPermissionState(addResidentBtn, 'addResidents', { title: 'Admin permission required to add residents.' })) return
 
     addResidentBtn.onclick = async () => {
         await openAddResidentForm({
@@ -331,6 +336,14 @@ function saveLoginSession(username, role = 'Admin') {
     }))
 }
 
+function applyNavigationPermissions() {
+    const mainNav = document.getElementById('mainNav')
+    mainNav?.querySelectorAll('.sub-main-nav-a').forEach((navLink) => {
+        if (navLink.id === 'logout') return
+        navLink.closest('.sub-main-nav-li').hidden = !canAccessView(navLink.id)
+    })
+}
+
 function getLoginSession() {
     try {
         return JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) ?? '{}')
@@ -346,7 +359,7 @@ function renderAccountProfile() {
     const profileRole = document.getElementById('accountProfileRole')
 
     if (profileName) profileName.textContent = session.username || 'User'
-    if (profileRole) profileRole.textContent = session.role || 'Admin'
+    if (profileRole) profileRole.textContent = session.role || getCurrentUserRole()
 }
 
 function clearLoginSession() {
