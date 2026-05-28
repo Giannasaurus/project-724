@@ -9,11 +9,28 @@ public class AppDbContext : DbContext {
     public DbSet<HouseHold> HouseHolds { get; set; } 
     public DbSet<Deceased> Deaths { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
+    public DbSet<User> Users{ get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
+
+        builder.Entity<User>().HasKey(e => e.ResidentId);
+        builder.Entity<User>()
+            .HasOne(e => e.ResidentInfo)
+            .WithOne()
+            .HasForeignKey<User>(r => r.ResidentId);
+
+        builder.Entity<Transaction>()
+            .HasOne(e => e.RequesterInfo)
+            .WithMany()
+            .HasForeignKey(e => e.RequesterId);
+        
+        builder.Entity<Transaction>()
+            .HasOne(e => e.HandlerInfo)
+            .WithMany()
+            .HasForeignKey(e => e.HandlerId);
         
         builder.Entity<Deceased>().HasKey(e => e.ResidentId);
         builder.Entity<Deceased>()

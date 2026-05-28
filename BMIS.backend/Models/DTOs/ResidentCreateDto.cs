@@ -7,8 +7,14 @@ public record ResidentCreateDto (
     string? suffix,
 
     DateOnly birthDate,
+    string birthPlace, 
     Sex sex,
+    string citizenship,
+
+    bool isSenior,
+    bool isPwd,
     CivilStatus civilStatus,
+    string religion,
 
     string address,
     string? phone,

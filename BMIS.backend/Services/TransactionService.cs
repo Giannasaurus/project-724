@@ -3,24 +3,33 @@ using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
 using BMIS.Models;
 using BMIS.Interfaces;
+using BMIS.Infrastructure.Criterias;
+using BMIS.Application;
+using BMIS.Infrastructure;
 
 namespace BMIS.Services;
 
 public class TransactionService : ITransactionService {
-    public readonly AppDbContext _db;
 
-    public TransactionService(AppDbContext db) {
-        _db = db;
+    public readonly IUnitOfWork _unitOfWork;
+    public readonly ITransactionRepository _transactionRepo;
+    public readonly IResidentRepository _residentRepo;
+
+    public TransactionService(IUnitOfWork unitOfWork, ITransactionRepository transactionRepo, IResidentRepository residentRepo) {
+        _unitOfWork = unitOfWork;
+        _transactionRepo = transactionRepo;
+        _residentRepo = residentRepo;
     }
 
     public async Task<Result<List<Transaction>>> GetAll() {
-        return await _db.Transactions.AsNoTracking().ToListAsync();
+        return await _transactionRepo.GetAllAsync(); 
     }
 
 
     public async Task<Result<List<Transaction>>> GetFiltered(TransactionFilterCriteria criteria) {
-        var transactions = _db.Transactions.AsNoTracking();
+        return await _transactionRepo.GetFilteredAsync(criteria); 
         
+        /* 
         if(criteria.from != null) {
             transactions = transactions.Where(t => t.Date <= criteria.from);
         }
@@ -69,51 +78,66 @@ public class TransactionService : ITransactionService {
             .ToListAsync();
 
         return results;
+        */
     }
 
     public async Task<Result<Guid>> AddTransaction(TransactionCreateDto details) {
-        Transaction transaction = new Transaction() {
-            RequesterId = details.requesterId, 
-            HandlerId = details.handlerId,
-            DocumentType = details.documentType,
-            Status = details.status,
-            Date = details.date
-        };    
+        Transaction transaction;
 
-        _db.Transactions.Add(transaction);
-        
-        try {
-            await _db.SaveChangesAsync();
-            Console.WriteLine("[~] save successful");
-        } catch (DbUpdateException e) {
-            Console.WriteLine($"[!] problem saving {string.Join(" ", e.Entries)}");
-            return ResultStatus.Conflict; 
+        var requester = _residentRepo.GetByIdAsync(details.requesterId);
+        if(requester == null) {
+            Console.WriteLine("[!] requester does not exist");
+            return ResultStatus.Conflict;
         }
+        
+        var handler = _residentRepo.GetByIdAsync(details.handlerId);
+        if(handler == null) {
+            Console.WriteLine("[!] handler does not exist");
+            return ResultStatus.Conflict;
+        }
+
+        // TODO:
+        //  check handler existance
+        
+        if(details.dateIssued != null) {
+            transaction = new Transaction(details.documentType, details.requesterId, details.handlerId, details.dateIssued);
+        } else {
+            transaction = new Transaction(details.documentType, details.requesterId, details.handlerId);
+        }
+
+        _transactionRepo.Add(transaction);
+        await _unitOfWork.SaveChangesAsync();
+
+        // TODO:
+        //  error-handling
 
         return transaction.Id;
     }
    
-    public async Task<Result<Transaction>> UpdateTransaction(int id, TransactionUpdateDto changes) {
-        var transaction = await _db.Transactions.FindAsync(id);
+    public async Task<Result<Transaction>> UpdateTransaction(Guid id, TransactionUpdateDto changes) {
+        var transaction = await _transactionRepo.GetByIdAsync(id);
 
-        if(transaction is null) {
+        if(transaction == null) {
             return ResultStatus.NotFound;
         }
 
-        return transaction;
-    }
-
-    public async Task<Result<Transaction>> DeleteTransaction(int id) {
-        var transaction = await _db.Transactions.FindAsync(id);
+        if(changes.requesterId != null) {
+            var requester = _residentRepo.GetByIdAsync((Guid)changes.requesterId);
+            if(requester == null) {
+                return ResultStatus.Conflict;
+            }
+        }
         
-        if(transaction is null) {
-            return ResultStatus.NotFound;
-        }
+        // TODO:
+        //  check handler existance
 
-        _db.Transactions.Remove(transaction);
-        await _db.SaveChangesAsync();
+        transaction.Update(changes.documentType, changes.requesterId, changes.handlerId, changes.dateIssued);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        // TODO:
+        //  error-handling
 
         return transaction;
     }
-
 }

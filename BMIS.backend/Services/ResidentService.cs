@@ -4,37 +4,29 @@ using BMIS.Models.DTOs;
 using BMIS.Models;
 using BMIS.Interfaces;
 
+using BMIS.Infrastructure.Criterias;
+
+using BMIS.Application;
+
 namespace BMIS.Services;
 
 public class ResidentService : IResidentService, ISearchable {
 
-    public readonly AppDbContext _db;
+    public readonly IUnitOfWork _unitOfWork;
+    public readonly IResidentRepository _residentRepo;
 
-    public ResidentService(AppDbContext db) {
-        _db = db;
-    }
-    
-    public string GetFullName(Resident resident){
-        string name = $"{resident.LastName}, {resident.FirstName}";
-        
-        if(!string.IsNullOrEmpty(resident.MiddleName)) {
-            name += $" {resident.MiddleName[0]}.";
-        }
-
-        if(!string.IsNullOrEmpty(resident.Suffix)) {
-            name += $", {resident.Suffix}";
-        }
-
-        return name;
+    public ResidentService(IUnitOfWork unitOfWork, IResidentRepository residentRepo) {
+        _unitOfWork = unitOfWork;
+        _residentRepo = residentRepo;
     }
 
     public async Task<Result<List<Resident>>> GetAll() {
-        var value = await _db.Residents.AsNoTracking().ToListAsync();
-        return value;
+        return await _residentRepo.GetAllAsync();
     }
 
     public async Task<Result<Resident>> GetById(Guid id) {
-        var value = await _db.Residents.FindAsync(id);
+        var value = await _residentRepo.GetByIdAsync(id);
+
         if(value == null) {
             return ResultStatus.NotFound;
         } 
@@ -43,53 +35,26 @@ public class ResidentService : IResidentService, ISearchable {
     }
 
     public async Task<Result<List<Resident>>> GetFiltered(ResidentFilterCriteria criteria) {
-        var residents = FilterResidents(criteria);
-
-        switch(criteria.order) {
-            case ResidentOrder.ByFirstName:
-                residents = residents.OrderBy(r => r.FirstName);
-                break;
-            case ResidentOrder.ByFirstNameDesc:
-                residents = residents.OrderByDescending(r => r.FirstName);
-                break;
-            case ResidentOrder.ByMiddleName:
-                residents = residents.OrderBy(r => r.MiddleName);
-                break;
-            case ResidentOrder.ByMiddleNameDesc:
-                residents = residents.OrderByDescending(r => r.MiddleName);
-                break;
-            case ResidentOrder.ByLastName:
-                residents = residents.OrderBy(r => r.LastName);
-                break;
-            case ResidentOrder.ByLastNameDesc:
-                residents = residents.OrderByDescending(r => r.LastName);
-                break;
-            case ResidentOrder.ByAge:
-                residents = residents.OrderByDescending(r => r.BirthDate); // starts from youngest to oldest
-                break;
-            case ResidentOrder.ByAgeDesc:
-                residents = residents.OrderBy(r => r.BirthDate); // starts from oldest to youngest
-                break;
-            default:
-                residents = residents.OrderBy(r => r.LastName);
-                break;
-        }
-
-        var results = await residents.ToListAsync();
+        var results = await _residentRepo.GetFilteredAsync(criteria);
         var paginize = Utils.GetListRange(results, criteria.from, criteria.limit);
 
         return paginize;
     } 
     
     public async Task<Result<List<Resident>>> GetSearchResults(SearchRequest search, ResidentFilterCriteria criteria) {
-        var residents = FilterResidents(criteria)
-                            .Select(r => new { Resident = r, Score = GetSimilarityScore(search.query, GetFullName(r)) })
-                            .OrderByDescending(r => r.Score)
-                            .ThenBy(r => GetFullName(r.Resident))
-                            .Select(r => r.Resident);
+        var filtered = await _residentRepo.GetFilteredAsync(criteria);
+        var ranked = filtered.Select(r => new { 
+                                Resident = r,
+                                FullName = r.ToString(),
+                                Score = GetSimilarityScore(search.query, r.ToString())
+                            })
+                        .Where(r => r.Score >= 0.1)
+                        .OrderByDescending(r => r.Score)
+                        .ThenBy(r => r.FullName) 
+                        .Select(r => r.Resident)
+                        .ToList();
         
-        var paginize = Utils.GetListRange<Resident>(await residents.ToListAsync(), criteria.from, criteria.limit);
-        // A custom alphanumeric ID often given during barangay census/surveys (e.g., "HH-2026-001")
+        var paginize = Utils.GetListRange<Resident>(ranked, criteria.from, criteria.limit);
         
         return paginize;
     }
@@ -101,6 +66,7 @@ public class ResidentService : IResidentService, ISearchable {
     //  fix household problem (what if the household doesn't exist)
     // 
     public async Task<Result<Guid>> AddResident(ResidentCreateDto details) {
+        /* 
         var houseHold = await _db.HouseHolds.FirstOrDefaultAsync(h => h.Id == details.houseHoldId);
 
         if(houseHold == null && details.isHead) {
@@ -115,141 +81,81 @@ public class ResidentService : IResidentService, ISearchable {
         } else {
             return ResultStatus.Conflict;
         }
+        */
 
-        Resident resident = new Resident {
-            FirstName = details.firstName,
-            MiddleName = details.middleName,
-            LastName = details.lastName,
-            Suffix = details.suffix,
-            BirthDate = details.birthDate,
-            Sex = details.sex,
-            CivilStatus = details.civilStatus,
-            Address = details.address,
-            Phone = details.phone,
-            Email = details.email,
-            IsHead = details.isHead,
-            HouseHoldId = houseHold.Id,
-        };
+        var residentBuilder = new Resident.Builder()
+            .WithName(details.firstName, details.middleName, details.lastName, details.suffix)
+            .BornOn(details.birthDate, details.birthPlace, details.sex, details.citizenship)
+            .InHouseHold(details.houseHoldId)
+            .WithCivilStatus(details.civilStatus)
+            .InBeliefOf(details.religion)
+            .ResidingAt(details.address)
+            .WithContactInfo(details.phone, details.email);
 
-        if(HasDuplicate(resident)) {
+        if(details.isSenior) {
+            residentBuilder = residentBuilder.AsSenior();
+        }
+
+        if(details.isPwd) {
+            residentBuilder = residentBuilder.AsSenior();
+        }
+        
+        if(details.isHead) {
+            // TODO: 
+            //  check if there is already a head
+            //
+
+            residentBuilder = residentBuilder.AsHouseHoldHead();
+        }
+
+        Resident resident = residentBuilder.Build();
+
+        if(resident == null) {
+            Console.WriteLine("[!] error: resident creation error"); 
+            
             return ResultStatus.Conflict;
         }
 
-        _db.Residents.Add(resident);
-        
-        try {
-            await _db.SaveChangesAsync();
-            Console.WriteLine("[~] save successful");
-        } catch (DbUpdateException e) {
-            Console.WriteLine($"[!] problem saving {string.Join(" ", e.Entries)}");
+        bool hasDuplicate = await _residentRepo.HasDuplicateAsync(resident);
 
-            return ResultStatus.Conflict; 
+        if(hasDuplicate) {
+            Console.WriteLine("[!] error: duplicate resident"); 
+            
+            return ResultStatus.Conflict;
         }
-        
+
+        _residentRepo.Add(resident);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        // TODO: 
+        //  implement error-handling
+
         return resident.Id;
     }
 
-    /*
-     * TODO: 
-     *  - should have a history of deletion, and should also be recovered
-     *
-     */
-    public async Task<Result<Resident>> DeleteResident(Guid id) {
-        var resident = await _db.Residents.FindAsync(id);
-
-        if(resident is null) {
-            return ResultStatus.NotFound;
-        }
-
-        /*
-         *  SHOULD BACKUP BEFORE DELETE
-         *
-         */
-
-        _db.Residents.Remove(resident);
-        
-        /*
-         *  SHOULD BACKUP AFTER DELETE
-         *
-         */
-        try {
-            await _db.SaveChangesAsync();
-            Console.WriteLine("[~] save successful");
-        } catch (DbUpdateException e) {
-            Console.WriteLine("[!] error saving");
-        }
-
-        return resident; 
-    }
-
-
     // TODO: 
     //  add logging
-    //  check required attributes if null before procceding
     // 
     public async Task<Result<Resident>> UpdateResident(Guid id, ResidentUpdateDto changes) {
-        var resident = await _db.Residents.FindAsync(id);
+        var resident = await _residentRepo.GetByIdAsync(id);
 
         if(resident is null) {
             return ResultStatus.NotFound;
         }
 
-        if(changes.firstName != null) resident.FirstName = changes.firstName;
-        if(changes.middleName != null) resident.MiddleName = changes.middleName;
-        if(changes.lastName != null) resident.LastName = changes.lastName;
-        if(changes.suffix != null) resident.Suffix = changes.suffix;
+        resident.UpdateName(changes.firstName, changes.middleName, changes.lastName, changes.suffix);
+        resident.UpdateBirth(changes.birthDate, changes.birthPlace, changes.sex, changes.citizenship);
+        resident.UpdateSeniorStatus(changes.isSenior);
+        resident.UpdatePWDStatus(changes.isPwd);
+        resident.UpdateCivilStatus(changes.civilStatus);
+        resident.UpdateReligion(changes.religion);
+        resident.UpdateContactInfo(changes.phone, changes.email);
+        resident.UpdateHouseHold(changes.houseHoldId, changes.isHead);
 
-        if(changes.birthDate != null) resident.BirthDate = (DateOnly)changes.birthDate;
-        if(changes.sex != null) resident.Sex = (Sex)changes.sex;
-        if(changes.civilStatus != null) resident.CivilStatus = (CivilStatus)changes.civilStatus;
-
-        if(changes.address != null) resident.Address = changes.address;
-        if(changes.phone != null) resident.Phone = changes.phone;
-        if(changes.email != null) resident.Email = changes.email;
-
-        if(changes.isHead != null) resident.IsHead = (bool)changes.isHead;
-        if(changes.houseHoldId != null) resident.HouseHoldId = (int)changes.houseHoldId;
+        await _unitOfWork.SaveChangesAsync();
 
         return resident;
-    }
-
-    private IQueryable<Resident> FilterResidents(ResidentFilterCriteria criteria) {
-        var residents = _db.Residents.AsNoTracking();
-
-        DateOnly minCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.minAge);
-        DateOnly maxCutoff = DateOnly.FromDateTime(DateTime.Now).AddYears(-criteria.maxAge);
-        residents = residents.Where(r => maxCutoff <= r.BirthDate && r.BirthDate <= minCutoff);
-
-        if(criteria.sex != null && criteria.sex.Any()) {
-            HashSet<Sex> valid = new HashSet<Sex>();
-
-            foreach(var s in criteria.sex) {
-                if(Enum.TryParse<Sex>(s, true, out Sex parsed)) {
-                    valid.Add(parsed);
-                }
-            }
-            
-            residents = residents.Where(r => valid.Contains(r.Sex)); 
-        }
-       
-        //
-        //  TODO: 
-        //      add filtering of Senior/ PWDs
-        //
-
-        if(criteria.civilStat != null && criteria.civilStat.Count() > 0) {
-            HashSet<CivilStatus> valid = new HashSet<CivilStatus>();
-
-            foreach(var s in criteria.civilStat) {
-                if(Enum.TryParse<CivilStatus>(s, true, out CivilStatus parsed)) {
-                    valid.Add(parsed);
-                }
-            }
-            
-            residents = residents.Where(r => valid.Contains(r.CivilStatus)); 
-        }
-
-        return residents;
     }
 
     public double GetSimilarityScore(string reference, string candidate) {
@@ -272,19 +178,5 @@ public class ResidentService : IResidentService, ISearchable {
         }
 
         return max;
-    }
-
-    private bool HasDuplicate(Resident resident) {
-        string reference = GetFullName(resident); 
-        
-        //
-        //  TODO:
-        //      find way to check if has duplicate
-        //
-        // var similar = _db.Residents.AsNoTracking().Select(r => new { Name = GetFullName(r) }).Where(r => reference == r.Name);
-        //
-        // return similar.Any(); 
-        
-        return false;
     }
 }

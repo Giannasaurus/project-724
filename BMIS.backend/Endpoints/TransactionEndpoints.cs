@@ -1,6 +1,7 @@
 using BMIS.Models.DTOs;
 using BMIS.Services;
 using BMIS.Interfaces;
+using BMIS.Infrastructure.Criterias;
 
 namespace BMIS.Endpoints;
 
@@ -12,7 +13,6 @@ public static class TransactionEndpoints {
         group.MapGet("/filter", GetFiltered);
         group.MapPost("/", Create);
         group.MapPut("/{id}", Update);
-        group.MapDelete("/{id}", Delete);
     }
 
     public static async Task<IResult> GetAll(ITransactionService transactionService) {
@@ -33,23 +33,13 @@ public static class TransactionEndpoints {
         return TypedResults.Created($"transactions/{results.value}");
     }
     
-    public static async Task<IResult> Update(int id, TransactionUpdateDto changes, ITransactionService transactionService) {
+    public static async Task<IResult> Update(Guid id, TransactionUpdateDto changes, ITransactionService transactionService) {
         var results = await transactionService.UpdateTransaction(id, changes);
         
         if(results.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();
         }
 
-        return TypedResults.NoContent();
-    }
-
-    public static async Task<IResult> Delete(int id, ITransactionService transactionService) {
-        var results = await transactionService.DeleteTransaction(id);
-        
-        if(results.code == ResultStatus.NotFound) {
-            return TypedResults.NotFound();
-        }
-            
         return TypedResults.NoContent();
     }
 }

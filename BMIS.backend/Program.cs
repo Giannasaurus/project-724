@@ -1,6 +1,8 @@
 using BMIS.Endpoints;
 using BMIS.Interfaces;
 using BMIS.Services;
+using BMIS.Application;
+using BMIS.Infrastructure;
 using BMIS;
 
 var ELECTRON_CORS = "electronCors";
@@ -14,6 +16,15 @@ builder.Services.AddScoped<IResidentService, ResidentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 /* 
  * [!] WARNING

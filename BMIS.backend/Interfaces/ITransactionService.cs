@@ -1,5 +1,6 @@
 using BMIS.Models.Entities;
 using BMIS.Models.DTOs;
+using BMIS.Infrastructure.Criterias;
 
 namespace BMIS.Interfaces;
 
@@ -9,7 +10,5 @@ public interface ITransactionService {
 
     Task<Result<Guid>> AddTransaction(TransactionCreateDto details);
 
-    Task<Result<Transaction>> UpdateTransaction(int id, TransactionUpdateDto changes);
-
-    Task<Result<Transaction>> DeleteTransaction(int id);
+    Task<Result<Transaction>> UpdateTransaction(Guid id, TransactionUpdateDto changes);
 }
