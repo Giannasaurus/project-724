@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BMIS.Models.DTOs;
 using BMIS.Services;
 using BMIS.Interfaces;
+using BMIS.Infrastructure.Criterias;
 
 namespace BMIS.Endpoints;
 
@@ -17,8 +18,6 @@ public static class ResidentEndpoints {
         group.MapPost("/", Create); 
 
         group.MapPut("/{id}", Update); 
-
-        group.MapDelete("/{id}", Delete); 
     }
 
     private static async Task<IResult> GetAll(
@@ -66,15 +65,6 @@ public static class ResidentEndpoints {
         }
 
         return TypedResults.Created($"/residents/{result.value}");
-    }
-
-    private static async Task<IResult> Delete(Guid id, IResidentService residentService) {
-        var result = await residentService.DeleteResident(id);
-        if(result.code == ResultStatus.NotFound) {
-            return TypedResults.NotFound();
-        }
-
-        return TypedResults.NoContent();
     }
 
     private static async Task<IResult> Update(Guid id, ResidentUpdateDto changes, IResidentService residentService) {
