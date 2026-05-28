@@ -9,7 +9,7 @@ public class AppDbContext : DbContext {
     public DbSet<HouseHold> HouseHolds { get; set; } 
     public DbSet<Deceased> Deaths { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
-    public DbSet<User> Users{ get; set; }
+    public DbSet<User> Users { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     

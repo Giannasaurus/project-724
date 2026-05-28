@@ -70,5 +70,6 @@ app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); });
 app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
 app.MapDocumentEndpoints();
+app.MapUserEndpoints();
 
 app.Run();

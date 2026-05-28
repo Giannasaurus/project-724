@@ -15,4 +15,20 @@ public class User {
         this.Password = password;
         this.IsActive = true;
     }
+    
+    public void Update(Guid? residentId, string? username, string? password) {
+        if(residentId != null) {
+            this.ResidentId = (Guid)residentId;
+        }
+        
+        if(username != null) {
+            this.Username = (string)username;
+        }
+
+        if(password != null) {
+            this.Password = (string)password;
+        }
+
+        this.IsActive = true;
+    }
 }
