@@ -5,7 +5,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getData: (endpoint) => ipcRenderer.invoke('get-data', endpoint),
     postData: (endpoint, body) => ipcRenderer.invoke('post-data', endpoint, body),
     updateData: (endpoint, body) => ipcRenderer.invoke('update-data', endpoint, body),
-    deleteData: (endpoint, id) => ipcRenderer.invoke('delete-data', endpoint, id),
     readResidentsExcel: () => ipcRenderer.invoke('read-residents-excel'),
     saveWordDocument: (html, fileName, context) => ipcRenderer.invoke('save-word-document', html, fileName, context),
     sendDocumentReadyEmail: (request) => ipcRenderer.invoke('send-document-ready-email', request),

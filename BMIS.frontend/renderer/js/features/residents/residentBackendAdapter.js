@@ -7,6 +7,8 @@ const SECTOR_SENIOR = 2
 const DEFAULT_CITIZENSHIP = 'Filipino'
 const DEFAULT_REQUIRED_TEXT = 'Not recorded'
 const CAN_PERSIST_PWD_TO_BACKEND = false
+const RECORD_STATUS_ACTIVE = 'Active'
+const RECORD_STATUS_ARCHIVED = 'Archived'
 
 export function toResidentApiPayload(resident = {}) {
     const sector = Number(resident.sector ?? SECTOR_GENERAL)
@@ -69,6 +71,10 @@ export function mergeResidentExtra(resident = {}) {
     if (!merged.householdRole && typeof merged.isHead === 'boolean') {
         merged.householdRole = merged.isHead ? 'Head' : ''
     }
+    if (!merged.recordStatus) {
+        merged.recordStatus = RECORD_STATUS_ACTIVE
+    }
+    merged.isArchived = isResidentArchived(merged)
 
     return merged
 }
@@ -79,7 +85,9 @@ export function saveResidentExtra(resident = {}, source = {}) {
     if (!key && !identityKey) return
 
     const extras = getResidentExtras()
+    const existing = extras[key] ?? extras[identityKey] ?? {}
     const extra = {
+        ...existing,
         civilStatus: source.civilStatus,
         sector: source.sector,
         placeOfBirth: source.placeOfBirth,
@@ -105,12 +113,67 @@ export function saveResidentExtra(resident = {}, source = {}) {
         proofId: source.proofId,
         verificationStatus: source.verificationStatus,
         verifiedBy: source.verifiedBy,
-        verifiedAt: source.verifiedAt
+        verifiedAt: source.verifiedAt,
+        recordStatus: existing.recordStatus,
+        archivedAt: existing.archivedAt,
+        archivedBy: existing.archivedBy,
+        archiveReason: existing.archiveReason
     }
 
     if (key) extras[key] = pruneEmpty(extra)
     if (identityKey) extras[identityKey] = pruneEmpty(extra)
     localStorage.setItem(RESIDENT_EXTRAS_KEY, JSON.stringify(extras))
+}
+
+export function archiveResidentRecord(resident = {}, reason = '') {
+    return saveResidentArchiveState(resident, {
+        recordStatus: RECORD_STATUS_ARCHIVED,
+        isArchived: true,
+        archivedAt: new Date().toISOString(),
+        archivedBy: getCurrentUsername(),
+        archiveReason: reason.trim() || 'Record retained; inactive/archive status set from this device.'
+    })
+}
+
+export function restoreResidentRecord(resident = {}) {
+    return saveResidentArchiveState(resident, {
+        recordStatus: RECORD_STATUS_ACTIVE,
+        isArchived: false,
+        archivedAt: '',
+        archivedBy: '',
+        archiveReason: ''
+    })
+}
+
+export function isResidentArchived(resident = {}) {
+    if (resident.recordStatus) return resident.recordStatus === RECORD_STATUS_ARCHIVED
+    return resident.isArchived === true
+}
+
+export function getResidentRecordStatus(resident = {}) {
+    return isResidentArchived(resident) ? RECORD_STATUS_ARCHIVED : RECORD_STATUS_ACTIVE
+}
+
+function saveResidentArchiveState(resident, state) {
+    const key = getResidentStorageKey(resident)
+    const identityKey = getResidentIdentityStorageKey(resident)
+    if (!key && !identityKey) return null
+
+    const extras = getResidentExtras()
+    const existing = extras[key] ?? extras[identityKey] ?? {}
+    const nextExtra = pruneEmpty({
+        ...existing,
+        ...state
+    })
+
+    if (key) extras[key] = nextExtra
+    if (identityKey) extras[identityKey] = nextExtra
+    localStorage.setItem(RESIDENT_EXTRAS_KEY, JSON.stringify(extras))
+
+    return mergeResidentExtra({
+        ...resident,
+        ...nextExtra
+    })
 }
 
 function getResidentIsHead(resident) {
@@ -184,4 +247,14 @@ function pruneEmpty(values) {
 
 function normalizeKey(value) {
     return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function getCurrentUsername() {
+    try {
+        const session = JSON.parse(localStorage.getItem('bmisAuthSession') ?? '{}')
+        return session.username || 'Current user'
+    }
+    catch {
+        return 'Current user'
+    }
 }

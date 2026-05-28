@@ -1,14 +1,16 @@
 import { compareResidentsByName, getResidentFullName, getSectorLabel, getSexLabel } from '../../shared/residentUtils.js'
 import { createResidentActions } from './residentActions.js'
+import { getResidentRecordStatus, isResidentArchived } from './residentBackendAdapter.js'
 import { openResidentDetails } from './residentDetailsView.js'
 
 function getFieldNames() {
-    return ["Full Name", "Birthdate", "Sex", "Sector", "Household", "Contact", "Address"]
+    return ["Full Name", "Status", "Birthdate", "Sex", "Sector", "Household", "Contact", "Address"]
 }
 
 function getCells(resident) {
     return [
         { value: getResidentFullName(resident), class: 'col-name' },
+        { value: getResidentRecordStatus(resident), class: 'col-record-status', type: 'status' },
         { value: resident.birthDate, class: 'col-birthdate' },
         { value: getSexLabel(resident.sex), class: 'col-sex' },
         { value: getSectorLabel(resident.sector), class: 'col-sector' },
@@ -22,6 +24,7 @@ export async function loadData(result, options = {}) {
     const fieldNames = getFieldNames()
     const classes = [
         'col-name',
+        'col-record-status',
         'col-birthdate',
         'col-sex',
         'col-sector',
@@ -86,6 +89,7 @@ export async function loadData(result, options = {}) {
         const cells = getCells(resident)
         const row = document.createElement('tr')
         row.className = 'entity-row'
+        row.classList.toggle('entity-row--archived', isResidentArchived(resident))
         row.tabIndex = 0
         row.addEventListener('click', () => selectResidentRow(row, resident))
         row.addEventListener('keydown', (e) => {
@@ -96,8 +100,13 @@ export async function loadData(result, options = {}) {
 
         cells.forEach(cell => {
             const td = document.createElement('td')
-            td.textContent = cell.value
             td.className = cell.class
+            if (cell.type === 'status') {
+                td.appendChild(createRecordStatusBadge(resident))
+            }
+            else {
+                td.textContent = cell.value
+            }
             row.appendChild(td)
         })
 
@@ -114,6 +123,19 @@ export async function loadData(result, options = {}) {
         selectedRow.classList.add('is-selected')
         renderResidentActionBar(actionBar, selectedResident, options)
     }
+}
+
+function createRecordStatusBadge(resident) {
+    const badge = document.createElement('span')
+    const archived = isResidentArchived(resident)
+
+    badge.className = `resident-record-badge ${archived ? 'resident-record-badge--archived' : 'resident-record-badge--active'}`
+    badge.textContent = archived ? 'Archived' : 'Active'
+    badge.title = archived
+        ? 'Record retained and marked archived on this device.'
+        : 'Resident record is active.'
+
+    return badge
 }
 
 function getSortedResidents(residents) {

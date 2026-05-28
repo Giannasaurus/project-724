@@ -3,8 +3,9 @@ import { applyPermissionState, canAccessView, getCurrentUserRole } from './core/
 import { loadView } from './core/viewLoader.js'
 import {
     loadHistory,
-    addResidentDeletedHistoryLog,
+    addResidentArchivedHistoryLog,
     addResidentHistoryLog,
+    addResidentRestoredHistoryLog,
     addResidentUpdatedHistoryLog
 } from './features/activityLog/activityLogPage.js'
 import { initDocumentRequestsPage } from './features/documents/documentRequestsPage.js'
@@ -203,7 +204,8 @@ async function goToResidentsPage(state, page) {
 
     await loadData(data, {
         addResidentHistoryLog: resident => addResidentHistoryLog(RESIDENT_HISTORY_KEY, resident),
-        addDeletedHistoryLog: resident => addResidentDeletedHistoryLog(RESIDENT_HISTORY_KEY, resident),
+        addArchivedHistoryLog: resident => addResidentArchivedHistoryLog(RESIDENT_HISTORY_KEY, resident),
+        addRestoredHistoryLog: resident => addResidentRestoredHistoryLog(RESIDENT_HISTORY_KEY, resident),
         addUpdatedHistoryLog: resident => addResidentUpdatedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
         preserveOrder: Boolean(state.residentFilters.order),

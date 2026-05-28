@@ -1,4 +1,5 @@
 import { searchResidentsByName } from '../residents/residentSearch.js'
+import { isResidentArchived } from '../residents/residentBackendAdapter.js'
 import { RESIDENT_SEARCH_LIMIT } from './documentRequestConstants.js'
 import { clearElement } from './documentRequestDom.js'
 import { getResidentFullName } from './documentRequestFormatters.js'
@@ -45,8 +46,14 @@ function createResidentResultButton(resident, onSelectResident) {
 
     button.className = 'dr-resident-result'
     button.type = 'button'
+    button.disabled = isResidentArchived(resident)
+    button.title = button.disabled
+        ? 'This resident record is archived and retained for reference only.'
+        : ''
     name.textContent = getResidentFullName(resident)
-    address.textContent = resident.address ?? ''
+    address.textContent = isResidentArchived(resident)
+        ? `${resident.address ?? ''} - Archived record`
+        : resident.address ?? ''
     button.append(name, address)
     button.addEventListener('click', () => onSelectResident(resident))
 

@@ -298,34 +298,6 @@ app.whenReady().then(async () => {
         }
     })
 
-    ipcMain.handle('delete-data', async (e, endpoint, id) => {
-        const url = `http://localhost:${port}/${endpoint.replace(/^\//, '')}/${id}`
-
-        try {
-            const response = await fetch(url, {
-                method: 'DELETE'
-            })
-
-            if (response.ok) {
-                return {
-                    success: true,
-                    message: `[~] request ${response.status}: DELETE ${url}`
-                }
-            }
-            else if (response.status === 404) {
-                return {
-
-                }
-            }
-        }
-        catch (err) {
-            return {
-                success: false,
-                message: `[!] request failed: DELETE ${url} -> ${err.message}`
-            }
-        }
-    })
-
     ipcMain.handle('read-residents-excel', async () => {
         const result = await dialog.showOpenDialog({
             title: 'Import residents from spreadsheet',

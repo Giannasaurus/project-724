@@ -5,13 +5,16 @@ import { openConfirmDialog } from '../../shared/confirmDialog.js'
 const HISTORY_TYPES = {
     RESIDENT_ADDED: 'resident-added',
     RESIDENT_UPDATED: 'resident-updated',
-    RESIDENT_DELETED: 'resident-deleted'
+    RESIDENT_ARCHIVED: 'resident-archived',
+    RESIDENT_RESTORED: 'resident-restored'
 }
 
 const ACTIVITY_LABELS = {
     [HISTORY_TYPES.RESIDENT_ADDED]: 'Added resident',
     [HISTORY_TYPES.RESIDENT_UPDATED]: 'Updated resident',
-    [HISTORY_TYPES.RESIDENT_DELETED]: 'Deleted resident'
+    [HISTORY_TYPES.RESIDENT_ARCHIVED]: 'Archived resident',
+    [HISTORY_TYPES.RESIDENT_RESTORED]: 'Restored resident',
+    'resident-deleted': 'Archived resident'
 }
 
 let activeHistory = []
@@ -39,8 +42,12 @@ export function addResidentHistoryLog(key, resident) {
     addResidentLog(key, resident, HISTORY_TYPES.RESIDENT_ADDED)
 }
 
-export function addResidentDeletedHistoryLog(key, resident) {
-    addResidentLog(key, resident, HISTORY_TYPES.RESIDENT_DELETED)
+export function addResidentArchivedHistoryLog(key, resident) {
+    addResidentLog(key, resident, HISTORY_TYPES.RESIDENT_ARCHIVED)
+}
+
+export function addResidentRestoredHistoryLog(key, resident) {
+    addResidentLog(key, resident, HISTORY_TYPES.RESIDENT_RESTORED)
 }
 
 export function addResidentUpdatedHistoryLog(key, resident) {
@@ -155,7 +162,9 @@ function getFilteredHistory(history) {
     const typeFilter = document.getElementById('historyTypeFilter')?.value ?? ''
 
     return history.filter((log) => {
-        const matchesType = !typeFilter || log.type === typeFilter
+        const matchesType = !typeFilter || log.type === typeFilter || (
+            typeFilter === HISTORY_TYPES.RESIDENT_ARCHIVED && log.type === 'resident-deleted'
+        )
         const searchable = `${log.residentName ?? ''} ${log.address ?? ''} ${getHistoryActivity(log.type)}`.toLowerCase()
         const matchesSearch = !searchQuery || searchable.includes(searchQuery)
 
@@ -167,7 +176,7 @@ function renderSummary(history) {
     setText('historyTotalCount', history.length)
     setText('historyAddedCount', countByType(history, HISTORY_TYPES.RESIDENT_ADDED))
     setText('historyUpdatedCount', countByType(history, HISTORY_TYPES.RESIDENT_UPDATED))
-    setText('historyDeletedCount', countByType(history, HISTORY_TYPES.RESIDENT_DELETED))
+    setText('historyArchivedCount', countByType(history, HISTORY_TYPES.RESIDENT_ARCHIVED) + countByType(history, 'resident-deleted'))
 }
 
 function countByType(history, type) {

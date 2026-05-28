@@ -4,6 +4,7 @@ import { getResidentFullName } from './documentRequestFormatters.js'
 import { applyRequestReason, downloadWordDocument, fetchDocumentHtml, getDocumentFileName } from './documentRequestGenerator.js'
 import { findResidents, renderSearchMessage, renderSearchResults } from './documentRequestResidents.js'
 import { getDocumentDefaults } from '../settings/documentDefaults.js'
+import { isResidentArchived } from '../residents/residentBackendAdapter.js'
 
 const pageState = {
     selectedResident: null,
@@ -154,7 +155,9 @@ function setSelectedResident(resident) {
     }
 
     clearPreview()
-    elements.selectedContainer.textContent = `Selected: ${getResidentFullName(resident)}`
+    elements.selectedContainer.textContent = isResidentArchived(resident)
+        ? `Selected: ${getResidentFullName(resident)} (archived record)`
+        : `Selected: ${getResidentFullName(resident)}`
 }
 
 async function previewDocument() {
@@ -195,6 +198,7 @@ function getDocumentRequestError() {
     const reasonType = getReasonType()
 
     if (!pageState.selectedResident) return 'Select a resident before generating a document.'
+    if (isResidentArchived(pageState.selectedResident)) return 'Archived resident records are retained for reference and cannot be used for new document requests.'
     if (!documentUsesReason()) return ''
     if (!reasonType) return 'Select a reason for the document request.'
     if (reasonType === OTHER_REASON_VALUE && !getOtherReason()) return 'Specify the reason for the document request.'
