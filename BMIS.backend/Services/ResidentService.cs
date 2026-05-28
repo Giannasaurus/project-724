@@ -97,7 +97,7 @@ public class ResidentService : IResidentService, ISearchable {
         }
 
         if(details.isPwd) {
-            residentBuilder = residentBuilder.AsSenior();
+            residentBuilder = residentBuilder.AsPWD();
         }
         
         if(details.isHead) {
