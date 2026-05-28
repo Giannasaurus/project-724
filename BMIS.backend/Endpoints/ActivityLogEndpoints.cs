@@ -5,7 +5,7 @@ namespace BMIS.Endpoints;
 
 public static class ActivityLogEndpoints {
     public static void MapActivityLogEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/logs");
+        var group = app.MapGroup("/logs").RequireAuthorization();
     }
 
 

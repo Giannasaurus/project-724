@@ -8,7 +8,7 @@ namespace BMIS.Endpoints;
 
 public static class ResidentEndpoints {
     public static void MapResidentEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/residents");
+        var group = app.MapGroup("/residents").RequireAuthorization();
 
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);

@@ -28,11 +28,12 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.Email, user.Username)
         };
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
+        var tokenDescriptor = new SecurityTokenDescriptor {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(12),
-            SigningCredentials = credentials
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = credentials,
+            Issuer = _config["Jwt:Issuer"],
+            Audience = _config["Jwt:Audience"]
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

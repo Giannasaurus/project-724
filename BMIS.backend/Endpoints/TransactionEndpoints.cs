@@ -7,7 +7,7 @@ namespace BMIS.Endpoints;
 
 public static class TransactionEndpoints {
     public static void MapTransactionEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/transactions");
+        var group = app.MapGroup("/transactions").RequireAuthorization();
         
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);

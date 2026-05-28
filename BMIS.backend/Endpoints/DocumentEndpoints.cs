@@ -6,7 +6,7 @@ namespace BMIS.Endpoints;
 
 public static class DocumentEndpoints {
     public static void MapDocumentEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/docs");
+        var group = app.MapGroup("/docs").RequireAuthorization();
 
         group.MapGet("/{type}", GetTemplate);
         group.MapGet("/{type}/{id}", GetFilled);
