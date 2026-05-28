@@ -1,16 +1,29 @@
 import { getResidentId } from '../../shared/residentUtils.js'
 
 const RESIDENT_EXTRAS_KEY = 'bmisResidentExtras'
+const SECTOR_GENERAL = 0
+const SECTOR_PWD = 1
+const SECTOR_SENIOR = 2
+const DEFAULT_CITIZENSHIP = 'Filipino'
+const DEFAULT_REQUIRED_TEXT = 'Not recorded'
+const CAN_PERSIST_PWD_TO_BACKEND = false
 
 export function toResidentApiPayload(resident = {}) {
+    const sector = Number(resident.sector ?? SECTOR_GENERAL)
+
     return {
         firstName: resident.firstName,
         middleName: resident.middleName || null,
         lastName: resident.lastName,
         suffix: resident.suffix || null,
         birthDate: resident.birthDate,
+        birthPlace: resident.birthPlace || resident.placeOfBirth || DEFAULT_REQUIRED_TEXT,
         sex: Number(resident.sex),
-        civilStatus: Number(resident.civilStatus),
+        citizenship: resident.citizenship || DEFAULT_CITIZENSHIP,
+        isSenior: getResidentIsSenior(resident, sector),
+        isPwd: CAN_PERSIST_PWD_TO_BACKEND && sector === SECTOR_PWD,
+        civilStatus: getBackendCivilStatus(resident.civilStatus),
+        religion: resident.religion || DEFAULT_REQUIRED_TEXT,
         address: resident.address,
         phone: resident.phone ?? resident.contact ?? '',
         email: resident.email || null,
@@ -47,10 +60,11 @@ export function mergeResidentExtra(resident = {}) {
         ...stored
     }
 
+    if (!merged.placeOfBirth && merged.birthPlace) merged.placeOfBirth = merged.birthPlace
     if (!merged.contact && merged.phone) merged.contact = merged.phone
     if (!merged.phone && merged.contact) merged.phone = merged.contact
     if (merged.sector === undefined || merged.sector === null || merged.sector === '') {
-        merged.sector = getDerivedSector(merged)
+        merged.sector = getResidentSector(merged)
     }
     if (!merged.householdRole && typeof merged.isHead === 'boolean') {
         merged.householdRole = merged.isHead ? 'Head' : ''
@@ -66,6 +80,7 @@ export function saveResidentExtra(resident = {}, source = {}) {
 
     const extras = getResidentExtras()
     const extra = {
+        civilStatus: source.civilStatus,
         sector: source.sector,
         placeOfBirth: source.placeOfBirth,
         civilStatusOther: source.civilStatusOther,
@@ -103,8 +118,20 @@ function getResidentIsHead(resident) {
     return resident.householdRole === 'Head'
 }
 
-function getDerivedSector(resident) {
-    return getResidentAge(resident) >= 60 ? 2 : 0
+function getResidentIsSenior(resident, sector) {
+    if (resident.isSenior === true) return true
+    return sector === SECTOR_SENIOR
+}
+
+function getResidentSector(resident) {
+    if (resident.isPwd === true || resident.isPWD === true) return SECTOR_PWD
+    if (resident.isSenior === true) return SECTOR_SENIOR
+    return getResidentAge(resident) >= 60 ? SECTOR_SENIOR : SECTOR_GENERAL
+}
+
+function getBackendCivilStatus(civilStatus) {
+    const value = Number(civilStatus)
+    return Number.isFinite(value) && value >= 0 && value <= 5 ? value : 0
 }
 
 function getResidentAge(resident) {
