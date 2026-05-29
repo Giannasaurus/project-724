@@ -33,7 +33,8 @@ export async function getFilteredResidentPageData(query, filters, from, limit) {
 
     if (!result.success || !Array.isArray(result.data)) return result
 
-    const filteredData = filterResidentData(result.data, filters)
+    const sourceResidents = query ? (result.filteredData ?? result.data) : result.data
+    const filteredData = filterResidentData(sourceResidents, filters)
     return {
         ...result,
         data: filteredData.slice(from, from + limit),

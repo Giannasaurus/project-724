@@ -6,6 +6,7 @@
     </section>
 
     <div id="summaryWrapper">
+        <!-- Population Summary -->
         <section id="chartContainer" class="home-panel" aria-label="Resident population summary">
             <div class="panel-header">
                 <div>
@@ -15,132 +16,102 @@
                 <span id="homePopulationHealth" class="panel-pill">Loading</span>
             </div>
 
-            <div class="hero-stat">
-                <strong id="totalInhabitants" class="hero-stat__value">0</strong>
-                <span class="hero-stat__label">Total residents</span>
+            <div class="home-summary-body">
+                <div class="hero-stat">
+                    <strong id="totalInhabitants" class="hero-stat__value">0</strong>
+                    <span class="hero-stat__label">Total residents</span>
+                </div>
+                <canvas id="genderPieChart" class="home-pie-chart"></canvas>
             </div>
 
-            <div class="home-chart">
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>Males</strong>
-                        <span id="totalMales">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="maleChartBar" class="chart-bar chart-bar--male"></span>
-                    </div>
+            <div class="home-pie-legend">
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#2563EB"></span>
+                    <span>Males</span>
+                    <strong id="totalMales">0</strong>
                 </div>
-
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>Females</strong>
-                        <span id="totalFemales">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="femaleChartBar" class="chart-bar chart-bar--female"></span>
-                    </div>
-                </div>
-
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>PWD residents</strong>
-                        <span id="totalPwdSecondary">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="pwdChartBar" class="chart-bar chart-bar--sector"></span>
-                    </div>
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#10b981"></span>
+                    <span>Females</span>
+                    <strong id="totalFemales">0</strong>
                 </div>
             </div>
         </section>
 
+        <!-- Senior Age Brackets -->
         <section id="seniorChartContainer" class="home-panel" aria-label="Senior resident age brackets">
             <div class="panel-header">
                 <div>
                     <p class="panel-kicker">Seniors</p>
-                    <h3>Senior Age Brackets</h3>
+                    <h3>Age Distribution</h3>
                 </div>
                 <span id="seniorPopulationTotal" class="panel-pill">0 seniors</span>
             </div>
 
-            <div class="home-chart">
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>60-70</strong>
-                        <span id="senior60To70">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="senior60To70Bar" class="chart-bar chart-bar--senior-1"></span>
-                    </div>
-                </div>
+            <canvas id="seniorAgePieChart" class="home-pie-chart"></canvas>
 
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>70-80</strong>
-                        <span id="senior70To80">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="senior70To80Bar" class="chart-bar chart-bar--senior-2"></span>
-                    </div>
+            <div class="home-pie-legend home-pie-legend--grid">
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#2563EB"></span>
+                    <span>60–70</span>
+                    <strong id="senior60To70">0</strong>
                 </div>
-
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>80-90</strong>
-                        <span id="senior80To90">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="senior80To90Bar" class="chart-bar chart-bar--senior-3"></span>
-                    </div>
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#8b5cf6"></span>
+                    <span>70–80</span>
+                    <strong id="senior70To80">0</strong>
                 </div>
-
-                <div class="chart-row">
-                    <div class="chart-row__meta">
-                        <strong>90-100</strong>
-                        <span id="senior90To100">0</span>
-                    </div>
-                    <div class="chart-track" aria-hidden="true">
-                        <span id="senior90To100Bar" class="chart-bar chart-bar--senior-4"></span>
-                    </div>
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#f59e0b"></span>
+                    <span>80–90</span>
+                    <strong id="senior80To90">0</strong>
+                </div>
+                <div class="pie-legend-item">
+                    <span class="pie-legend-dot" style="background:#ef4444"></span>
+                    <span>90+</span>
+                    <strong id="senior90To100">0</strong>
                 </div>
             </div>
         </section>
 
+        <!-- Tally Cards -->
         <div id="tallyContainer">
-            <div id="tally-1" class="tally-box">
+            <div class="tally-box">
                 <strong id="totalPwd">0</strong>
                 <span class="tally-box__label">PWD residents</span>
             </div>
-            <div id="tally-2" class="tally-box">
+            <div class="tally-box">
                 <strong id="totalSeniors">0</strong>
                 <span class="tally-box__label">Senior residents</span>
             </div>
-            <div id="tally-3" class="tally-box">
+            <div class="tally-box">
                 <strong id="totalMalesCard">0</strong>
                 <span class="tally-box__label">Males</span>
             </div>
-            <div id="tally-4" class="tally-box">
+            <div class="tally-box">
                 <strong id="totalFemalesCard">0</strong>
                 <span class="tally-box__label">Females</span>
             </div>
         </div>
 
+        <!-- Daily Activity -->
         <div id="dailyReportContainer">
             <div class="daily-report" id="newInhabitantsContainer">
-                <img class="daily-report-icon" src="../assets/icons/home/population.svg" alt="Total population icon">
+                <img class="daily-report-icon" src="../../assets/icons/home/population.svg" alt="">
                 <div>
                     <span class="daily-report__label">New inhabitants today</span>
                     <strong class="daily-report__value" id="newInhabitants">0</strong>
                 </div>
             </div>
             <div class="daily-report" id="newRequestedContainer">
-                <img class="daily-report-icon" src="../assets/icons/home/legal-document.svg" alt="Legal document icon">
+                <img class="daily-report-icon" src="../../assets/icons/home/legal-document.svg" alt="">
                 <div>
                     <span class="daily-report__label">New requested today</span>
                     <strong class="daily-report__value" id="newRequested">0</strong>
                 </div>
             </div>
             <div class="daily-report" id="totalHouseholdsContainer">
-                <img class="daily-report-icon" src="../assets/icons/home/household.svg" alt="Household icon">
+                <img class="daily-report-icon" src="../../assets/icons/home/household.svg" alt="">
                 <div>
                     <span class="daily-report__label">Estimated households</span>
                     <strong class="daily-report__value" id="totalHouseholds">0</strong>

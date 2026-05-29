@@ -29,6 +29,7 @@ const DEFAULT_AUTH_CREDENTIALS = {
 }
 const DEFAULT_PAGE_SIZE = 300
 const DEFAULT_VIEW = 'home'
+let residentsLoadRequestId = 0
 
 const views = {
     home: {
@@ -155,16 +156,11 @@ async function renderView(state, viewId) {
 }
 
 async function showResidentsView(state) {
-    const renderResidentData = data => loadData(data, {
-        onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
-        showResidentsView: () => returnToResidentsView(state, state.currentPage)
-    })
-
-    await goToResidentsPage(state, state.currentPage)
     handleSearchInput({
-        onSearch: query => searchResidentsView(state, query),
-        goToPage: page => goToResidentsPage(state, page)
+        initialQuery: state.residentSearchQuery,
+        onSearch: query => searchResidentsView(state, query)
     })
+    await goToResidentsPage(state, state.currentPage)
     bindResidentFilterControls({
         getFilters: () => state.residentFilters,
         onApplyFilters: filters => applyResidentFilters(state, filters),
@@ -183,6 +179,7 @@ async function showResidentsView(state) {
 }
 
 async function goToResidentsPage(state, page) {
+    const requestId = ++residentsLoadRequestId
     state.currentPage = page
 
     const from = (page - 1) * DEFAULT_PAGE_SIZE
@@ -194,9 +191,14 @@ async function goToResidentsPage(state, page) {
         : query
             ? await searchResidentsByName(query, { from, limit: DEFAULT_PAGE_SIZE, filters })
             : await getData(`/residents/filter?${getResidentQueryParams({ from, limit: DEFAULT_PAGE_SIZE, filters }).toString()}`)
-    const countData = shouldFilterClientSide
+
+    if (requestId !== residentsLoadRequestId) return data
+
+    const countData = shouldFilterClientSide || query
         ? { success: data.success, data: data.filteredData ?? data.data }
         : await getResidentCountData(query, filters)
+
+    if (requestId !== residentsLoadRequestId) return data
 
     if (countData.success) {
         state.totalPages = Math.max(1, Math.ceil(countData.data.length / DEFAULT_PAGE_SIZE))
@@ -208,9 +210,12 @@ async function goToResidentsPage(state, page) {
         addRestoredHistoryLog: resident => addResidentRestoredHistoryLog(RESIDENT_HISTORY_KEY, resident),
         addUpdatedHistoryLog: resident => addResidentUpdatedHistoryLog(RESIDENT_HISTORY_KEY, resident),
         onDocumentRequest: resident => openDocumentRequestsForResident(state, resident),
-        preserveOrder: Boolean(state.residentFilters.order),
+        preserveOrder: Boolean(state.residentFilters.order) || Boolean(query),
         showResidentsView: () => returnToResidentsView(state, state.currentPage)
     })
+
+    if (requestId !== residentsLoadRequestId) return data
+
     renderPagination(state.currentPage, state.totalPages, nextPage => goToResidentsPage(state, nextPage))
 
     return data

@@ -6,14 +6,14 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
-                 script-src 'self';
+                 script-src 'self' https://cdn.jsdelivr.net;
                  style-src 'self' https://fonts.googleapis.com;
                  font-src 'self' https://fonts.gstatic.com;
                  connect-src 'self' http://localhost:*;
                  " />
     <meta http-equiv="X-Content-Security-Policy"
         content="default-src 'self';
-                 script-src 'self';
+                 script-src 'self' https://cdn.jsdelivr.net;
                  style-src 'self' https://fonts.googleapis.com;
                  font-src 'self' https://fonts.gstatic.com;
                  connect-src 'self' http://localhost:*;
@@ -25,6 +25,7 @@
 
 <body>
     <div id="app"></div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 </body>
 
 </html>

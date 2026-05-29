@@ -2,64 +2,97 @@
     <div class="incidents-heading">
         <div>
             <h2>Blotter & Cases</h2>
-            <p>Record complaints, verify resident parties, schedule hearings, and track barangay action.</p>
+            <p>Record complaints and track barangay incidents.</p>
         </div>
     </div>
 
-    <div class="incidents-layout">
-        <form id="incidentForm" class="incident-form" novalidate>
-            <div class="incident-grid">
-                <label class="incident-field">
-                    <span>Complainant <span class="required">*</span></span>
-                    <input id="incidentComplainant" type="text" required>
-                </label>
-                <label class="incident-field">
-                    <span>Complainant email</span>
-                    <input id="incidentComplainantEmail" type="text">
-                </label>
-                <label class="incident-field">
-                    <span>Respondent / complained resident <span class="required">*</span></span>
-                    <input id="incidentRespondent" type="text" required>
-                </label>
-                <label class="incident-field">
-                    <span>Respondent email</span>
-                    <input id="incidentRespondentEmail" type="text">
-                </label>
-                <label class="incident-field">
-                    <span>Incident location <span class="required">*</span></span>
-                    <input id="incidentLocation" type="text" required>
-                </label>
-                <label class="incident-field">
-                    <span>Hearing schedule</span>
-                    <input id="incidentHearingSchedule" type="text" placeholder="Example: May 24, 2026 9:00 AM">
-                </label>
-                <label class="incident-field incident-field--full">
-                    <span>Complaint / incident narrative <span class="required">*</span></span>
-                    <textarea id="incidentNarrative" required></textarea>
-                </label>
-                <label class="incident-field incident-field--full">
-                    <span>Action ng barangay</span>
-                    <textarea id="incidentAction"></textarea>
-                </label>
-                <label class="incident-field incident-field--full">
-                    <span>Resolution / outcome</span>
-                    <textarea id="incidentResolution"></textarea>
-                </label>
-            </div>
+    <!-- Tab Navigation -->
+    <div class="incident-tabs">
+        <button class="incident-tab-btn active" data-tab="blotter-entry">Blotter Entry</button>
+        <button class="incident-tab-btn" data-tab="case-records">Case Records</button>
+    </div>
 
-            <p id="incidentVerificationStatus" class="incident-status" aria-live="polite"></p>
-            <div class="incident-actions">
-                <button id="verifyRespondentBtn" class="incident-secondary-btn icon-btn icon-search" type="button">Verify respondent</button>
-                <button class="incident-primary-btn icon-btn icon-generate" type="submit">Save case</button>
-            </div>
-        </form>
+    <!-- Blotter Entry Tab -->
+    <div id="blotter-entry" class="incident-tab-content active">
+        <div class="incidents-layout">
+            <form id="incidentForm" class="incident-form" novalidate>
+                <div class="incident-grid">
+                    <label class="incident-field">
+                        <span>Complainant(s) <span class="required">*</span></span>
+                        <div class="incident-search-wrap">
+                            <input id="incidentComplainant" type="text" placeholder="Search residents..." required>
+                            <div id="complainantResults" class="incident-search-results is-hidden"></div>
+                        </div>
+                        <div id="complainantTags" class="incident-tags"></div>
+                    </label>
 
-        <section class="incident-list-panel" aria-label="Saved blotter cases">
-            <div class="incident-list-header">
-                <h3>Saved cases</h3>
-                <button id="clearIncidentFormBtn" class="incident-secondary-btn icon-btn icon-clear" type="button">Clear form</button>
+                    <label class="incident-field">
+                        <span>Respondent(s) <span class="required">*</span></span>
+                        <div class="incident-search-wrap">
+                            <input id="incidentRespondent" type="text" placeholder="Search residents..." required>
+                            <div id="respondentResults" class="incident-search-results is-hidden"></div>
+                        </div>
+                        <div id="respondentTags" class="incident-tags"></div>
+                    </label>
+
+                    <div class="incident-field incident-field--full">
+                        <span>Nature of Case <span class="required">*</span></span>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="caseNature" value="civil" required>
+                                <div class="radio-content">
+                                    <span>Civil Case</span>
+                                    <small>Property disputes, contracts, family matters</small>
+                                </div>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="caseNature" value="criminal" required>
+                                <div class="radio-content">
+                                    <span>Criminal Case</span>
+                                    <small>Theft, assault, disturbance of peace</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <label class="incident-field">
+                        <span>Date & Time of Incident <span class="required">*</span></span>
+                        <input id="incidentDateTime" type="datetime-local" required>
+                    </label>
+
+                    <label class="incident-field">
+                        <span>Incident Location <span class="required">*</span></span>
+                        <input id="incidentLocation" type="text" required>
+                    </label>
+
+                    <label class="incident-field incident-field--full">
+                        <span>Summary of Incident <span class="required">*</span></span>
+                        <textarea id="incidentNarrative" placeholder="Describe what happened..." required></textarea>
+                    </label>
+                </div>
+
+                <div class="incident-actions">
+                    <button class="incident-primary-btn icon-btn icon-generate" type="submit">Save Blotter Entry</button>
+                </div>
+            </form>
+
+            <!-- Recent Entries Sidebar -->
+            <section class="incident-recent-panel" aria-label="Recent blotter entries">
+                <div class="incident-recent-panel__title">
+                    <h3>Recent Entries</h3>
+                </div>
+                <div id="recentIncidentList" class="incident-recent-list"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Case Records Tab -->
+    <div id="case-records" class="incident-tab-content">
+        <div class="case-records-container">
+            <div class="case-records-search">
+                <input id="caseRecordsSearch" type="text" placeholder="Search by complainant, respondent, or location...">
             </div>
-            <div id="incidentList" class="incident-list"></div>
-        </section>
+            <div id="caseRecordsList" class="case-records-list"></div>
+        </div>
     </div>
 </section>

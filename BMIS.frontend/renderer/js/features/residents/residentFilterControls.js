@@ -1,9 +1,19 @@
 const RESIDENT_SEARCH_DEBOUNCE_MS = 250
+let searchInputController = null
 
-export function handleSearchInput({ onSearch }) {
+export function handleSearchInput({ onSearch, initialQuery = '' }) {
+    searchInputController?.abort()
+    searchInputController = new AbortController()
+    const { signal } = searchInputController
+
     const searchBar = document.getElementById('searchBar')
     const clearSearchBtn = document.getElementById('clearResidentSearchBtn')
     let searchTimer = null
+    let activeSearchRequest = 0
+
+    if (searchBar && initialQuery) {
+        searchBar.value = initialQuery
+    }
 
     function updateClearSearchButton() {
         if (!searchBar || !clearSearchBtn) return
@@ -12,17 +22,22 @@ export function handleSearchInput({ onSearch }) {
     }
 
     async function displayResidents() {
-        if (!searchBar) return
+        if (!searchBar || signal.aborted) return
 
         const query = searchBar.value.trim()
         updateClearSearchButton()
 
-        if (!query) {
-            await onSearch?.('')
-            return
+        const requestId = ++activeSearchRequest
+
+        try {
+            await onSearch?.(query)
+        }
+        catch (error) {
+            console.error('Resident search failed.', error)
         }
 
-        await onSearch?.(query)
+        if (requestId !== activeSearchRequest || signal.aborted) return
+        updateClearSearchButton()
     }
 
     function scheduleSearch() {
@@ -32,14 +47,14 @@ export function handleSearchInput({ onSearch }) {
     }
 
     if (searchBar) {
-        searchBar.addEventListener('input', scheduleSearch)
+        searchBar.addEventListener('input', scheduleSearch, { signal })
         searchBar.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault()
                 window.clearTimeout(searchTimer)
                 displayResidents()
             }
-        })
+        }, { signal })
     }
 
     clearSearchBtn?.addEventListener('click', () => {
@@ -49,7 +64,7 @@ export function handleSearchInput({ onSearch }) {
         searchBar.value = ''
         displayResidents()
         searchBar.focus()
-    })
+    }, { signal })
 
     updateClearSearchButton()
 }

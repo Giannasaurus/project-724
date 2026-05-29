@@ -38,6 +38,7 @@ export async function openAddResidentForm(options = {}) {
     attachEnterToSubmit(addResidentForm)
     attachSeniorSectorHandler(addResidentForm)
     attachSectorVerificationHandler(addResidentForm)
+    attachCivilStatusOtherHandler()
     attachHouseholdRoleHandler(addResidentForm)
     attachHouseholdHeadSearchHandler()
     attachSubmitHandler(addResidentForm, { addResidentHistoryLog, showResidentsView })
@@ -184,6 +185,21 @@ function attachSectorVerificationHandler(form) {
     sector?.addEventListener('change', updateSectorVerificationControls)
     status?.addEventListener('change', syncVerificationMetadata)
     updateSectorVerificationControls()
+}
+
+function attachCivilStatusOtherHandler() {
+    const civilStatus = document.getElementById('ar-civilStatus')
+    const civilStatusOther = document.getElementById('ar-civilStatusOther')
+    if (!civilStatus || !civilStatusOther) return
+
+    const update = () => {
+        const isOthers = civilStatus.value === '6'
+        setInputDisabled(civilStatusOther, !isOthers, { clear: !isOthers })
+        setInputRequired(civilStatusOther, isOthers)
+    }
+
+    civilStatus.addEventListener('change', update)
+    update()
 }
 
 function updateSectorVerificationControls() {
@@ -405,6 +421,7 @@ export async function openEditResidentPage(resident, options = {}) {
     attachEnterToSubmit(editResidentForm)
     attachSeniorSectorHandler(editResidentForm)
     attachSectorVerificationHandler(editResidentForm)
+    attachCivilStatusOtherHandler()
     attachHouseholdRoleHandler(editResidentForm)
     attachHouseholdHeadSearchHandler()
     attachEditSubmitHandler(editResidentForm, resident, { addUpdatedHistoryLog, showResidentsView })
