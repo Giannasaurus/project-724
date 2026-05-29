@@ -1,12 +1,13 @@
-using BMIS.Models;
-using BMIS.Services;
-using BMIS.Interfaces;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class DocumentEndpoints {
     public static void MapDocumentEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/docs").RequireAuthorization();
+        var group = app.MapGroup("/docs");
 
         group.MapGet("/{type}", GetTemplate);
         group.MapGet("/{type}/{id}", GetFilled);

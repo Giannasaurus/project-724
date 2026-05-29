@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using BMIS.Models.DTOs;
-using BMIS.Services;
-using BMIS.Interfaces;
-using BMIS.Infrastructure.Criterias;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class ResidentEndpoints {
     public static void MapResidentEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/residents").RequireAuthorization();
+        var group = app.MapGroup("/residents");
 
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);

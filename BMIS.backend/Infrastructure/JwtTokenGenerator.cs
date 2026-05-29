@@ -3,8 +3,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-using BMIS.Models.Entities;
-using BMIS.Application;
+using BMIS.Domain.Entities;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 

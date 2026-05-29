@@ -6,50 +6,57 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
-using BMIS.Endpoints;
-using BMIS.Interfaces;
-using BMIS.Services;
-using BMIS.Application;
-using BMIS.Infrastructure;
 using BMIS;
+using BMIS.Endpoints;
+using BMIS.Application.Interfaces;
+using BMIS.Application.Services;
+using BMIS.Infrastructure;
+
+Console.WriteLine("[~] backend: starting ... ");
+
 
 var ELECTRON_CORS = "electronCors";
 
+
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
-var jwtAudience = builder.Configuration.GetSection("Jwt:Audience").Get<string>();
-var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+if(!builder.Environment.IsDevelopment()) {
+    var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
+    var jwtAudience = builder.Configuration.GetSection("Jwt:Audience").Get<string>();
+    var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => {
-        options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = false,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options => {
+            options.TokenValidationParameters = new TokenValidationParameters {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = false,
+                ValidIssuer = jwtIssuer,
+                ValidAudience = jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            };
+        });
+
+    builder.Services.AddAuthorization(options => {
+         options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
     });
-
-builder.Services.AddAuthorization();
+}
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // 1. Define the Security Scheme (v10 format)
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer 12345abcdef'",
+        Description = "JWT Authorization header using the Bearer scheme.",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http, // Changed from ApiKey to Http for standard OpenAPI 3.x compliance
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT"
     });
 
-    // 2. Apply the Security Requirement globally (New v10 Delegate Pattern)
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
         [new OpenApiSecuritySchemeReference("Bearer", document)] = []
@@ -61,12 +68,16 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBlotterService, BlotterService>();
 
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IBlotterRepository, BlotterRepository>();
+builder.Services.AddScoped<IBlotterParticipantRepository, BlotterParticipantRepository>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
@@ -94,8 +105,9 @@ builder.Services.AddSqlite<AppDbContext>("Data Source="+dbPath);
 
 var app = builder.Build();
 
+
 if(app.Environment.IsDevelopment() || args.Contains("dev")) {
-    Console.WriteLine("[!] BACKEND: running in dev mode"); 
+    Console.WriteLine("[!] backend: running in dev mode"); 
     app.UseSwagger();
     app.UseSwaggerUI();
 
@@ -105,10 +117,11 @@ if(app.Environment.IsDevelopment() || args.Contains("dev")) {
 
     context.Database.EnsureCreated();
     DbInitializer.Initialize(context);
+} else {
+    app.UseAuthentication();
+    app.UseAuthorization();
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseCors(ELECTRON_CORS);
 
 app.MapGet("/health", (AppDbContext db) => { return TypedResults.Ok("active"); });
@@ -117,5 +130,7 @@ app.MapResidentEndpoints();
 app.MapTransactionEndpoints();
 app.MapDocumentEndpoints();
 app.MapUserEndpoints();
+app.MapBlotterEndpoints();
 
 app.Run();
+

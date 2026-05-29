@@ -1,13 +1,12 @@
-using BMIS.Models.DTOs;
-using BMIS.Services;
-using BMIS.Interfaces;
-using BMIS.Infrastructure.Criterias;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class TransactionEndpoints {
     public static void MapTransactionEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/transactions").RequireAuthorization();
+        var group = app.MapGroup("/transactions");
         
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);

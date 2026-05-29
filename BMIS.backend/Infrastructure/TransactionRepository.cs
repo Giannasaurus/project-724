@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using BMIS.Models.Entities;
+using BMIS.Domain.Entities;
 using BMIS.Application;
-using BMIS.Infrastructure.Criterias;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 

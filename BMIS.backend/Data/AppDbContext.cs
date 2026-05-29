@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using BMIS.Models.Entities;
+using BMIS.Domain.Entities;
 
 namespace BMIS;
 
@@ -7,14 +7,22 @@ public class AppDbContext : DbContext {
     public DbSet<Resident> Residents { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<HouseHold> HouseHolds { get; set; } 
-    public DbSet<Deceased> Deaths { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
     public DbSet<User> Users { get; set; }
+
+    public DbSet<Deceased> Deaths { get; set; }
+    public DbSet<Senior> Seniors { get; set; }
+    public DbSet<Pwd> PWDs{ get; set; }
+
+    public DbSet<Blotter> Blotters { get; set; }
+    public DbSet<BlotterParticipant> BlotterParticipants { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
+
+        builder.Entity<BlotterParticipant>().HasKey(e => new { e.BlotterId, e.ResidentId });
 
         builder.Entity<User>().HasKey(e => e.ResidentId);
         builder.Entity<User>()

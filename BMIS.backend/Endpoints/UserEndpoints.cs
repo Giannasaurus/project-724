@@ -1,12 +1,12 @@
-using BMIS.Services;
-using BMIS.Interfaces;
-using BMIS.Models.DTOs;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class UserEndpoints{
     public static void MapUserEndpoints(this WebApplication app) {
-        var group = app.MapGroup("/users");
+        var group = app.MapGroup("/users").AllowAnonymous();
 
         group.MapPost("/login", Login);
         group.MapPost("/register", Register);

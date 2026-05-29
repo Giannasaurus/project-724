@@ -1,4 +1,4 @@
-using BMIS.Application;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 

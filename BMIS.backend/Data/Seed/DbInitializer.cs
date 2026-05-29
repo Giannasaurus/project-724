@@ -1,6 +1,5 @@
 using Bogus;
-using BMIS.Models;
-using BMIS.Models.Entities;
+using BMIS.Domain.Entities;
 
 using BMIS;
 
