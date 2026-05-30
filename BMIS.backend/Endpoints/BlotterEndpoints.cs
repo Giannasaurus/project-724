@@ -13,6 +13,10 @@ public static class BlotterEndpoints {
         group.MapGet("/filter", GetFilteredAsync);
         group.MapGet("/{id}", GetByIdAsync);
 
+        group.MapGet("/{id}/participants", GetParticipantsAsync);
+        group.MapGet("/all/participants", GetAllParticipantsAsync);
+        group.MapGet("/all/participants/filter", GetFilteredParticipantsAsync);
+
         group.MapPost("/", AddBlotterAsync);
         group.MapPut("/{id}", UpdateBlotterAsync);
     }
@@ -33,6 +37,25 @@ public static class BlotterEndpoints {
     
     private static async Task<IResult> GetFilteredAsync([AsParameters] BlotterFilterCriteria criteria, IBlotterService blotterService) {
         var results = await blotterService.GetFilteredAsync(criteria);
+        return TypedResults.Ok(results.value);
+    }
+
+    private static async Task<IResult> GetParticipantsAsync(Guid blotterId, IBlotterService blotterService) {
+        var results = await blotterService.GetParticipantsAsync(blotterId);
+        if(results.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
+        }
+        
+        return TypedResults.Ok(results.value);
+    }
+    
+    private static async Task<IResult> GetAllParticipantsAsync(IBlotterService blotterService) {
+        var results = await blotterService.GetAllParticipantsAsync();
+        return TypedResults.Ok(results.value);
+    }
+    
+    private static async Task<IResult> GetFilteredParticipantsAsync([AsParameters] BlotterParticipantFilterCriteria criteria, IBlotterService blotterService) {
+        var results = await blotterService.GetFilteredParticipantsAsync(criteria);
         return TypedResults.Ok(results.value);
     }
     

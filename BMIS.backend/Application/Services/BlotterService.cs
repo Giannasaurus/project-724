@@ -33,11 +33,23 @@ public class BlotterService : IBlotterService {
     public async Task<Result<List<Blotter>>> GetFilteredAsync(BlotterFilterCriteria criteria) {
         return await _blotterRepo.GetFilteredAsync(criteria);
     }
+    
+    public async Task<Result<List<BlotterParticipant>>> GetParticipantsAsync(Guid blotterId) {
+        return await _blotterParticipantRepo.GetByBlotterIdAsync(blotterId);
+    }
+    
+    public async Task<Result<List<BlotterParticipant>>> GetAllParticipantsAsync() {
+        return await _blotterParticipantRepo.GetAllAsync();
+    }
+    
+    public async Task<Result<List<BlotterParticipant>>> GetFilteredParticipantsAsync(BlotterParticipantFilterCriteria criteria) {
+        return await _blotterParticipantRepo.GetFilteredAsync(criteria);
+    }
 
     public async Task<Result<Guid>> AddBlotterAsync(BlotterCreateDTO details) {
         var handlerExist = await _residentRepo.DoesExistAsync(details.handlerId);
         if(!handlerExist) {
-            return ResultStatus.Conflict;
+            return ResultStatus.NotFound;
         }
 
         var blotter = new Blotter(details.nature, details.handlerId, details.details, details.dateIssued ?? DateTime.Now);
@@ -46,7 +58,7 @@ public class BlotterService : IBlotterService {
         foreach(var pDetails in details.participants) {
             var pExists = await _residentRepo.DoesExistAsync(pDetails.residentId);
             if(!pExists) {
-                return ResultStatus.Conflict;
+                return ResultStatus.NotFound;
             }
 
             var blotterParticipant = new BlotterParticipant(pDetails.residentId, pDetails.role, blotter);

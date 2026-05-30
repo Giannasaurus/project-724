@@ -1,9 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace BMIS.Domain.Entities;
 
 public class BlotterParticipant {
     public Guid ResidentId { get; private set; }
     
     public Guid BlotterId { get; private set; }
+
+    [JsonIgnore]
     public Blotter Blotter { get; private set; }
 
     public BlotterParticipantRole Role { get; private set; }
