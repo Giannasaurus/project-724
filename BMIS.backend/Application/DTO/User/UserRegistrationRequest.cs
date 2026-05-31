@@ -1,6 +1,6 @@
 namespace BMIS.Application;
 
-public record RegistrationRequest(
+public record UserRegistrationRequest(
     Guid residentId,
     string username,
     string password

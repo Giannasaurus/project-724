@@ -1,6 +1,6 @@
 namespace BMIS.Application;
 
-public record LogInRequest(
+public record UserLogInRequest(
     string username,
     string password
 );

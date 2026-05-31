@@ -6,7 +6,7 @@ public class User {
     public string Password { get; private set; }
     public bool IsActive { get; private set; }
 
-    public Resident ResidentInfo { get; private set; } = null;
+    public Official OfficialInfo { get; private set; }
 
     public User(Guid residentId, string username, string password) {
         this.ResidentId = residentId;
@@ -15,19 +15,28 @@ public class User {
         this.IsActive = true;
     }
     
-    public void Update(Guid? residentId, string? username, string? password) {
-        if(residentId != null) {
-            this.ResidentId = (Guid)residentId;
-        }
-        
-        if(username != null) {
+    public void Update(string? username, string? password) {
+        if(!string.IsNullOrEmpty(username)) {
             this.Username = (string)username;
         }
 
-        if(password != null) {
+        if(!string.IsNullOrEmpty(password)) {
             this.Password = (string)password;
         }
-
+    }
+    
+    public void Activate() {
         this.IsActive = true;
+    }
+
+    public void Deactivate() {
+        this.IsActive = false;
+    }
+    
+    public string GetRecoveryCode { 
+        get {
+            var residentInfo = OfficialInfo.ResidentInfo;
+            return $"{residentInfo.LastName.ToUpper()}{residentInfo.BirthDate.ToString("yyyy-MM-dd")}";   
+        }
     }
 }

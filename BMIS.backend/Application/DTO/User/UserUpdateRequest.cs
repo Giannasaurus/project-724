@@ -1,7 +1,6 @@
 namespace BMIS.Application;
 
-public record AccountUpdateRequest(
-    Guid? residentId,
+public record UserUpdateRequest(
     string? username,
     string? password
 );

@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Builder;
 using BMIS.Application;
 using BMIS.Application.Interfaces;
 
 namespace BMIS.Endpoints;
 
 public static class ActivityLogEndpoints {
-    public static void MapActivityLogEndpoints(this WebApplication app) {
+    public static RouteGroupBuilder MapActivityLogEndpoints(this WebApplication app) {
         var group = app.MapGroup("/logs");
+
+        return group;
     }
 
     public static async Task<IResult> GetLog(int id, IActivityLogService activityLogService) {

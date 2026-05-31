@@ -9,41 +9,48 @@ public class UserService : IUserService {
     public readonly IJwtTokenGenerator _tokenGenerator;
     public readonly IUserRepository _userRepo;
     public readonly IResidentRepository _residentRepo;
+    public readonly IOfficialRepository _officialRepo;
     public readonly IUnitOfWork _unitOfWork;
 
     public UserService(
             IUnitOfWork unitOfWork,
+            IOfficialRepository officialRepo,
             IResidentRepository residentRepo,
             IUserRepository userRepo,
             IJwtTokenGenerator tokenGenerator,
             IPasswordHasher passwordHasher ) {
         
         _unitOfWork = unitOfWork;
+        _officialRepo = officialRepo;
         _residentRepo = residentRepo;
         _userRepo = userRepo;
         _tokenGenerator = tokenGenerator;
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<Result<string?>> LoginAsync(LogInRequest credentials) {
+    public async Task<Result<string?>> LoginAsync(UserLogInRequest credentials) {
         var user = await _userRepo.GetByUsernameAsync(credentials.username);
         if(user == null) {
             return ResultStatus.Conflict;
         }
 
+        if(!user.IsActive) {
+            return ResultStatus.Unauthorized;
+        }
+
         bool verify = _passwordHasher.Verify(credentials.password, user.Password);
         if(!verify) {
-            return ResultStatus.Conflict;
+            return ResultStatus.Unauthorized;
         }
 
         var token = _tokenGenerator.GenerateToken(user);
         return token;
     }
 
-    public async Task<Result<Guid>> RegisterAsync(RegistrationRequest details) {
-        var resident = await _residentRepo.GetByIdAsync(details.residentId);
-        if(resident == null) {
-            return ResultStatus.NotFound;
+    public async Task<Result<Guid>> RegisterAsync(UserRegistrationRequest details) {
+        var official = await _officialRepo.GetByResidentIdAsync(details.residentId);
+        if(official == null) {
+            return ResultStatus.Unauthorized;
         }
 
         // TODO:
@@ -53,14 +60,17 @@ public class UserService : IUserService {
         //
 
         bool hasDuplicate = await _userRepo.HasDuplicateAsync(details.username);
-
         if(hasDuplicate){
             return ResultStatus.Conflict; 
         }
 
         string hashedPassword = _passwordHasher.Hash(details.password);
         
-        User user = new User(details.residentId, details.username, hashedPassword);
+        var user = new User(
+                details.residentId,
+                details.username,
+                hashedPassword
+            );
 
         _userRepo.Add(user);
         await _unitOfWork.SaveChangesAsync();
@@ -68,17 +78,10 @@ public class UserService : IUserService {
         return details.residentId;
     }
 
-    public async Task<Result<Guid>> UpdateAsync(Guid id, AccountUpdateRequest changes) {
-        var user = await _userRepo.GetByIdAsync(id);
+    public async Task<Result<Guid>> UpdateAsync(Guid id, UserUpdateRequest changes) {
+        var user = await _userRepo.GetByResidentIdAsync(id);
         if(user == null) {
             return ResultStatus.NotFound;
-        }
-        
-        if(changes.residentId != null) {
-            var resident = await _residentRepo.GetByIdAsync((Guid)changes.residentId);
-            if(resident == null) {
-                return ResultStatus.NotFound;
-            }
         }
 
         // TODO:
@@ -101,10 +104,28 @@ public class UserService : IUserService {
             hashedPassword = _passwordHasher.Hash(changes.password);
         }
         
-        user.Update(changes.residentId, changes.username, hashedPassword);
+        user.Update(changes.username, hashedPassword);
 
         await _unitOfWork.SaveChangesAsync();        
 
         return id;
+    }
+
+    public async Task<Result<string>> RecoverAsync(string username, string recovery) {
+        var user = await _userRepo.GetByUsernameAsync(username);
+        if(user == null) {
+            return ResultStatus.NotFound;
+        }
+
+        if(!user.IsActive) {
+            return ResultStatus.Unauthorized;
+        }
+
+        if(recovery != user.GetRecoveryCode) {
+             return ResultStatus.Unauthorized;
+        }
+        
+        var token = _tokenGenerator.GenerateToken(user);
+        return token;
     }
 }

@@ -7,5 +7,5 @@ public class Pwd {
     //  reffering to the image path of the ID
     public string PwdId{ get; set; }
 
-    public Resident ResidentInfo { get; set; }
+    public Resident ResidentInfo { get; private set; } = null;
 }

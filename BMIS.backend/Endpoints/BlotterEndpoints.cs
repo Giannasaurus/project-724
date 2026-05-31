@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Builder;
 using BMIS.Application;
 using BMIS.Application.Interfaces;
 using BMIS.Domain.Entities;
@@ -6,7 +7,7 @@ using BMIS.Domain.Entities;
 namespace BMIS.Endpoints;
 
 public static class BlotterEndpoints {
-    public static void MapBlotterEndpoints(this WebApplication app) {
+    public static RouteGroupBuilder MapBlotterEndpoints(this WebApplication app) {
         var group = app.MapGroup("/blotters");
 
         group.MapGet("/", GetAllAsync);
@@ -19,6 +20,8 @@ public static class BlotterEndpoints {
 
         group.MapPost("/", AddBlotterAsync);
         group.MapPut("/{id}", UpdateBlotterAsync);
+        
+        return group;
     }
     
     private static async Task<IResult> GetByIdAsync(Guid id, IBlotterService blotterService) {

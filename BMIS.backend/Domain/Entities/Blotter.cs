@@ -7,6 +7,8 @@ public class Blotter {
     public string Details { get; private set; }
     public Guid HandlerId { get; private set; }
 
+    public ICollection<BlotterParticipant> Participants { get; private set; } = new List<BlotterParticipant>();
+
     public Blotter(BlotterNature nature, Guid handlerId, string details) {
         this.Nature = nature;
         this.HandlerId = handlerId;
