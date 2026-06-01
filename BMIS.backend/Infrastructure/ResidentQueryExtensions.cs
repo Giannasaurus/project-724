@@ -1,5 +1,7 @@
-using BMIS.Models.Entities;
-using BMIS.Models;
+using BMIS.Domain;
+using BMIS.Domain.Entities;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 

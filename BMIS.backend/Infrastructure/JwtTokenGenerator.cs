@@ -3,8 +3,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-using BMIS.Models.Entities;
-using BMIS.Application;
+using BMIS.Domain.Entities;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 
@@ -19,7 +19,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
     public string GenerateToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSecret"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -28,11 +28,12 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.Email, user.Username)
         };
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
+        var tokenDescriptor = new SecurityTokenDescriptor {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(12),
-            SigningCredentials = credentials
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = credentials,
+            Issuer = _config["Jwt:Issuer"],
+            Audience = _config["Jwt:Audience"]
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

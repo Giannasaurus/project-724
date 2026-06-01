@@ -1,15 +1,19 @@
-using BMIS.Models;
-using BMIS.Services;
-using BMIS.Interfaces;
+using Microsoft.AspNetCore.Builder;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class DocumentEndpoints {
-    public static void MapDocumentEndpoints(this WebApplication app) {
+    public static RouteGroupBuilder MapDocumentEndpoints(this WebApplication app) {
         var group = app.MapGroup("/docs");
 
         group.MapGet("/{type}", GetTemplate);
         group.MapGet("/{type}/{id}", GetFilled);
+
+        return group;
     }
 
     private static async Task<IResult> GetTemplate(DocumentType type, IDocumentService documentService) {

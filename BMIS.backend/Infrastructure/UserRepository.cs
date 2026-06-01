@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using BMIS.Models.Entities;
-using BMIS.Application;
+using BMIS.Domain.Entities;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 
@@ -11,12 +11,17 @@ public class UserRepository : IUserRepository {
         _db = db;
     }
 
-    public async Task<User?> GetByIdAsync(Guid id) {
-        return await _db.Users.FindAsync(id); 
+    public async Task<User?> GetByResidentIdAsync(Guid residentId) {
+        return await _db.Users
+            .Include(u => u.OfficialInfo)
+            .FirstOrDefaultAsync(u => u.ResidentId == residentId);
     }
 
     public async Task<User?> GetByUsernameAsync(string username) {
-        return await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
+        return await _db.Users
+            .Include(u => u.OfficialInfo)
+            .ThenInclude(o => o.ResidentInfo)
+            .FirstOrDefaultAsync(u => u.Username == username);
     }
 
     public async Task<bool> HasDuplicateAsync(string username) {

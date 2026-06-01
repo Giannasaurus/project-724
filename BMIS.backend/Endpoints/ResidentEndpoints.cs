@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using BMIS.Models.DTOs;
-using BMIS.Services;
-using BMIS.Interfaces;
-using BMIS.Infrastructure.Criterias;
+using Microsoft.AspNetCore.Builder;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class ResidentEndpoints {
-    public static void MapResidentEndpoints(this WebApplication app) {
+    public static RouteGroupBuilder MapResidentEndpoints(this WebApplication app) {
         var group = app.MapGroup("/residents");
 
         group.MapGet("/", GetAll);
@@ -17,7 +17,9 @@ public static class ResidentEndpoints {
         group.MapPost("/search", SearchResident);
         group.MapPost("/", Create); 
 
-        group.MapPut("/{id}", Update); 
+        group.MapPut("/{id}", Update);
+
+        return group;
     }
 
     private static async Task<IResult> GetAll(

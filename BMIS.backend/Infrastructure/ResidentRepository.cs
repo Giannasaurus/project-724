@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
-using BMIS.Models.Entities;
+using BMIS.Domain.Entities;
 using BMIS.Application;
-using BMIS.Infrastructure.Criterias;
+using BMIS.Application.Interfaces;
 
 namespace BMIS.Infrastructure;
 
@@ -34,6 +34,10 @@ public class ResidentRepository : IResidentRepository {
         // TODO: 
         //  civil status filter not implemented
         //
+    }
+
+    public async Task<bool> DoesExistAsync(Guid id) {
+        return await _db.Residents.AnyAsync(r => r.Id == id);
     }
 
     public async Task<bool> HasDuplicateAsync(Resident resident) {

@@ -1,18 +1,20 @@
-using BMIS.Models.DTOs;
-using BMIS.Services;
-using BMIS.Interfaces;
-using BMIS.Infrastructure.Criterias;
+using Microsoft.AspNetCore.Builder;
+using BMIS.Application;
+using BMIS.Application.Interfaces;
+using BMIS.Domain.Entities;
 
 namespace BMIS.Endpoints;
 
 public static class TransactionEndpoints {
-    public static void MapTransactionEndpoints(this WebApplication app) {
+    public static RouteGroupBuilder MapTransactionEndpoints(this WebApplication app) {
         var group = app.MapGroup("/transactions");
         
         group.MapGet("/", GetAll);
         group.MapGet("/filter", GetFiltered);
         group.MapPost("/", Create);
         group.MapPut("/{id}", Update);
+
+        return group;
     }
 
     public static async Task<IResult> GetAll(ITransactionService transactionService) {
