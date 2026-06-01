@@ -5,7 +5,7 @@ public class Deceased {
     public DateTime DateOfDeath { get; set; }
 
     // NOTE:
-    //  reffering to the image path
+    //  reffering to the ID no.
     public string DeathCertificate { get; set; }
 
     public Resident ResidentInfo { get; set; }

@@ -4,6 +4,7 @@ namespace BMIS.Application.Interfaces;
 
 public interface IOfficialRepository {
     Task<Official?> GetByResidentIdAsync(Guid residentId);
+    Task<Official?> GetByResidentIdPlainAsync(Guid residentId);
 
     Task<List<Official>> GetAllAsync();
     Task<List<Official>> GetFilteredAsync(OfficialFilterCriteria criteria);

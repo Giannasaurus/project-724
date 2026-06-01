@@ -9,100 +9,48 @@ public class TransactionService : ITransactionService {
     public readonly IUnitOfWork _unitOfWork;
     public readonly ITransactionRepository _transactionRepo;
     public readonly IResidentRepository _residentRepo;
+    public readonly IUserRepository _userRepo;
 
-    public TransactionService(IUnitOfWork unitOfWork, ITransactionRepository transactionRepo, IResidentRepository residentRepo) {
+    public TransactionService(
+            IUnitOfWork unitOfWork,
+			ITransactionRepository transactionRepo,
+			IResidentRepository residentRepo,
+            IUserRepository userRepo ) {
+
         _unitOfWork = unitOfWork;
         _transactionRepo = transactionRepo;
         _residentRepo = residentRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<Result<List<Transaction>>> GetAll() {
         return await _transactionRepo.GetAllAsync(); 
     }
 
-
     public async Task<Result<List<Transaction>>> GetFiltered(TransactionFilterCriteria criteria) {
         return await _transactionRepo.GetFilteredAsync(criteria); 
-        
-        /* 
-        if(criteria.from != null) {
-            transactions = transactions.Where(t => t.Date <= criteria.from);
-        }
-        
-        if(criteria.to != null) {
-            transactions = transactions.Where(t => t.Date >= criteria.to);
-        }
-
-        if(criteria.type != null && criteria.type.Length > 0) {
-            HashSet<DocumentType> filter = new HashSet<DocumentType>();
-            foreach(string entry in criteria.type) {
-                if(Enum.TryParse<DocumentType>(entry, true, out DocumentType parsed)) {
-                    filter.Add(parsed);
-                }
-            }
-            
-            transactions = transactions.Where(t => filter.Contains(t.DocumentType));
-        }
-        
-        if(criteria.status != null && criteria.status.Length > 0) {
-            HashSet<TransactionStatus> filter = new HashSet<TransactionStatus>();
-            foreach(string entry in criteria.status) {
-                if(Enum.TryParse<TransactionStatus>(entry, true, out TransactionStatus parsed)) {
-                    filter.Add(parsed);
-                }
-            }
-            
-            transactions = transactions.Where(t => filter.Contains(t.Status));
-        }
-
-        switch(criteria.order) {
-            case TransactionOrder.ByRecent:
-                transactions = transactions.OrderByDescending(t => t.Date);
-                break;
-            case TransactionOrder.ByOldest:
-                transactions = transactions.OrderBy(t => t.Date);
-                break;
-            default:
-                transactions = transactions.OrderByDescending(t => t.Date);
-                break;
-        }
-        
-        var results = await transactions
-            .Skip(criteria.index)
-            .Take(criteria.limit)
-            .ToListAsync();
-
-        return results;
-        */
     }
 
     public async Task<Result<Guid>> AddTransaction(TransactionCreateDto details) {
-        Transaction transaction;
-
         var requester = _residentRepo.GetByIdAsync(details.requesterId);
         if(requester == null) {
-            Console.WriteLine("[!] requester does not exist");
-            return ResultStatus.Conflict;
+            return ResultStatus.NotFound;
         }
         
-        var handler = _residentRepo.GetByIdAsync(details.handlerId);
+        var handler = _userRepo.GetByResidentIdAsync(details.handlerId);
         if(handler == null) {
-            Console.WriteLine("[!] handler does not exist");
-            return ResultStatus.Conflict;
+            return ResultStatus.NotFound;
         }
 
-        // TODO:
-        //  check handler existance
+        var transaction = new Transaction(
+                    details.documentType,
+                    details.requesterId,
+                    details.handlerId,
+                    details.dateIssued == null ? DateTime.Now : details.dateIssued
+                );
         
-        if(details.dateIssued != null) {
-            transaction = new Transaction(details.documentType, details.requesterId, details.handlerId, details.dateIssued);
-        } else {
-            transaction = new Transaction(details.documentType, details.requesterId, details.handlerId);
-        }
-
         _transactionRepo.Add(transaction);
         await _unitOfWork.SaveChangesAsync();
-
         // TODO:
         //  error-handling
 
@@ -111,7 +59,6 @@ public class TransactionService : ITransactionService {
    
     public async Task<Result<Transaction>> UpdateTransaction(Guid id, TransactionUpdateDto changes) {
         var transaction = await _transactionRepo.GetByIdAsync(id);
-
         if(transaction == null) {
             return ResultStatus.NotFound;
         }

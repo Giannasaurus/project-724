@@ -13,7 +13,8 @@ public static class OfficialEndpoints {
         group.MapGet("/{id}", GetByResidentIdAsync);
         
         group.MapPost("", AddAsync);
-        group.MapPut("/{id}", UpdateAsync);
+        group.MapPost("/update", UpdateAsync);
+        group.MapPost("/remove", RemoveAsync);
 
         return group;
     }
@@ -30,31 +31,49 @@ public static class OfficialEndpoints {
     
     private static async Task<IResult> GetByResidentIdAsync(Guid residentId, IOfficialService officialService){
         var result = await officialService.GetByResidentIdAsync(residentId);
-        if(result.code == ResultStatus.NotFound){
+        if (result.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();
+        } else if (result.code == ResultStatus.Conflict) {
+            return TypedResults.Conflict();
         }
         
         return TypedResults.Ok(result.value); 
     }
     
-    private static async Task<IResult> AddAsync(OfficialCreateDTO details, IOfficialService officialService){
-        var result = await officialService.AddAsync(details);
+    private static async Task<IResult> AddAsync(OfficialCreateRequest request, IOfficialService officialService){
+        var result = await officialService.AddAsync(request);
         
-        if (result.code == ResultStatus.Conflict) {
+        if (result.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
+        } else if (result.code == ResultStatus.Conflict) {
             return TypedResults.Conflict();
         }
         
         return TypedResults.Created($"/official/{result.value}"); 
     }
 
-    private static async Task<IResult> UpdateAsync(Guid residentId, OfficialUpdateDTO changes, IOfficialService officialService){
-        var result = await officialService.UpdateAsync(residentId, changes);
+    private static async Task<IResult> UpdateAsync(OfficialUpdateRequest request, IOfficialService officialService){
+        var result = await officialService.UpdateAsync(request);
         
         if (result.code == ResultStatus.NotFound) {
             return TypedResults.NotFound();
+        } else if (result.code == ResultStatus.Conflict) {
+            return TypedResults.Conflict();
         }
         
         return TypedResults.NoContent();
+    }
+
+    private static async Task<IResult> RemoveAsync(OfficialRemoveRequest request, IOfficialService officialService){
+        var result = await officialService.RemoveAsync(request);
+        
+        if (result.code == ResultStatus.NotFound) {
+            return TypedResults.NotFound();
+        } else if (result.code == ResultStatus.Conflict) {
+            return TypedResults.Conflict();
+        }
+        
+        return TypedResults.Ok(result.value);
     }
 }
 

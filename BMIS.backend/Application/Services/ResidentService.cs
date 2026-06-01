@@ -22,7 +22,6 @@ public class ResidentService : IResidentService, ISearchable {
 
     public async Task<Result<Resident>> GetById(Guid id) {
         var value = await _residentRepo.GetByIdAsync(id);
-
         if(value == null) {
             return ResultStatus.NotFound;
         } 

@@ -19,6 +19,10 @@ public class OfficialRepository : IOfficialRepository {
             .FirstOrDefaultAsync(o => o.ResidentId == residentId);
     }
 
+    public async Task<Official?> GetByResidentIdPlainAsync(Guid residentId) {
+        return await _db.Officials.FindAsync(residentId);
+    }
+
     public async Task<List<Official>> GetAllAsync() {
         return await _db.Officials.AsNoTracking().ToListAsync();
     }

@@ -2,7 +2,7 @@ using BMIS.Domain;
 
 namespace BMIS.Application;
 
-public record OfficialCreateDTO(
+public record OfficialCreateRequest(
     Guid residentId,
     OfficialRole role
 );

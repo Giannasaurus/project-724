@@ -31,15 +31,24 @@ public class UserService : IUserService {
     public async Task<Result<string?>> LoginAsync(UserLogInRequest credentials) {
         var user = await _userRepo.GetByUsernameAsync(credentials.username);
         if(user == null) {
+            return ResultStatus.NotFound;
+        }
+
+        var official = await _officialRepo.GetByResidentIdAsync(user.ResidentId);
+        if(official == null) {
             return ResultStatus.Conflict;
+        }
+
+        if(!official.IsActive) {
+            return ResultStatus.Unauthorized;
         }
 
         if(!user.IsActive) {
             return ResultStatus.Unauthorized;
         }
 
-        bool verify = _passwordHasher.Verify(credentials.password, user.Password);
-        if(!verify) {
+        bool isVerified = _passwordHasher.Verify(credentials.password, user.Password);
+        if(!isVerified) {
             return ResultStatus.Unauthorized;
         }
 
@@ -53,12 +62,15 @@ public class UserService : IUserService {
             return ResultStatus.Unauthorized;
         }
 
-        // TODO:
-        //  check if a resident already has an account
-        //
-        // bool hasDuplicate = await _userRepo.HasDuplicateAsync(residentId) 
-        //
+        var user = await _userRepo.GetByResidentIdAsync(details.residentId);
+        if(user != null) {
+            return ResultStatus.Conflict;
+        }
 
+        // TODO:
+        //  check username validity
+        //
+        
         bool hasDuplicate = await _userRepo.HasDuplicateAsync(details.username);
         if(hasDuplicate){
             return ResultStatus.Conflict; 
@@ -66,14 +78,17 @@ public class UserService : IUserService {
 
         string hashedPassword = _passwordHasher.Hash(details.password);
         
-        var user = new User(
+        var newUser = new User(
                 details.residentId,
                 details.username,
                 hashedPassword
             );
 
-        _userRepo.Add(user);
+        _userRepo.Add(newUser);
         await _unitOfWork.SaveChangesAsync();
+        // TODO:
+        //  error-handling
+        //
 
         return details.residentId;
     }

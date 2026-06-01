@@ -118,37 +118,6 @@ public class Resident {
 
         // check if values are empty
         public Resident? Build() {
-            // TODO:
-            //  implement data validation
-            //
-
-            /*
-            if(string.IsNullOrEmpty(_resident.FirstName)) {
-                Console.WriteLine("[!] error: create resident missing first name");
-                return null; 
-            }
-            
-            if(string.IsNullOrEmpty(_resident.LastName)) {
-                Console.WriteLine("[!] error: create resident missing last name");
-                return null; 
-            }
-            
-            if(_resident.BirthDate == null) {
-                Console.WriteLine("[!] error: create resident missing birth date");
-                return null; 
-            }
-            
-            if(_resident.Sex == null) {
-                Console.WriteLine("[!] error: create resident missing sex");
-                return null; 
-            }
-            
-            if(_resident.HouseHoldId == null) {
-                Console.WriteLine("[!] error: create resident missing householdId");
-                return null; 
-            }
-            */
-
             return _resident;
         }
     }

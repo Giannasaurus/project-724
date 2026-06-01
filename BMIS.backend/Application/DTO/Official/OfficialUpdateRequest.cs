@@ -2,6 +2,7 @@ using BMIS.Domain;
 
 namespace BMIS.Application;
 
-public record OfficialUpdateDTO(
+public record OfficialUpdateRequest(
+    Guid residentId,
     OfficialRole? role
 );

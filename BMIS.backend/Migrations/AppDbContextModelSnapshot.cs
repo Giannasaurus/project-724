@@ -110,6 +110,15 @@ namespace BMIS.Migrations
                     b.Property<Guid>("ResidentId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateOnly>("AssignDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Role")
                         .HasColumnType("INTEGER");
 

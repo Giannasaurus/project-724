@@ -69,11 +69,7 @@ public static class Utils {
         
         return dotp / (normA * normB);
     }
-    
-    /* 
-     * TODO: add definition
-     *
-     */
+
     public static double GetJaroWinklerDis(string a, string b) {
         a = a.Trim(new char[]{',', ' '}).ToLower();    
         b = b.Trim(new char[]{',', ' '}).ToLower();    
