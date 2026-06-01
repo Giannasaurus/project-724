@@ -69,7 +69,13 @@ export function mergeResidentExtra(resident = {}) {
         merged.sector = getResidentSector(merged)
     }
     if (!merged.householdRole && typeof merged.isHead === 'boolean') {
-        merged.householdRole = merged.isHead ? 'Head' : ''
+        const houseHoldId = Number(merged.houseHoldId ?? merged.householdId ?? 0)
+        if (merged.isHead) {
+            merged.householdRole = 'Head'
+        }
+        else if (houseHoldId > 0) {
+            merged.householdRole = 'Member'
+        }
     }
     if (!merged.recordStatus) {
         merged.recordStatus = RECORD_STATUS_ACTIVE

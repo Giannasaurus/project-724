@@ -1,7 +1,7 @@
 import { getData } from '../../core/api.js'
 import { getMemberCountLabel } from '../households/householdFormatters.js'
 import { clearElement, createActionButton, createEmptyMessage } from '../households/householdDom.js'
-import { escapeHtml } from './residentFormDom.js'
+import { renderHouseholdDetailsHtml, wireHouseholdDetailsCopyButton } from '../households/householdDetailsView.js'
 import { getHouseholdMemberLabel, getHouseholdsFromResidents } from './residentHouseholdRecords.js'
 
 const state = {
@@ -182,35 +182,15 @@ function showHouseholdDetails(household) {
     elements.householdsPanel.hidden = true
     elements.detailsView.hidden = false
     elements.householdActionBar.hidden = true
-    elements.detailsContent.innerHTML = getHouseholdDetailsHtml(household)
+    elements.detailsContent.innerHTML = renderHouseholdDetailsHtml(household, {
+        members: household.members,
+        recordType: 'Resident record group'
+    })
+    wireHouseholdDetailsCopyButton(elements.detailsContent, household)
 }
 
 function showHouseholdsList() {
     elements.detailsView.hidden = true
     elements.householdsPanel.hidden = false
     renderHouseholds()
-}
-
-function getHouseholdDetailsHtml(household) {
-    const memberList = household.members.length
-        ? household.members.map(member => `<li>${escapeHtml(getHouseholdMemberLabel(member))}</li>`).join('')
-        : '<li>No members recorded.</li>'
-
-    return `
-        <div class="entity-detail-header">
-            <div>
-                <h3>${escapeHtml(household.name)}</h3>
-                <p>${escapeHtml(household.address || 'No address recorded')}</p>
-            </div>
-        </div>
-        <dl class="entity-detail-grid">
-            <div><dt>Household Head</dt><dd>${escapeHtml(household.head || 'Not specified')}</dd></div>
-            <div><dt>Members</dt><dd>${escapeHtml(String(household.memberCount ?? 0))}</dd></div>
-            <div><dt>Record Type</dt><dd>Resident record group</dd></div>
-        </dl>
-        <div class="entity-detail-section">
-            <h3>Household Members</h3>
-            <ul class="entity-detail-list">${memberList}</ul>
-        </div>
-    `
 }

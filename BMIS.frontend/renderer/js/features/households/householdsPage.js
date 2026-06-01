@@ -1,6 +1,7 @@
 import { getData } from '../../core/api.js'
 import { SUBVIEWS } from './householdConstants.js'
 import { clearElement, createActionButton, createEmptyMessage, createTableCell, getHouseholdElements, setInputValue, setText } from './householdDom.js'
+import { renderHouseholdDetailsHtml, wireHouseholdDetailsCopyButton } from './householdDetailsView.js'
 import { escapeHtml, getCivilStatusLabel, getMemberCountLabel, getResidentFullName, getResidentId, getSectorLabel, getSexLabel } from './householdFormatters.js'
 import {
     canDeleteHousehold,
@@ -181,8 +182,14 @@ function showHouseholdDetailsView(household) {
 }
 
 function renderHouseholdDetails(household) {
-    const memberNames = getHouseholdMembers(household, pageState.residents).map(getResidentFullName)
-    elements.detailsContent.innerHTML = getHouseholdDetailsHtml(household, memberNames)
+    const members = getHouseholdMembers(household, pageState.residents)
+
+    elements.detailsContent.innerHTML = renderHouseholdDetailsHtml(household, {
+        members,
+        recordType: getHouseholdRecordType(household),
+        includeActions: true
+    })
+    wireHouseholdDetailsCopyButton(elements.detailsContent, household)
 
     elements.detailsContent.querySelector('.entity-detail-actions').append(
         createActionButton('Edit', 'entity-action-btn', () => showEditHouseholdView(household)),
@@ -191,31 +198,6 @@ function renderHouseholdDetails(household) {
             title: 'Only manually saved household records can be deleted.'
         })
     )
-}
-
-function getHouseholdDetailsHtml(household, memberNames) {
-    const memberList = memberNames.length
-        ? memberNames.map(name => `<li>${escapeHtml(name)}</li>`).join('')
-        : '<li>No members selected.</li>'
-
-    return `
-        <div class="entity-detail-header">
-            <div>
-                <h3>${escapeHtml(household.name)}</h3>
-                <p>${escapeHtml(household.address || 'No address recorded')}</p>
-            </div>
-            <div class="entity-detail-actions"></div>
-        </div>
-        <dl class="entity-detail-grid">
-            <div><dt>Household Head</dt><dd>${escapeHtml(household.head || 'Not specified')}</dd></div>
-            <div><dt>Members</dt><dd>${escapeHtml(String(household.memberCount ?? 0))}</dd></div>
-            <div><dt>Record Type</dt><dd>${escapeHtml(getHouseholdRecordType(household))}</dd></div>
-        </dl>
-        <div class="entity-detail-section">
-            <h3>Household Members</h3>
-            <ul class="entity-detail-list">${memberList}</ul>
-        </div>
-    `
 }
 
 function showHouseholdsListView() {

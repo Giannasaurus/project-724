@@ -2038,6 +2038,209 @@ td {
     gap: var(--gap-md);
 }
 
+.entity-detail-section-panel {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    gap: var(--gap-lg);
+    padding: var(--gap-xl);
+}
+
+.entity-detail-section-title {
+    border-bottom: 1px solid var(--color-border-subtle);
+    color: var(--color-text);
+    font-size: 1rem;
+    margin: 0;
+    padding-bottom: var(--gap-sm);
+}
+
+.entity-detail-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.entity-detail-subsection-title {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin: 0;
+}
+
+.entity-detail-summary {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+    margin-top: var(--gap-sm);
+}
+
+.entity-detail-summary-meta {
+    align-items: center;
+    color: var(--color-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+}
+
+.entity-detail-summary-separator {
+    color: var(--color-deactivated);
+}
+
+.resident-sector-badge {
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 10px;
+}
+
+.resident-sector-badge--pwd {
+    background-color: #ede9fe;
+    color: #5b21b6;
+}
+
+.resident-sector-badge--senior {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.household-record-badge {
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 10px;
+}
+
+.household-record-badge--derived {
+    background-color: var(--color-surface-soft);
+    color: var(--color-text-muted);
+}
+
+.household-record-badge--manual {
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.household-member-role-badge {
+    background-color: #eff6ff;
+    border-radius: 999px;
+    color: #1d4ed8;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 8px;
+}
+
+.entity-detail-member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.entity-detail-member-item {
+    border-bottom: 1px solid var(--color-border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    padding: var(--gap-md) 0;
+}
+
+.entity-detail-member-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.entity-detail-member-main {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+}
+
+.entity-detail-member-main strong {
+    color: var(--color-text);
+}
+
+.entity-detail-member-meta {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.entity-detail-grid--section {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.entity-detail-field--full {
+    grid-column: 1 / -1;
+}
+
+.entity-detail-empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.entity-detail-household-empty {
+    margin: 0;
+}
+
+.entity-detail-household-note {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin: 0;
+}
+
+.entity-detail-metadata {
+    align-items: center;
+    border-top: 1px solid var(--color-border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-md);
+    justify-content: space-between;
+    padding-top: var(--gap-lg);
+}
+
+.entity-detail-metadata-label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.entity-detail-metadata-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+}
+
+.entity-detail-metadata-id {
+    color: var(--color-text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--font-size-sm);
+}
+
+.entity-detail-copy-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    min-height: 32px;
+    padding: 4px 10px;
+}
+
+.entity-detail-copy-btn:hover,
+.entity-detail-copy-btn:focus-visible {
+    background-color: var(--color-bg-hover);
+}
+
 .entity-detail-list {
     display: flex;
     flex-direction: column;
@@ -3834,7 +4037,9 @@ tbody tr:hover .ellipsis-btn,
 .dr-request-panel,
 #dr-previewFrame,
 .entity-detail-panel,
+.entity-detail-section-panel,
 .entity-detail-grid div,
+.entity-detail-member-item,
 .households-list-header,
 .household-row,
 #householdMembersTable th,

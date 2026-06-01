@@ -53,6 +53,70 @@ export function getHouseholdMemberLabel(member) {
     return relationship ? `${getResidentFullName(member)} - ${relationship}` : getResidentFullName(member)
 }
 
+export function getResidentHouseholdContext(resident, residents = []) {
+    const residentId = getResidentId(resident)
+    if (!residentId || !Array.isArray(residents) || residents.length === 0) return null
+
+    const houseHoldId = Number(resident.houseHoldId ?? resident.householdId ?? 0)
+    if (houseHoldId > 0) {
+        return getBackendHouseholdContext(resident, residents, houseHoldId)
+    }
+
+    const household = getHouseholdsFromResidents(residents).find(item => item.memberIds.includes(residentId))
+    if (!household) return null
+
+    return getDerivedHouseholdContext(resident, household)
+}
+
+function getBackendHouseholdContext(resident, residents, houseHoldId) {
+    const members = residents.filter(item => Number(item.houseHoldId ?? item.householdId ?? 0) === houseHoldId)
+    const headMember = members.find(item => item.isHead === true || item.householdRole === 'Head')
+    const role = resident.isHead === true || resident.householdRole === 'Head'
+        ? 'Head'
+        : 'Member'
+
+    return {
+        householdName: headMember
+            ? `${headMember.lastName || 'Household'} Household`
+            : `Household ${houseHoldId}`,
+        role,
+        headName: headMember ? getResidentFullName(headMember) : null,
+        relationship: resident.relationshipToHouseholdHead || '',
+        members: members.filter(item => getResidentId(item) !== getResidentId(resident)),
+        groupingLabel: 'Linked by barangay household record'
+    }
+}
+
+function getDerivedHouseholdContext(resident, household) {
+    const residentId = getResidentId(resident)
+    const headMember = household.members.find(item => item.householdRole === 'Head' || item.isHead === true)
+    let role = resident.householdRole
+
+    if (!role) {
+        if (headMember && getResidentId(headMember) === residentId) {
+            role = 'Head'
+        }
+        else {
+            role = 'Member'
+        }
+    }
+
+    const headName = household.head && household.head !== 'Not specified'
+        ? household.head
+        : (headMember ? getResidentFullName(headMember) : null)
+
+    return {
+        householdName: household.name,
+        role,
+        headName,
+        relationship: resident.relationshipToHouseholdHead || '',
+        members: household.members.filter(item => getResidentId(item) !== residentId),
+        groupingLabel: household.id.startsWith('address-')
+            ? 'Grouped by shared address'
+            : 'Resident record group'
+    }
+}
+
 function createHeadHousehold(head, residents) {
     const headName = getResidentFullName(head)
     const members = residents.filter(resident => (

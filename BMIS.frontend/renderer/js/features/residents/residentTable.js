@@ -2,19 +2,20 @@ import { compareResidentsByName, getResidentFullName, getSectorLabel, getSexLabe
 import { createResidentActions } from './residentActions.js'
 import { getResidentRecordStatus, isResidentArchived } from './residentBackendAdapter.js'
 import { openResidentDetails } from './residentDetailsView.js'
+import { getResidentHouseholdContext } from './residentHouseholdRecords.js'
 
 function getFieldNames() {
     return ["Full Name", "Status", "Birthdate", "Sex", "Sector", "Household", "Contact", "Address"]
 }
 
-function getCells(resident) {
+function getCells(resident, residents = []) {
     return [
         { value: getResidentFullName(resident), class: 'col-name' },
         { value: getResidentRecordStatus(resident), class: 'col-record-status', type: 'status' },
         { value: resident.birthDate, class: 'col-birthdate' },
         { value: getSexLabel(resident.sex), class: 'col-sex' },
         { value: getSectorLabel(resident.sector), class: 'col-sector' },
-        { value: getHouseholdLabel(resident), class: 'col-household' },
+        { value: getHouseholdLabel(resident, residents), class: 'col-household' },
         { value: getContactLabel(resident), class: 'col-contact' },
         { value: resident.address, class: 'col-address' }
     ]
@@ -86,7 +87,7 @@ export async function loadData(result, options = {}) {
     const residents = options.preserveOrder ? result.data : getSortedResidents(result.data)
 
     residents.forEach(resident => {
-        const cells = getCells(resident)
+        const cells = getCells(resident, residents)
         const row = document.createElement('tr')
         row.className = 'entity-row'
         row.classList.toggle('entity-row--archived', isResidentArchived(resident))
@@ -142,10 +143,21 @@ function getSortedResidents(residents) {
     return [...residents].sort(compareResidentsByName)
 }
 
-function getHouseholdLabel(resident) {
+function getHouseholdLabel(resident, residents = []) {
     if (resident.householdRole === 'Head') return 'Head'
-    if (resident.householdRole === 'Member') return `Member of ${resident.householdHeadName || 'household'}`
-    return 'Not recorded'
+    if (resident.householdRole === 'Member') {
+        return `Member of ${resident.householdHeadName || 'household'}`
+    }
+
+    const houseHoldId = Number(resident.houseHoldId ?? resident.householdId ?? 0)
+    if (houseHoldId > 0) {
+        return resident.isHead === true ? 'Head' : 'Member'
+    }
+
+    const context = getResidentHouseholdContext(resident, residents)
+    if (!context) return 'Not recorded'
+    if (context.role === 'Head') return `Head · ${context.householdName}`
+    return `Member · ${context.householdName}`
 }
 
 function getContactLabel(resident) {

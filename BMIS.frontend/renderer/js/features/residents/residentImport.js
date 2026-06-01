@@ -2,6 +2,12 @@ import { getData, postData, readResidentsExcel } from '../../core/api.js'
 import { applyPermissionState } from '../../core/permissions.js'
 import { sanitizeResidentPayload } from '../../shared/residentUtils.js'
 import { saveResidentExtra, toResidentApiPayload } from './residentBackendAdapter.js'
+import { formatResidentAddress } from './residentFormPayload.js'
+
+const DEFAULT_BARANGAY = 'Barangay 724'
+const DEFAULT_MUNICIPALITY = 'Manila'
+const DEFAULT_PROVINCE = 'Metro Manila'
+const ADDRESS_COMPONENT_FIELDS = ['houseNumberStreet', 'purokZone', 'barangay', 'municipalityCity', 'province']
 
 const HEADER_ALIASES = {
     firstName: ['first name', 'firstname', 'given name'],
@@ -12,17 +18,34 @@ const HEADER_ALIASES = {
     birthDate: ['birthdate', 'birth date', 'date of birth', 'dob'],
     placeOfBirth: ['place of birth', 'birth place', 'birthplace'],
     sex: ['sex', 'gender'],
-    sector: ['sector', 'pwd/senior', 'pwd senior', 'classification'],
+    sector: ['sector', 'pwd/senior', 'pwd senior', 'classification', 'pwd', 'senior'],
     civilStatus: ['civil status', 'civilstatus', 'marital status'],
     civilStatusOther: ['civil status other', 'other civil status', 'others civil status'],
     citizenship: ['citizenship', 'nationality'],
     religion: ['religion'],
     address: ['address', 'full address', 'residence', 'residential address'],
-    houseNumberStreet: ['house number/street', 'house number street', 'house no street', 'street', 'house number'],
-    purokZone: ['purok/zone', 'purok zone', 'zone', 'purok'],
-    barangay: ['barangay', 'brgy'],
-    municipalityCity: ['municipality/city', 'municipality city', 'city', 'municipality'],
-    province: ['province'],
+    houseNumberStreet: [
+        'house number/street',
+        'house number street',
+        'house no street',
+        'house no/street',
+        'house no',
+        'house number',
+        'street address',
+        'street',
+        'house number and street'
+    ],
+    purokZone: ['purok/zone', 'purok zone', 'purok', 'zone'],
+    barangay: ['barangay', 'brgy', 'barangay name'],
+    municipalityCity: [
+        'municipality/city',
+        'municipality city',
+        'municipality',
+        'city',
+        'city/municipality',
+        'city municipality'
+    ],
+    province: ['province', 'state', 'region'],
     contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile', 'mobile number'],
     email: ['email', 'email address'],
     householdRole: ['household role', 'role in household', 'head/member', 'head or member'],
@@ -280,7 +303,7 @@ function getPreviewRowsHtml(rows) {
             <td>${escapeHtml(getPreviewResidentName(resident))}</td>
             <td>${escapeHtml(resident.birthDate)}</td>
             <td>${escapeHtml(getPreviewVerificationLabel(resident, warnings))}</td>
-            <td>${escapeHtml(resident.address)}</td>
+            <td>${escapeHtml(getPreviewAddressLabel(resident))}</td>
         </tr>
     `).join('')
     const more = rows.length > 8 ? `<p class="import-preview-note">Showing 8 of ${rows.length} valid rows.</p>` : ''
@@ -348,8 +371,10 @@ function getResidentValue(resident, field) {
 }
 
 function parseResidentRow(row) {
-    const normalizedRow = getNormalizedRow(row)
+    const repairedRow = repairMisalignedAddressRow(row)
+    const normalizedRow = getNormalizedRow(repairedRow)
     const nameParts = parseFullName(normalizedRow.fullName)
+    const addressFields = resolveImportAddressFields(normalizedRow)
 
     return sanitizeResidentPayload({
         firstName: normalizedRow.firstName || nameParts.firstName,
@@ -364,12 +389,12 @@ function parseResidentRow(row) {
         civilStatusOther: normalizedRow.civilStatusOther,
         citizenship: normalizedRow.citizenship || 'Filipino',
         religion: normalizedRow.religion,
-        address: normalizedRow.address || formatResidentAddress(normalizedRow),
-        houseNumberStreet: normalizedRow.houseNumberStreet,
-        purokZone: normalizedRow.purokZone,
-        barangay: normalizedRow.barangay,
-        municipalityCity: normalizedRow.municipalityCity,
-        province: normalizedRow.province,
+        address: addressFields.address,
+        houseNumberStreet: addressFields.houseNumberStreet,
+        purokZone: addressFields.purokZone,
+        barangay: addressFields.barangay,
+        municipalityCity: addressFields.municipalityCity,
+        province: addressFields.province,
         contact: normalizedRow.contact || '',
         email: normalizedRow.email || '',
         householdRole: normalizeHouseholdRole(normalizedRow.householdRole),
@@ -390,7 +415,7 @@ function parseResidentRow(row) {
 
 function getNormalizedRow(row) {
     const normalizedEntries = Object.entries(row).map(([key, value]) => [
-        normalizeKey(key),
+        normalizeImportHeaderKey(key),
         normalizeCell(value)
     ])
 
@@ -402,10 +427,154 @@ function getNormalizedRow(row) {
     )
 }
 
+function resolveImportAddressFields(row) {
+    if (hasExplicitAddressComponents(row)) {
+        const fields = applyAddressDefaults({
+            houseNumberStreet: row.houseNumberStreet,
+            purokZone: row.purokZone,
+            barangay: row.barangay,
+            municipalityCity: row.municipalityCity,
+            province: row.province
+        })
+
+        return {
+            ...fields,
+            address: formatResidentAddress(fields)
+        }
+    }
+
+    if (row.address) {
+        return splitFullAddress(row.address)
+    }
+
+    return applyAddressDefaults({})
+}
+
+function hasExplicitAddressComponents(row) {
+    return ADDRESS_COMPONENT_FIELDS.some(field => normalizeCell(row[field]))
+}
+
+function applyAddressDefaults(fields) {
+    return {
+        houseNumberStreet: fields.houseNumberStreet || '',
+        purokZone: fields.purokZone || '',
+        barangay: fields.barangay || DEFAULT_BARANGAY,
+        municipalityCity: fields.municipalityCity || DEFAULT_MUNICIPALITY,
+        province: fields.province || DEFAULT_PROVINCE
+    }
+}
+
+function splitFullAddress(fullAddress) {
+    const parts = normalizeCell(fullAddress)
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean)
+
+    if (parts.length === 0) {
+        return { ...applyAddressDefaults({}), address: '' }
+    }
+
+    if (parts.length === 1) {
+        const fields = applyAddressDefaults({ houseNumberStreet: parts[0] })
+        return { ...fields, address: formatResidentAddress(fields) }
+    }
+
+    if (parts.length === 2) {
+        const fields = applyAddressDefaults({
+            houseNumberStreet: parts[0],
+            barangay: parts[1]
+        })
+        return { ...fields, address: formatResidentAddress(fields) }
+    }
+
+    if (parts.length === 3) {
+        const fields = applyAddressDefaults({
+            houseNumberStreet: parts[0],
+            municipalityCity: parts[1],
+            province: parts[2]
+        })
+        return { ...fields, address: formatResidentAddress(fields) }
+    }
+
+    if (parts.length === 4) {
+        const fields = applyAddressDefaults({
+            houseNumberStreet: parts[0],
+            barangay: parts[1],
+            municipalityCity: parts[2],
+            province: parts[3]
+        })
+        return { ...fields, address: formatResidentAddress(fields) }
+    }
+
+    const fields = applyAddressDefaults({
+        houseNumberStreet: parts[0],
+        purokZone: parts[1],
+        barangay: parts[2],
+        municipalityCity: parts[3],
+        province: parts[4]
+    })
+
+    return { ...fields, address: formatResidentAddress(fields) }
+}
+
+function repairMisalignedAddressRow(row) {
+    if (!row || typeof row !== 'object' || rowHasAddressComponentColumns(row)) return row
+
+    const keys = Object.keys(row)
+    const addressKey = keys.find(key => matchesAddressHeader(key))
+    if (!addressKey) return row
+
+    const addressIndex = keys.indexOf(addressKey)
+    const values = keys.map(key => normalizeCell(row[key]))
+    const street = values[addressIndex]
+    const barangay = values[addressIndex + 1]
+    const municipalityCity = values[addressIndex + 2]
+    const province = values[addressIndex + 3]
+
+    if (!street || !/^barangay\s/i.test(barangay) || !municipalityCity || !province) return row
+
+    const shift = 3
+    const repairedRow = {}
+
+    for (const [field, aliases] of Object.entries(HEADER_ALIASES)) {
+        const headerIndex = keys.findIndex(key => aliases.map(normalizeKey).includes(normalizeImportHeaderKey(key)))
+        if (headerIndex === -1) continue
+
+        const sourceIndex = headerIndex > addressIndex ? headerIndex + shift : headerIndex
+        repairedRow[keys[headerIndex]] = values[sourceIndex] ?? ''
+    }
+
+    repairedRow[addressKey] = ''
+    repairedRow['House Number/Street'] = street
+    repairedRow.Barangay = barangay
+    repairedRow['Municipality/City'] = municipalityCity
+    repairedRow.Province = province
+
+    return repairedRow
+}
+
+function rowHasAddressComponentColumns(row) {
+    return Object.keys(row).some(key => headerMatchesField(normalizeImportHeaderKey(key), ADDRESS_COMPONENT_FIELDS))
+}
+
+function headerMatchesField(normalizedHeader, fields) {
+    return fields.some(field => HEADER_ALIASES[field].map(normalizeKey).includes(normalizedHeader))
+}
+
+function matchesAddressHeader(header) {
+    return HEADER_ALIASES.address.map(normalizeKey).includes(normalizeImportHeaderKey(header))
+}
+
 function getAliasedValue(entries, aliases) {
     const normalizedAliases = aliases.map(normalizeKey)
     const match = entries.find(([key]) => normalizedAliases.includes(key))
     return match?.[1] ?? ''
+}
+
+function normalizeImportHeaderKey(value) {
+    return normalizeKey(value)
+        .replace(/^address\s*[-:]\s*/, '')
+        .replace(/^addr\s*[-:]\s*/, '')
 }
 
 function parseFullName(value) {
@@ -468,12 +637,26 @@ function getResidentValidationError(resident) {
     if (resident.sector === undefined) return 'invalid sector'
     if (resident.civilStatus === undefined) return 'invalid civil status'
     if (resident.civilStatus === 6 && !resident.civilStatusOther) return 'missing other civil status'
-    if (!resident.address) return 'missing address'
+
+    const addressError = getImportAddressValidationError(resident)
+    if (addressError) return addressError
+
     if (resident.sector > 0 && resident.proofType && !['PWD ID', 'Senior Citizen ID', 'Medical Certificate'].includes(resident.proofType)) {
         return 'invalid proof type'
     }
     if (resident.householdRole === 'Head' && !resident.householdMembers) return 'household heads require household members'
     if (resident.householdRole === 'Member' && !resident.householdHeadName) return 'household members require a household head'
+    return ''
+}
+
+function getImportAddressValidationError(resident) {
+    if (!normalizeCell(resident.houseNumberStreet)) {
+        return 'missing house number/street (use address component columns or a single Address value)'
+    }
+    if (!normalizeCell(resident.barangay)) return 'missing barangay'
+    if (!normalizeCell(resident.municipalityCity)) return 'missing municipality/city'
+    if (!normalizeCell(resident.province)) return 'missing province'
+    if (!normalizeCell(resident.address)) return 'missing address'
     return ''
 }
 
@@ -486,14 +669,8 @@ function getResidentImportWarnings(resident) {
     return warnings
 }
 
-function formatResidentAddress(row) {
-    return [
-        row.houseNumberStreet,
-        row.purokZone,
-        row.barangay,
-        row.municipalityCity,
-        row.province
-    ].filter(Boolean).join(', ')
+function getPreviewAddressLabel(resident) {
+    return resident.houseNumberStreet || resident.address || 'Not recorded'
 }
 
 function isValidBirthdate(value) {
@@ -531,6 +708,7 @@ function normalizeKey(value) {
     return normalizeCell(value)
         .toLowerCase()
         .replace(/\./g, '')
+        .replace(/\s*\/\s*/g, '/')
         .replace(/\s+/g, ' ')
 }
 
