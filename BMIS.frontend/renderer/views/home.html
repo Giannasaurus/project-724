@@ -21,7 +21,9 @@
                     <strong id="totalInhabitants" class="hero-stat__value">0</strong>
                     <span class="hero-stat__label">Total residents</span>
                 </div>
-                <canvas id="genderPieChart" class="home-pie-chart"></canvas>
+                <div class="home-pie-chart-shell">
+                    <canvas id="genderPieChart" class="home-pie-chart"></canvas>
+                </div>
             </div>
 
             <div class="home-pie-legend">
@@ -48,7 +50,9 @@
                 <span id="seniorPopulationTotal" class="panel-pill">0 seniors</span>
             </div>
 
-            <canvas id="seniorAgePieChart" class="home-pie-chart"></canvas>
+            <div class="home-pie-chart-shell home-pie-chart-shell--centered">
+                <canvas id="seniorAgePieChart" class="home-pie-chart"></canvas>
+            </div>
 
             <div class="home-pie-legend home-pie-legend--grid">
                 <div class="pie-legend-item">
@@ -97,21 +101,21 @@
         <!-- Daily Activity -->
         <div id="dailyReportContainer">
             <div class="daily-report" id="newInhabitantsContainer">
-                <img class="daily-report-icon" src="../../assets/icons/home/population.svg" alt="">
+                <img class="daily-report-icon" src="../assets/icons/home/population.svg" alt="">
                 <div>
                     <span class="daily-report__label">New inhabitants today</span>
                     <strong class="daily-report__value" id="newInhabitants">0</strong>
                 </div>
             </div>
             <div class="daily-report" id="newRequestedContainer">
-                <img class="daily-report-icon" src="../../assets/icons/home/legal-document.svg" alt="">
+                <img class="daily-report-icon" src="../assets/icons/home/legal-document.svg" alt="">
                 <div>
                     <span class="daily-report__label">New requested today</span>
                     <strong class="daily-report__value" id="newRequested">0</strong>
                 </div>
             </div>
             <div class="daily-report" id="totalHouseholdsContainer">
-                <img class="daily-report-icon" src="../../assets/icons/home/household.svg" alt="">
+                <img class="daily-report-icon" src="../assets/icons/home/household.svg" alt="">
                 <div>
                     <span class="daily-report__label">Estimated households</span>
                     <strong class="daily-report__value" id="totalHouseholds">0</strong>

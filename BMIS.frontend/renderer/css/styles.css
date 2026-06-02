@@ -607,7 +607,7 @@ dialog::backdrop {
     color: var(--color-text-muted);
     font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
     margin-bottom: 8px;
     text-transform: uppercase;
 }
@@ -637,7 +637,7 @@ dialog::backdrop {
     border: 1px solid #e5e7eb;
     border-radius: var(--radius-md);
     box-shadow: none;
-    padding: 22px;
+    padding: 18px;
 }
 
 .panel-header {
@@ -645,11 +645,11 @@ dialog::backdrop {
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--gap-lg);
-    margin-bottom: var(--gap-xl);
+    margin-bottom: var(--gap-lg);
 }
 
 .panel-header h3 {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     line-height: 1.2;
 }
 
@@ -676,11 +676,11 @@ dialog::backdrop {
     display: flex;
     flex-direction: column;
     gap: var(--gap-sm);
-    margin-bottom: 22px;
+    margin-bottom: 0;
 }
 
 .hero-stat__value {
-    font-size: clamp(2.4rem, 4vw, 3.5rem);
+    font-size: clamp(2.2rem, 3vw, 3rem);
     font-weight: 800;
     line-height: 0.95;
 }
@@ -771,16 +771,26 @@ dialog::backdrop {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--gap-xl);
+    gap: var(--gap-lg);
     margin-bottom: var(--gap-lg);
 }
 
-.home-pie-chart {
+.home-pie-chart-shell {
     aspect-ratio: 1;
-    flex: 0 0 120px;
-    height: auto;
+    flex: 0 0 160px;
+    height: 160px;
     max-width: 100%;
-    width: 120px;
+    width: 160px;
+}
+
+.home-pie-chart-shell--centered {
+    margin: 0 auto var(--gap-md);
+}
+
+.home-pie-chart {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
 }
 
 .home-pie-legend {
@@ -819,7 +829,7 @@ dialog::backdrop {
 
 .tally-box strong,
 .daily-report__value {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     font-weight: 700;
 }
 
@@ -843,7 +853,7 @@ dialog::backdrop {
     display: flex;
     flex-direction: column;
     gap: var(--gap-sm);
-    min-height: 104px;
+    min-height: 92px;
     justify-content: center;
 }
 
@@ -860,12 +870,12 @@ dialog::backdrop {
     display: flex;
     flex: 1;
     gap: var(--gap-lg);
-    min-height: 104px;
+    min-height: 92px;
 }
 
 .daily-report-icon {
-    height: 44px;
-    width: 44px;
+    height: 34px;
+    width: 34px;
 }
 
 .daily-report div {
