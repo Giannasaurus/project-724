@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BMIS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260603103707_HouseHoldFixess")]
-    partial class HouseHoldFixess
+    [Migration("20260603104355_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

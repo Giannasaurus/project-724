@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BMIS.Migrations
 {
     /// <inheritdoc />
-    public partial class InitCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,7 +45,8 @@ namespace BMIS.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    HeadId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,6 +79,12 @@ namespace BMIS.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Residents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Residents_HouseHolds_HouseHoldId",
+                        column: x => x.HouseHoldId,
+                        principalTable: "HouseHolds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,6 +104,12 @@ namespace BMIS.Migrations
                         principalTable: "Blotters",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BlotterParticipants_Residents_ResidentId",
+                        column: x => x.ResidentId,
+                        principalTable: "Residents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -112,6 +125,27 @@ namespace BMIS.Migrations
                     table.PrimaryKey("PK_Deaths", x => x.ResidentId);
                     table.ForeignKey(
                         name: "FK_Deaths_Residents_ResidentId",
+                        column: x => x.ResidentId,
+                        principalTable: "Residents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Officials",
+                columns: table => new
+                {
+                    ResidentId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Role = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AssignDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    EndDate = table.Column<DateOnly>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Officials", x => x.ResidentId);
+                    table.ForeignKey(
+                        name: "FK_Officials_Residents_ResidentId",
                         column: x => x.ResidentId,
                         principalTable: "Residents",
                         principalColumn: "Id",
@@ -194,12 +228,23 @@ namespace BMIS.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.ResidentId);
                     table.ForeignKey(
-                        name: "FK_Users_Residents_ResidentId",
+                        name: "FK_Users_Officials_ResidentId",
                         column: x => x.ResidentId,
-                        principalTable: "Residents",
-                        principalColumn: "Id",
+                        principalTable: "Officials",
+                        principalColumn: "ResidentId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlotterParticipants_ResidentId",
+                table: "BlotterParticipants",
+                column: "ResidentId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Residents_HouseHoldId",
+                table: "Residents",
+                column: "HouseHoldId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_HandlerId",
@@ -225,9 +270,6 @@ namespace BMIS.Migrations
                 name: "Deaths");
 
             migrationBuilder.DropTable(
-                name: "HouseHolds");
-
-            migrationBuilder.DropTable(
                 name: "PWDs");
 
             migrationBuilder.DropTable(
@@ -243,7 +285,13 @@ namespace BMIS.Migrations
                 name: "Blotters");
 
             migrationBuilder.DropTable(
+                name: "Officials");
+
+            migrationBuilder.DropTable(
                 name: "Residents");
+
+            migrationBuilder.DropTable(
+                name: "HouseHolds");
         }
     }
 }
