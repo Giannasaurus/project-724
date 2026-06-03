@@ -73,6 +73,7 @@ builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlotterService, BlotterService>();
 builder.Services.AddScoped<IOfficialService, OfficialService>();
+builder.Services.AddScoped<IHouseHoldService, HouseHoldService>();
 
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -82,6 +83,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IBlotterRepository, BlotterRepository>();
 builder.Services.AddScoped<IBlotterParticipantRepository, BlotterParticipantRepository>();
 builder.Services.AddScoped<IOfficialRepository, OfficialRepository>();
+builder.Services.AddScoped<IHouseHoldRepository, HouseHoldRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -159,6 +161,7 @@ if(app.Environment.IsDevelopment() || args.Contains("dev")) {
     app.MapUserEndpoints().AllowAnonymous();
     app.MapBlotterEndpoints().AllowAnonymous();
     app.MapOfficialEndpoints().AllowAnonymous();
+    app.MapHouseHoldEndpoints().AllowAnonymous();
 } else {
     app.MapGet("/health", (AppDbContext db) => { return TypedResults.Ok("active"); }).AllowAnonymous();
     app.MapGet("/", (AppDbContext db) => { return TypedResults.Ok("active"); }).AllowAnonymous();
@@ -168,6 +171,7 @@ if(app.Environment.IsDevelopment() || args.Contains("dev")) {
     app.MapUserEndpoints().AllowAnonymous();
     app.MapBlotterEndpoints().RequireAuthorization();
     app.MapOfficialEndpoints().RequireAuthorization();
+    app.MapHouseHoldEndpoints().RequireAuthorization();
 }
 
 app.Run();

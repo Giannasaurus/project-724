@@ -36,6 +36,10 @@ public class ResidentRepository : IResidentRepository {
         //
     }
 
+    public async Task<List<Resident>> GetWithHouseHoldId(int houseHoldId) {
+        return await _db.Residents.Where(r => r.HouseHoldId == houseHoldId).ToListAsync();
+    }
+
     public async Task<bool> DoesExistAsync(Guid id) {
         return await _db.Residents.AnyAsync(r => r.Id == id);
     }

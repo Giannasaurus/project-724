@@ -10,10 +10,17 @@ public class ResidentService : IResidentService, ISearchable {
 
     public readonly IUnitOfWork _unitOfWork;
     public readonly IResidentRepository _residentRepo;
+    public readonly IHouseHoldRepository _houseHoldRepo;
 
-    public ResidentService(IUnitOfWork unitOfWork, IResidentRepository residentRepo) {
+    public ResidentService(
+            IUnitOfWork unitOfWork,
+            IResidentRepository residentRepo,
+            IHouseHoldRepository houseHoldRepo ) {
+
         _unitOfWork = unitOfWork;
         _residentRepo = residentRepo;
+        _houseHoldRepo = houseHoldRepo;
+    
     }
 
     public async Task<Result<List<Resident>>> GetAll() {
@@ -61,46 +68,44 @@ public class ResidentService : IResidentService, ISearchable {
     //  fix household problem (what if the household doesn't exist)
     // 
     public async Task<Result<Guid>> AddResident(ResidentCreateDto details) {
-        /* 
-        var houseHold = await _db.HouseHolds.FirstOrDefaultAsync(h => h.Id == details.houseHoldId);
-
-        if(houseHold == null && details.isHead) {
-            if (details.isHead){
-                houseHold = new HouseHold();
-                _db.HouseHolds.Add(houseHold);
-                await _db.SaveChangesAsync();
-            } else {
-                return ResultStatus.Conflict;
-            }
-
-        } else {
-            return ResultStatus.Conflict;
-        }
-        */
+        // TODO:
+        //  check a household shouldnt have multiple heads
+        //
+        //
+        
 
         var residentBuilder = new Resident.Builder()
             .WithName(details.firstName, details.middleName, details.lastName, details.suffix)
             .BornOn(details.birthDate, details.birthPlace, details.sex, details.citizenship)
-            .InHouseHold(details.houseHoldId)
+        //    .InHouseHold(details.houseHoldId)
             .WithCivilStatus(details.civilStatus)
             .InBeliefOf(details.religion)
             .ResidingAt(details.address)
             .WithContactInfo(details.phone, details.email);
 
+        if(details.houseHoldId == null) {
+            var houseHold = new HouseHold();
+            residentBuilder = residentBuilder.InHouseHold(houseHold).AsHouseHoldHead();
+        } else {
+            var houseHold = await _houseHoldRepo.GetByIdAsync((int)details.houseHoldId);
+            if(houseHold == null) {
+                if(!details.isHead) {
+                    return ResultStatus.NotFound;
+                }
+
+                houseHold = new HouseHold((int)details.houseHoldId);
+                residentBuilder = residentBuilder.AsHouseHoldHead(); 
+            }
+
+            residentBuilder = residentBuilder.InHouseHold(houseHold);
+        }
+        
         if(details.isSenior) {
             residentBuilder = residentBuilder.AsSenior();
         }
 
         if(details.isPwd) {
             residentBuilder = residentBuilder.AsSenior();
-        }
-        
-        if(details.isHead) {
-            // TODO: 
-            //  check if there is already a head
-            //
-
-            residentBuilder = residentBuilder.AsHouseHoldHead();
         }
 
         Resident resident = residentBuilder.Build();
@@ -129,9 +134,6 @@ public class ResidentService : IResidentService, ISearchable {
         return resident.Id;
     }
 
-    // TODO: 
-    //  add logging
-    // 
     public async Task<Result<Resident>> UpdateResident(Guid id, ResidentUpdateDto changes) {
         var resident = await _residentRepo.GetByIdAsync(id);
 

@@ -23,8 +23,13 @@ public class AppDbContext : DbContext {
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
 
-        builder.Entity<Resident>()
-            .HasKey(e => e.Id);
+        builder.Entity<Resident>(entity => {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.HouseHoldInfo)
+                  .WithMany()
+                  .HasForeignKey(e => e.HouseHoldId);
+        });
         
         builder.Entity<Official>(entity => {
             entity.HasKey(e => e.ResidentId);

@@ -100,6 +100,9 @@ namespace BMIS.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("HeadId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("HouseHolds");
@@ -203,6 +206,8 @@ namespace BMIS.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HouseHoldId");
 
                     b.ToTable("Residents");
                 });
@@ -318,6 +323,17 @@ namespace BMIS.Migrations
                         .IsRequired();
 
                     b.Navigation("ResidentInfo");
+                });
+
+            modelBuilder.Entity("BMIS.Domain.Entities.Resident", b =>
+                {
+                    b.HasOne("BMIS.Domain.Entities.HouseHold", "HouseHoldInfo")
+                        .WithMany()
+                        .HasForeignKey("HouseHoldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HouseHoldInfo");
                 });
 
             modelBuilder.Entity("BMIS.Domain.Entities.Senior", b =>

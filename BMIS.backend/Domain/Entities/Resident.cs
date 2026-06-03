@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BMIS.Domain.Entities;
 
 public class Resident {
@@ -24,6 +26,9 @@ public class Resident {
     
     public bool IsHead { get; private set; }
     public int HouseHoldId { get; private set; }
+
+    [JsonIgnore]
+    public HouseHold HouseHoldInfo { get; private set; }
 
     private Resident() { }
 
@@ -84,6 +89,12 @@ public class Resident {
         
         public Builder InHouseHold(int houseHoldId) {
             _resident.HouseHoldId = houseHoldId;
+
+            return this;
+        }
+        
+        public Builder InHouseHold(HouseHold houseHold) {
+            _resident.HouseHoldInfo = houseHold;
 
             return this;
         }
@@ -201,7 +212,12 @@ public class Resident {
             this.IsHead = (bool)isHead;
         }
     }
-
+    
+    public void UpdateHouseHold(HouseHold houseHold, bool isHead = false) {
+        this.HouseHoldInfo = houseHold;
+        this.IsHead = isHead;
+    }
+    
     public override string ToString() {
         string name = $"{this.LastName}, {this.FirstName}";
         

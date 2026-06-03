@@ -6,6 +6,7 @@ public interface IResidentRepository {
     Task<Resident?> GetByIdAsync(Guid id);
     Task<List<Resident>> GetAllAsync();
     Task<List<Resident>> GetFilteredAsync(ResidentFilterCriteria criteria);
+    Task<List<Resident>> GetWithHouseHoldId(int houseHoldId);
     
     Task<bool> DoesExistAsync(Guid id);
     Task<bool> HasDuplicateAsync(Resident resident);

@@ -23,5 +23,5 @@ public record ResidentCreateDto (
     string? email,
 
     bool isHead,
-    int houseHoldId
+    int? houseHoldId
 );
